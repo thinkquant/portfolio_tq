@@ -22,6 +22,11 @@ variable "image" {
   type = string
 }
 
+variable "container_port" {
+  type    = number
+  default = 8080
+}
+
 variable "ingress" {
   type    = string
   default = "INGRESS_TRAFFIC_ALL"
@@ -55,6 +60,11 @@ variable "memory" {
 variable "service_account_email" {
   type    = string
   default = null
+}
+
+variable "allow_unauthenticated" {
+  type    = bool
+  default = false
 }
 
 variable "env_vars" {
@@ -91,6 +101,10 @@ resource "google_cloud_run_v2_service" "this" {
     containers {
       image = var.image
 
+      ports {
+        container_port = var.container_port
+      }
+
       resources {
         limits = {
           cpu    = var.cpu
@@ -125,6 +139,16 @@ resource "google_cloud_run_v2_service" "this" {
     percent = 100
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
   }
+}
+
+resource "google_cloud_run_service_iam_member" "public_invoker" {
+  count = var.allow_unauthenticated ? 1 : 0
+
+  project  = var.project_id
+  location = var.location
+  service  = google_cloud_run_v2_service.this.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
 
 output "id" {

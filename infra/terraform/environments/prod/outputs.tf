@@ -10,6 +10,10 @@ output "cloud_run_service_name" {
   value = module.cloud_run_service.name
 }
 
+output "cloud_run_service_uri" {
+  value = module.cloud_run_service.uri
+}
+
 output "firebase_site_id" {
   value = module.firebase_hosting.site_id
 }

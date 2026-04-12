@@ -137,6 +137,29 @@ Verified on April 12, 2026:
 - Live smoke checks were verified for `dev` and `prod` on `/`, `/projects`, `/projects/payment-exception-review`, and an unmatched route that exercises the rewrite behavior.
 - Direct `/index.html` receives `Cache-Control: public, max-age=0, must-revalidate`, while rewritten `web.app` routes currently return `Cache-Control: max-age=3600`. If stricter HTML caching is needed later, re-check Firebase Hosting CDN behavior before assuming rewritten routes inherit the exact same header policy.
 
+## API deployment bootstrap
+- Artifact Registry repositories created:
+  - `us-central1-docker.pkg.dev/portfolio-tq-dev/portfolio-tq-api`
+  - `us-central1-docker.pkg.dev/portfolio-tq-prod/portfolio-tq-api`
+- Cloud Run services created:
+  - `portfolio-tq-api-dev` -> `https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app`
+  - `portfolio-tq-api-prod` -> `https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app`
+- Demo-phase API access decision:
+  - ingress stays public
+  - unauthenticated invocation is enabled
+  - bootstrap CORS policy is permissive for demo use
+- Runtime service accounts created:
+  - `portfolio-api-runtime-dev@portfolio-tq-dev.iam.gserviceaccount.com`
+  - `portfolio-api-runtime-prod@portfolio-tq-prod.iam.gserviceaccount.com`
+- The runtime service currently reads the non-sensitive `vertex-ai-location` secret from Secret Manager. An initial version was added in both projects so secret-backed env injection could be verified.
+- `demo-access-gate` still has no secret version and is intentionally not wired into the Cloud Run service yet.
+- API image build path currently uses `cloudbuild.api.yaml` and Cloud Build remote builds, publishing `portfolio-tq-api:bootstrap-v1` into each environment repository.
+- Cloud Build in both projects currently runs as the default compute service account. To make remote image builds succeed, the bootstrap pass added:
+  - bucket-level `roles/storage.objectViewer` on `gs://portfolio-tq-dev_cloudbuild` and `gs://portfolio-tq-prod_cloudbuild`
+  - project-level `roles/artifactregistry.writer`
+  - project-level `roles/logging.logWriter`
+- This works, but it should be revisited later in favor of a more deliberate builder identity or a direct GitHub OIDC image-push path.
+
 ## Follow-up note for future infra work
 - Current `firebase.json` still references the default Firestore database ID.
 - When Firestore rules and indexes are automated, the Firebase/Terraform configuration should be revisited so it explicitly targets the named environment databases created during bootstrap.

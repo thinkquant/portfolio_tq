@@ -16,6 +16,10 @@ locals {
     "roles/secretmanager.secretAccessor",
   ])
 
+  runtime_roles = toset([
+    "roles/secretmanager.secretAccessor",
+  ])
+
   secret_names = toset([
     "vertex-ai-location",
     "demo-access-gate",
@@ -69,6 +73,15 @@ module "deploy_service_account" {
   workload_identity_member = module.github_oidc.principal_set
 }
 
+module "runtime_service_account" {
+  source = "../../modules/iam_service_account"
+
+  project_id   = var.project_id
+  account_id   = "portfolio-api-runtime-dev"
+  display_name = "portfolio_tq API runtime account for dev"
+  roles        = local.runtime_roles
+}
+
 module "artifact_registry" {
   source = "../../modules/artifact_registry"
 
@@ -93,7 +106,15 @@ module "cloud_run_service" {
   location              = var.region
   service_name          = var.cloud_run_service_name
   image                 = var.cloud_run_container_image
-  service_account_email = module.deploy_service_account.email
+  service_account_email = module.runtime_service_account.email
+  container_port        = var.cloud_run_container_port
+  ingress               = var.cloud_run_ingress
+  min_instance_count    = var.cloud_run_min_instance_count
+  max_instance_count    = var.cloud_run_max_instance_count
+  concurrency           = var.cloud_run_concurrency
+  cpu                   = var.cloud_run_cpu
+  memory                = var.cloud_run_memory
+  allow_unauthenticated = var.cloud_run_allow_unauthenticated
 
   env_vars = {
     APP_ENV            = var.environment
@@ -103,8 +124,8 @@ module "cloud_run_service" {
   }
 
   secret_env_vars = {
-    DEMO_ACCESS_GATE = {
-      secret_name = module.secrets.secret_ids["demo-access-gate"]
+    VERTEX_AI_LOCATION = {
+      secret_name = module.secrets.secret_ids["vertex-ai-location"]
       version     = "latest"
     }
   }

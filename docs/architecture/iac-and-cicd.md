@@ -62,6 +62,13 @@ All cloud resources are provisioned through Terraform from the beginning.
 - log-based metrics
 - GitHub OIDC workload identity integration
 
+## API deploy strategy
+- Build and publish the API container to Artifact Registry in `us-central1`.
+- Deploy `apps/api` to Cloud Run in each environment with Terraform-managed service settings.
+- For the current demo phase, the API is public and unauthenticated so the public portfolio frontend can call it directly.
+- Secret-backed runtime config should flow from Secret Manager into Cloud Run env vars, not from repo files or GitHub long-lived secrets.
+- The bootstrap image-build path currently uses `cloudbuild.api.yaml`; future CI can keep that path or replace it with a direct GitHub Actions OIDC push flow.
+
 ## Terraform directory pattern
 - `infra/terraform/modules/*`
 - `infra/terraform/environments/dev/*`
