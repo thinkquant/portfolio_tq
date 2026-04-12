@@ -16,6 +16,9 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   validate:
     name: validate
@@ -68,12 +71,12 @@ jobs:
 
       - name: Terraform init and validate (dev)
         run: |
-          terraform -chdir=infra/terraform/environments/dev init -input=false
+          terraform -chdir=infra/terraform/environments/dev init -backend=false -input=false
           terraform -chdir=infra/terraform/environments/dev validate -no-color
 
       - name: Terraform init and validate (prod)
         run: |
-          terraform -chdir=infra/terraform/environments/prod init -input=false
+          terraform -chdir=infra/terraform/environments/prod init -backend=false -input=false
           terraform -chdir=infra/terraform/environments/prod validate -no-color
 
       - name: Publish workflow summary

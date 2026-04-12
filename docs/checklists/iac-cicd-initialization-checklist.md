@@ -1236,6 +1236,8 @@ CI/CD initialization is complete when:
   - `terraform-plan.yml` was renamed to `infra-plan.yml`
   - `infra-plan.yml` now targets `dev` pushes affecting `infra/**`, pull requests to `main` affecting `infra/**`, and manual dispatch
   - `infra-plan.yml` now includes Terraform fmt + validate before plan
+  - `ci.yml` now runs Terraform validation with `terraform init -backend=false` so PR/push CI does not require GCS-backend credentials just to validate configuration
+  - workflow files now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` to get ahead of the GitHub-hosted runner Node 20 deprecation
 - GitHub currently shows a mixed activation state:
   - the remote `dev` branch now includes the updated `ci.yml` and pnpm-fixed deploy workflows
   - GitHub's workflow registry still only exposes `Deploy Dev`, which is consistent with `main` still lacking the workflow files
@@ -1258,9 +1260,11 @@ CI/CD initialization is complete when:
   - `main` still does not require the branch to be up to date before merge because required status checks are not configured yet
 - Verified deploy-environment bootstrap updates in this pass:
   - the deploy service accounts in both projects were granted additional bootstrap roles needed for full Terraform plan/apply from GitHub Actions:
+    - `roles/iam.serviceAccountAdmin`
     - `roles/iam.workloadIdentityPoolAdmin`
     - `roles/resourcemanager.projectIamAdmin`
     - `roles/secretmanager.admin`
+    - `roles/secretmanager.secretAccessor`
     - `roles/logging.configWriter`
     - `roles/monitoring.editor`
   - those roles were also added to the Terraform environment definitions so future apply operations keep the role set aligned with the live bootstrap
@@ -1268,7 +1272,8 @@ CI/CD initialization is complete when:
   - latest observed remote `dev` deploy run: `https://github.com/thinkquant/portfolio_tq/actions/runs/24318866127`
   - that run confirms the remote deploy workflow has the pnpm bootstrap fix, but it still fails later in web deploy and Terraform plan
   - the clean-runner web deploy issue is now fixed locally by making the web deploy script build `@portfolio-tq/web` together with its workspace dependencies
-  - the deploy-service-account role bootstrap is now confirmed live in both projects, but a fresh rerun is still required to verify the GitHub Terraform job succeeds with those permissions
+  - the remaining service-account IAM policy permission gap is now fixed locally and live by adding `roles/iam.serviceAccountAdmin` to the deploy role set in both environments
+  - the deploy-service-account role bootstrap is now confirmed live in both projects, but a fresh rerun is still required to verify the GitHub Terraform job succeeds end to end with the broadened permission set
   - because of that, the remaining live activation items stay open until the next push:
     - `ci` run on push to `dev`
     - `ci` run on PR to `main`

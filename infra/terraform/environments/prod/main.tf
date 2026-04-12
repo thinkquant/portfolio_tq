@@ -12,6 +12,7 @@ locals {
     "roles/artifactregistry.writer",
     "roles/datastore.indexAdmin",
     "roles/firebasehosting.admin",
+    "roles/iam.serviceAccountAdmin",
     "roles/iam.workloadIdentityPoolAdmin",
     "roles/iam.serviceAccountUser",
     "roles/logging.configWriter",
@@ -19,6 +20,7 @@ locals {
     "roles/resourcemanager.projectIamAdmin",
     "roles/run.admin",
     "roles/secretmanager.admin",
+    "roles/secretmanager.secretAccessor",
   ])
 
   runtime_roles = toset([
