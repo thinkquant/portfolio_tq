@@ -13,7 +13,7 @@ The portfolio is being developed as a serious web application with shared infras
 
 ---
 
-## Why this exists
+## Why I built this
 
 Most portfolios present a list of projects.
 
