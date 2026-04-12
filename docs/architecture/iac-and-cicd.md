@@ -33,6 +33,10 @@ All cloud resources are provisioned through Terraform from the beginning.
 ## Firebase and deployment strategy
 - Use separate Firebase/GCP projects for `dev` and `prod`.
 - Do not use Firebase preview channels for this project.
+- Use one live Hosting site per environment, with deploys going directly to `portfolio-tq-dev` for active validation and to `portfolio-tq-prod` for milestone-grade releases.
+- Keep the Firebase Hosting config in the repo root `firebase.json`, with `apps/web/dist` as the deploy artifact directory.
+- Keep HTML responses revalidating on each request while serving hashed static assets under `/assets/**` with long-lived immutable caching.
+- The web app must never receive backend secrets. The current frontend build ships no runtime secrets; any future client-exposed values must be explicitly public, build-time only, and clearly named as such.
 - Deploy active integration work and preview-style validation to `portfolio-tq-dev`.
 - Deploy milestone releases to `portfolio-tq-prod`.
 - Keep the branch-to-environment mapping simple:

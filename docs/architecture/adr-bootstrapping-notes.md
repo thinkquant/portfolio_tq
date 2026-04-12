@@ -121,6 +121,22 @@ Verified on April 12, 2026:
 - No secret versions or values were created during bootstrap.
 - Secret values must be populated manually later in Secret Manager and must never be committed to the public repository or copied into docs.
 
+## Web Hosting bootstrap
+- Firebase Hosting serves the static output from `apps/web/dist`.
+- The web deployment path currently uses one live site per environment rather than preview channels.
+- Deploy command pattern:
+  - `pnpm deploy:web:dev`
+  - `pnpm deploy:web:prod`
+- Smoke check command pattern:
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:web:prod`
+- Current frontend env strategy:
+  - No runtime secrets are shipped to the client.
+  - If future public frontend config is introduced, keep it explicitly public and build-time only.
+  - Backend secrets remain in Secret Manager or CI/CD environment configuration, never in frontend source or docs.
+- Live smoke checks were verified for `dev` and `prod` on `/`, `/projects`, `/projects/payment-exception-review`, and an unmatched route that exercises the rewrite behavior.
+- Direct `/index.html` receives `Cache-Control: public, max-age=0, must-revalidate`, while rewritten `web.app` routes currently return `Cache-Control: max-age=3600`. If stricter HTML caching is needed later, re-check Firebase Hosting CDN behavior before assuming rewritten routes inherit the exact same header policy.
+
 ## Follow-up note for future infra work
 - Current `firebase.json` still references the default Firestore database ID.
 - When Firestore rules and indexes are automated, the Firebase/Terraform configuration should be revisited so it explicitly targets the named environment databases created during bootstrap.

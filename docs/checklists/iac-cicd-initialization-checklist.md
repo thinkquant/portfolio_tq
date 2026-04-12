@@ -339,23 +339,59 @@ Reference docs:
 - `docs/architecture/iac-and-cicd.md`
 
 ### 5.1 Web build readiness
-- [ ] Confirm `apps/web` builds locally.
-- [ ] Confirm environment variable strategy for web app.
-- [ ] Separate public frontend env values from backend secrets.
-- [ ] Add hosting config files.
+- [x] Confirm `apps/web` builds locally.
+- [x] Confirm environment variable strategy for web app.
+- [x] Separate public frontend env values from backend secrets.
+- [x] Add hosting config files.
 
 ### 5.2 Firebase Hosting deploy path
-- [ ] Decide if deploying single site per environment or channels.
-- [ ] Configure Firebase Hosting for `dev`.
-- [ ] Configure Firebase Hosting for `prod`.
-- [ ] Ensure static assets are cache-friendly.
-- [ ] Ensure SPA rewrite configuration exists if using client-side routing.
+- [x] Decide if deploying single site per environment or channels.
+- [x] Configure Firebase Hosting for `dev`.
+- [x] Configure Firebase Hosting for `prod`.
+- [x] Ensure static assets are cache-friendly.
+- [x] Ensure SPA rewrite configuration exists if using client-side routing.
 
 ### 5.3 Web smoke checks
-- [ ] Deployed homepage loads.
-- [ ] Project index route loads.
-- [ ] Example project page loads.
-- [ ] No broken route rewrites.
+- [x] Deployed homepage loads.
+- [x] Project index route loads.
+- [x] Example project page loads.
+- [x] No broken route rewrites.
+
+### Section 5 status notes
+- `apps/web` now builds a source-controlled static route shell with generated pages for `/`, `/projects`, `/projects/payment-exception-review`, `/architecture`, `/observability`, and `/repo-workflow`.
+- Repeatable web deploy commands now exist at the repo root:
+  - `pnpm deploy:web:dev`
+  - `pnpm deploy:web:prod`
+- Repeatable Hosting smoke checks now exist at the repo root:
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:web:prod`
+- The confirmed frontend env strategy is:
+  - no secrets are shipped to the client
+  - the current web shell uses no runtime secret configuration
+  - any future frontend-exposed values must be explicitly public and build-time only
+  - backend-only credentials remain in Secret Manager or CI/CD configuration, never in frontend source or docs
+- Firebase Hosting continues to use one live site per environment with no preview channels:
+  - `dev` -> `https://portfolio-tq-dev.web.app`
+  - `prod` -> `https://portfolio-tq-prod.web.app`
+- Hosting config now serves immutable hashed assets from `/assets/**` and uses a catch-all rewrite to `/index.html` for unmatched client-side routes.
+- Live verification completed successfully on April 12, 2026 with:
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm build`
+  - `pnpm typecheck`
+  - `pnpm deploy:web:dev`
+  - `pnpm deploy:web:prod`
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:web:prod`
+- Smoke verification now confirms:
+  - homepage returns `200`
+  - `/projects` returns `200`
+  - `/projects/payment-exception-review` returns `200`
+  - an unmatched route (`/demo/runtime-route-check`) rewrites successfully and returns `200`
+  - `/index.html` revalidates and the generated CSS asset is served with `Cache-Control: public, max-age=31536000, immutable`
+- Observed Hosting nuance:
+  - direct `/index.html` receives the intended no-cache header
+  - rewritten `web.app` routes like `/` currently return Firebase's default `Cache-Control: max-age=3600`
+  - if stricter cache headers are required on rewritten root routes later, revisit the Hosting/CDN behavior before relying on that assumption
 
 ---
 
@@ -576,6 +612,212 @@ Reference docs:
 - [ ] Push to `dev` triggers `dev` deploy.
 - [ ] Merge to `main` triggers `prod` deploy.
 - [ ] Branch protections enforce intended flow.
+
+---
+
+## 12. CI/CD implementation and activation
+
+Reference docs:
+- `docs/architecture/iac-and-cicd.md`
+- `docs/checklists/build-checklist-definition-of-done.md`
+- `docs/specs/technical-spec-overall.md`
+- `README.md`
+
+Goal:
+- complete CI/CD setup before real feature development
+- enforce automated verification on every push to `dev`
+- enforce clean milestone promotion from `dev` to `main`
+- separate CI from deploy until deploy credentials and environments are fully wired
+
+### 12.1 CI/CD design decisions
+- [ ] Confirm GitHub Actions is the CI/CD platform for this repository.
+- [ ] Confirm `.github/workflows/` will hold all workflow YAML files.
+- [ ] Confirm branch strategy:
+  - [ ] `dev` = active integration branch
+  - [ ] `main` = stable milestone branch
+- [ ] Confirm environment strategy:
+  - [ ] `dev` branch maps to `portfolio-tq-dev`
+  - [ ] `main` branch maps to `portfolio-tq-prod`
+- [ ] Confirm initial deployment policy:
+  - [ ] CI runs automatically now
+  - [ ] Terraform apply remains controlled
+  - [ ] app deploy remains controlled until credentials and environments are fully configured
+- [ ] Confirm merge policy:
+  - [ ] all work lands in `dev`
+  - [ ] milestone-ready work is merged from `dev` to `main`
+  - [ ] `main` should never be used as a daily working branch
+
+### 12.2 Required GitHub repository settings
+- [ ] Confirm Actions are enabled for the repository.
+- [ ] Confirm GitHub Pages is not being used for this project.
+- [ ] Confirm repository visibility is public.
+- [ ] Add repository secrets only if immediately required.
+- [ ] Add repository variables only if immediately required.
+- [ ] Create GitHub Environments:
+  - [ ] `dev`
+  - [ ] `prod`
+- [ ] Add environment protection rules:
+  - [ ] `dev` = no manual approval required
+  - [ ] `prod` = manual approval required before deploy/apply jobs later
+- [ ] Update branch protection on `main`:
+  - [ ] require PR before merge
+  - [ ] require CI status checks
+  - [ ] require branch to be up to date before merge
+  - [ ] disable force push
+  - [ ] disable deletion
+- [ ] Update branch handling on `dev`:
+  - [ ] CI must run on push to `dev`
+  - [ ] force push disabled
+  - [ ] PRs optional for solo work, but CI must stay green
+
+### 12.3 Workflow files to create
+Create these files under `.github/workflows/`:
+
+- [ ] `ci.yml`
+- [ ] `infra-plan.yml`
+- [ ] `deploy-dev.yml` placeholder or real workflow
+- [ ] `deploy-prod.yml` placeholder or real workflow
+
+Notes:
+- `ci.yml` is mandatory now.
+- `infra-plan.yml` is mandatory now.
+- deploy workflows may begin as placeholders if OIDC / secrets / environment gating are not finished yet.
+
+### 12.4 Implement `ci.yml`
+Purpose:
+- run automated verification on every push to `dev`
+- run automated verification on every PR to `main`
+
+Trigger rules:
+- [ ] trigger on push to `dev`
+- [ ] trigger on pull request to `main`
+
+Jobs to include:
+- [ ] checkout repository
+- [ ] setup Node using repo-pinned version
+- [ ] setup pnpm
+- [ ] install dependencies
+- [ ] restore/cache pnpm store if desired
+- [ ] run `pnpm lint`
+- [ ] run `pnpm typecheck`
+- [ ] run `pnpm test`
+- [ ] run `pnpm build`
+
+Success criteria:
+- [ ] workflow passes on current repo state
+- [ ] workflow appears in GitHub Actions tab
+- [ ] workflow status is visible on commits/PRs
+- [ ] workflow name is stable and readable, e.g. `ci`
+
+### 12.5 Implement `infra-plan.yml`
+Purpose:
+- validate Terraform changes continuously before any apply step is introduced
+
+Trigger rules:
+- [ ] trigger on push to `dev` when files under `infra/**` change
+- [ ] trigger on pull request to `main` when files under `infra/**` change
+
+Jobs to include:
+- [ ] checkout repository
+- [ ] setup Terraform
+- [ ] run `terraform fmt -check -recursive infra/terraform`
+- [ ] run `terraform init` for `infra/terraform/environments/dev`
+- [ ] run `terraform validate` for `infra/terraform/environments/dev`
+- [ ] run `terraform plan` for `infra/terraform/environments/dev`
+- [ ] add prod validation/plan later if safe and credentials are ready
+- [ ] artifact or log output should make failures understandable
+
+Rules:
+- [ ] do not auto-apply in this workflow yet
+- [ ] do not target prod apply from initialization-phase CI
+- [ ] keep planning safe, readable, and deterministic
+
+Success criteria:
+- [ ] workflow passes against current Terraform scaffold
+- [ ] Terraform formatting issues fail the workflow
+- [ ] invalid Terraform fails the workflow
+- [ ] plan runs successfully for dev
+
+### 12.6 Implement deployment workflow placeholders
+Purpose:
+- make the intended CD path explicit before live deployment is activated
+
+For `deploy-dev.yml`:
+- [ ] create file
+- [ ] add trigger comments or disabled trigger
+- [ ] document intended future flow:
+  - [ ] auth to GCP via GitHub OIDC
+  - [ ] optional Terraform apply to dev
+  - [ ] deploy web app to Firebase Hosting dev project
+  - [ ] deploy API to Cloud Run dev project
+
+For `deploy-prod.yml`:
+- [ ] create file
+- [ ] add trigger comments or disabled trigger
+- [ ] document intended future flow:
+  - [ ] PR/merge gated from `main`
+  - [ ] auth to GCP via GitHub OIDC
+  - [ ] Terraform plan/apply for prod with approval gate
+  - [ ] deploy web app to Firebase Hosting prod project
+  - [ ] deploy API to Cloud Run prod project
+
+- even if CD is not active yet, the structure should already exist.
+
+### 12.7 Local developer workflow requirements
+Before every push to `dev`, run locally:
+
+- [ ] `pnpm lint`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm test`
+- [ ] `pnpm build`
+
+Rules:
+- [ ] local checks do not replace GitHub CI
+- [ ] GitHub CI is the public source of truth
+- [ ] do not push knowingly broken builds to `dev`
+
+### 12.8 GitHub Actions quality standards
+- [ ] workflow names are readable
+- [ ] step names are readable
+- [ ] no hard-coded secrets in YAML
+- [ ] no project credentials committed to repo
+- [ ] workflows fail loudly and clearly
+- [ ] workflow files are formatted and commented where useful
+- [ ] path filters are used where appropriate
+- [ ] CI remains fast enough for active development
+
+### 12.9 Status checks and enforcement
+After `ci.yml` is passing:
+
+- [ ] add `ci` as a required status check on `main`
+- [ ] add `infra-plan` as a required status check on `main` once stable
+- [ ] optionally require `ci` on `dev` through branch protection or team discipline
+- [ ] verify PR to `main` is blocked when CI fails
+
+### 12.10 Visibility and public proof-of-work
+- [ ] confirm Actions tab is publicly visible on the repo
+- [ ] confirm workflow run history is visible
+- [ ] confirm commit history shows CI activity
+- [ ] confirm repo demonstrates real engineering discipline, not just code volume
+
+### 12.11 Definition of done for CI/CD initialization
+CI/CD initialization is complete when:
+
+- [ ] `.github/workflows/ci.yml` exists and passes
+- [ ] `.github/workflows/infra-plan.yml` exists and passes
+- [ ] deploy workflow placeholders or real deploy workflows exist
+- [ ] pushes to `dev` automatically run CI
+- [ ] PRs to `main` automatically run CI
+- [ ] `main` requires CI status checks before merge
+- [ ] no secrets are hard-coded in workflow files
+- [ ] local workflow and branch workflow are documented
+- [ ] the repo is ready to begin real feature development under enforced automated verification
+
+### 12.12 Post-initialization next step
+After this section is complete:
+- begin real development work on `dev`
+- keep CI green throughout implementation
+- introduce OIDC auth and real deployment workflows next, before first live dev deployment
 
 ---
 
