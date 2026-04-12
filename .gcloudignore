@@ -31,6 +31,9 @@ firebase-debug.*.log
 .vscode
 .DS_Store
 Thumbs.db
+.agents
+.sagf
+sagf_model
 
 service-account*.json
 *-service-account*.json

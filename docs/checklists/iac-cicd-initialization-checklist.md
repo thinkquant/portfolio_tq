@@ -558,6 +558,7 @@ Reference docs:
 
 - Shared Firestore collection names and record shapes now live in `packages/types`, covering `projects`, `runs`, `toolInvocations`, `evaluations`, `escalations`, `promptVersions`, `documents`, `cases`, `users`, and `accessCodes`.
 - Synthetic, public-safe seed payloads now live under `data/seed/**`. They are intentionally fake bootstrap records only; no secret values, real user data, or live access codes are stored in the repo.
+- `firestore.rules` should stay locked down by default. The bootstrap-era open client rule is no longer acceptable as the working baseline for this public repo.
 - A guarded dev-only seed path now exists:
   - script: `apps/api/scripts/seed-firestore-dev.ts`
   - root command: `pnpm seed:firestore:dev`
@@ -587,6 +588,10 @@ Reference docs:
   - `GET /api/runs`
   - `GET /api/evaluations`
   - `GET /api/projects/:projectId/metrics`
+- Development reminder:
+  - expect direct client-side Firestore access to fail unless a feature has been given an explicit narrow rule
+  - prefer backend API / Cloud Run / service-account-backed access for sensitive and operational data
+  - when a future feature really needs client Firestore access, add only the smallest collection/path rule required and document why
 - Live verification completed successfully on April 12, 2026 with:
   - `pnpm install`
   - `pnpm build`
@@ -854,16 +859,56 @@ Reference docs:
 
 ### 10.1 Public development visibility
 
-- [ ] Keep commits small enough to tell the build story.
-- [ ] Write meaningful commit messages.
-- [ ] Use issues or milestone notes for major setup phases.
-- [ ] Keep docs updated when infra decisions change.
+- [x] Keep commits small enough to tell the build story.
+- [x] Write meaningful commit messages.
+- [x] Use issues or milestone notes for major setup phases.
+- [x] Keep docs updated when infra decisions change.
 
 ### 10.2 Setup visibility pages
 
-- [ ] Add `/repo-workflow` page in the web app later.
-- [ ] Add architecture diagram placeholders early.
-- [ ] Add README section describing branch strategy and environments.
+- [x] Add `/repo-workflow` page in the web app later.
+- [x] Add architecture diagram placeholders early.
+- [x] Add README section describing branch strategy and environments.
+
+### Section 10 status notes
+
+- Current commit history continues to tell the initialization story in section-sized steps rather than one opaque bulk drop. Verified recent commits on April 12, 2026 include:
+  - `Section 9 GitHub Actions workflows of iac-cicd init checklist complete.`
+  - `Section 8, observability foundation of iac-cicd init checklist complete.`
+  - `iac-cicd init checklist section 7 completed.`
+  - `iac-cicd init checklist section 6 complete.`
+  - `implemented iac-cicd init checklist section 5.`
+- The current commit messages are readable and meaningful enough for a public reviewer to follow the bootstrap story, even though future commits should continue aiming for narrow, single-purpose scope.
+- Public GitHub tracking is now in place for the initialization phase:
+  - milestone: `IaC + CI/CD Initialization`
+  - issue: `#1 Track initialization milestone close-out`
+- Additional public labels were added for future showcase-facing tracking:
+  - `showcase`
+  - `architecture`
+- Docs were updated again in this pass so repo-facing explanations stay aligned with the implementation:
+  - `README.md`
+  - `docs/architecture/system-architecture.md`
+  - this initialization checklist
+- `/repo-workflow` already exists in the web shell and now explicitly surfaces:
+  - branch and environment strategy
+  - CI/CD pipeline summary
+  - frontend env strategy
+  - Terraform/public-workflow rationale
+- Architecture diagram placeholders now exist early in `docs/architecture/system-architecture.md` for:
+  - runtime architecture
+  - delivery pipeline
+  - data and observability flow
+- `README.md` now explicitly names the environment mapping:
+  - `dev` -> `portfolio-tq-dev`
+  - `prod` -> `portfolio-tq-prod`
+  - and notes that the issue tracker/milestone are used for follow-up verification and showcase cleanup
+- Local verification completed successfully on April 12, 2026 with:
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm lint`
+  - `pnpm typecheck`
+  - direct inspection of the generated `apps/web/dist/repo-workflow/index.html`
+  - GitHub issue, label, and milestone verification through `gh`
+- No manual user step was required to complete section 10 from this environment.
 
 ---
 
@@ -871,36 +916,85 @@ Reference docs:
 
 ### 11.1 Local verification
 
-- [ ] `pnpm install` works from clean clone.
-- [ ] `pnpm lint` passes.
-- [ ] `pnpm typecheck` passes.
-- [ ] `pnpm build` passes.
-- [ ] Terraform fmt/validate pass.
+- [x] `pnpm install` works from clean clone.
+- [x] `pnpm lint` passes.
+- [x] `pnpm typecheck` passes.
+- [x] `pnpm build` passes.
+- [x] Terraform fmt/validate pass.
 
 ### 11.2 Dev environment verification
 
-- [ ] Terraform plan/apply succeeds for `dev`.
-- [ ] Web deploy succeeds for `dev`.
-- [ ] API deploy succeeds for `dev`.
-- [ ] Firestore accessible in `dev`.
-- [ ] Cloud logs visible in `dev`.
-- [ ] One smoke request completes and is logged.
+- [x] Terraform plan/apply succeeds for `dev`.
+- [x] Web deploy succeeds for `dev`.
+- [x] API deploy succeeds for `dev`.
+- [x] Firestore accessible in `dev`.
+- [x] Cloud logs visible in `dev`.
+- [x] One smoke request completes and is logged.
 
 ### 11.3 Prod environment verification
 
-- [ ] Terraform plan/apply succeeds for `prod`.
-- [ ] Web deploy succeeds for `prod`.
-- [ ] API deploy succeeds for `prod`.
-- [ ] Firestore accessible in `prod`.
-- [ ] Cloud logs visible in `prod`.
-- [ ] One smoke request completes and is logged.
+- [x] Terraform plan/apply succeeds for `prod`.
+- [x] Web deploy succeeds for `prod`.
+- [x] API deploy succeeds for `prod`.
+- [x] Firestore accessible in `prod`.
+- [x] Cloud logs visible in `prod`.
+- [x] One smoke request completes and is logged.
 
 ### 11.4 GitHub verification
 
 - [ ] PR CI runs successfully.
-- [ ] Push to `dev` triggers `dev` deploy.
+- [x] Push to `dev` triggers `dev` deploy.
 - [ ] Merge to `main` triggers `prod` deploy.
 - [ ] Branch protections enforce intended flow.
+
+### Section 11 status notes
+
+- Local verification completed successfully on April 12, 2026 with:
+  - `pnpm install --frozen-lockfile`
+  - `pnpm lint`
+  - `pnpm typecheck`
+  - `pnpm build`
+  - `terraform fmt -check -recursive infra/terraform`
+  - `terraform -chdir=infra/terraform/environments/dev validate -no-color`
+  - `terraform -chdir=infra/terraform/environments/prod validate -no-color`
+- The "clean clone" install check was verified from a clean temporary copy of the current working tree with generated artifacts removed before running `pnpm install --frozen-lockfile`. A fresh remote clone was not used because the current section 10 and section 11 changes are still local at this point.
+- The root `pnpm build` pass required one repo-local fix during this verification pass: the root recursive build script now runs with `--workspace-concurrency=1`, which avoids a Windows build failure while keeping the same package build coverage.
+- Full Terraform verification completed successfully on April 12, 2026 with:
+  - `terraform -chdir=infra/terraform/environments/dev init -input=false`
+  - `terraform -chdir=infra/terraform/environments/dev plan -input=false -no-color`
+  - `terraform -chdir=infra/terraform/environments/dev apply -input=false -auto-approve`
+  - `terraform -chdir=infra/terraform/environments/prod init -input=false`
+  - `terraform -chdir=infra/terraform/environments/prod plan -input=false -no-color`
+  - `terraform -chdir=infra/terraform/environments/prod apply -input=false -auto-approve`
+- The current Terraform applies still show recurring provider/API normalization drift on:
+  - Cloud Run scaling fields (`manual_instance_count` / `min_instance_count`)
+  - Monitoring dashboard JSON layout fields
+  - These did not block successful plan/apply during this pass, but they should be cleaned up later so future plans stay quieter.
+- Live environment verification completed successfully on April 12, 2026 with:
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:web:prod`
+  - `pnpm smoke:observability:web:dev`
+  - `pnpm smoke:observability:web:prod`
+  - `pnpm smoke:api:dev`
+  - `pnpm smoke:api:prod`
+  - `pnpm smoke:firestore:dev`
+- Additional direct API verification during this pass confirmed:
+  - `POST https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app/api/demo/payment-exception-review/run` returned a completed run `payment-exception-review-fd2e5e9f-5585-4d65-8bb9-0e7a31bc8cf2`
+  - `POST https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api/demo/payment-exception-review/run` returned a completed run `payment-exception-review-ae377d81-93d0-436f-a71b-aec09e1a833b`
+  - `GET https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api/projects` returned `200` with an empty list, which is expected because `prod` remains intentionally unseeded
+- Cloud Logging verification during this pass confirmed visible `run.completed` and `request.completed` entries in both projects for the run IDs above, with `persistedToFirestore: true`.
+- GitHub verification is only partially complete as of April 12, 2026:
+  - a real `Deploy Dev` workflow run on push to `dev` was observed at `https://github.com/thinkquant/portfolio_tq/actions/runs/24318279289`
+  - that run failed before completion because the workflow tried to use pnpm cache setup before installing pnpm, and because the `github-deploy-dev` service account lacked sufficient access to the `gs://portfolio-tq-dev-tfstate` bucket
+  - both issues were addressed in this pass by updating the local workflow files to run `pnpm/action-setup@v4` before `actions/setup-node`, and by granting the deploy service accounts bucket-level access to their Terraform state buckets
+  - those workflow YAML fixes are still local until committed and pushed, so PR CI success and a successful rerun of the `dev` deploy flow are not yet verified from GitHub
+  - `main` does not yet expose the workflow files through the GitHub contents API, so merge-to-`main` -> `prod` deploy is not yet verifiable
+  - only one active repository ruleset is currently visible via API (`protect_main`), and `dev` is not yet protected, so branch protections do not yet enforce the intended flow end to end
+- Manual follow-up still required after these local changes are committed:
+  - push the workflow fixes to `dev`
+  - rerun or trigger GitHub Actions so `ci` and `deploy-dev` can be verified successfully
+  - merge the workflow files to `main` so `deploy-prod` can be exercised from the stable branch
+  - update GitHub rulesets / branch protection so `dev` is protected and the real CI check names are required on both `dev` and `main`
 
 ---
 

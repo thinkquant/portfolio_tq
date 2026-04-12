@@ -78,11 +78,15 @@ All cloud resources are provisioned through Terraform from the beginning.
 - Keep the named Firestore databases environment-specific:
   - `portfolio-tq-dev`
   - `portfolio-tq-prod`
+- Keep the baseline client Firestore rules locked down with deny-all in `firestore.rules`.
+- Do not treat temporary open Firestore rules as a development baseline for this public repo.
 - Keep collection definitions and shared record shapes in code so the API, seed path, and dashboards stay aligned.
 - Keep synthetic bootstrap seed data in `data/seed/**` only. Never add real production-like personal data, secret values, or usable access codes to repo-tracked seed files.
 - Use `pnpm seed:firestore:dev` for local/bootstrap seeding and keep that command guarded to `dev` only.
 - Keep `prod` seeding intentional and minimal; do not introduce an automatic production seed path unless there is a clear release reason and the content is explicitly curated.
 - Keep Firestore composite indexes represented in Terraform for the named databases. `firestore.indexes.json` may mirror the current index set for review, but Terraform is the source of truth for apply operations.
+- When a feature genuinely needs client-side Firestore access, add only the narrow collection/path rule required for that feature and document the intended access pattern at the same time.
+- Prefer backend API access through Cloud Run and service-account-backed server code for sensitive or operational data instead of broad client-side Firestore access.
 
 ## API deploy strategy
 

@@ -69,6 +69,11 @@ Verified on April 12, 2026:
 - Database IDs are environment-specific and match the project IDs:
   - `portfolio-tq-dev`
   - `portfolio-tq-prod`
+- The working Firestore security baseline was tightened on April 12, 2026:
+  - `firestore.rules` now denies all client reads and writes by default
+  - the temporary time-boxed open rule is no longer the baseline
+  - future client-side Firestore access should be opened only with narrow collection/path rules tied to real feature requirements
+  - sensitive or operational access should stay on the backend through Cloud Run and service-account-backed server code whenever possible
 
 ## Firebase CLI availability
 
@@ -285,10 +290,44 @@ Verified on April 12, 2026:
 - Repository ruleset follow-up still remains after the first real CI run:
   - only the `protect_main` ruleset is currently visible via the GitHub API
   - the actual CI check name should be added to required status checks on `main` and `dev` after the first successful run
+- Final initialization verification on April 12, 2026 surfaced one real GitHub-side deploy failure on push to `dev`:
+  - run: `Deploy Dev` -> `https://github.com/thinkquant/portfolio_tq/actions/runs/24318279289`
+  - the web job failed because pnpm cache setup ran before pnpm was installed
+  - the Terraform job failed because `github-deploy-dev@portfolio-tq-dev.iam.gserviceaccount.com` could not list objects in `gs://portfolio-tq-dev-tfstate`
+- Follow-up completed in the same verification pass:
+  - local workflow files were updated to run `pnpm/action-setup@v4` before `actions/setup-node`
+  - `github-deploy-dev@portfolio-tq-dev.iam.gserviceaccount.com` and `github-deploy-prod@portfolio-tq-prod.iam.gserviceaccount.com` were granted bucket-level access to their Terraform state buckets so GitHub Actions can initialize the remote backend
+- Remaining GitHub activation gap after that verification:
+  - the workflow-file fixes are local until committed and pushed
+  - `main` still does not expose the workflow files through the GitHub contents API
+  - `dev` is still not protected, so the intended CI/CD enforcement path is not fully active yet
+
+## Repository showcase tracking bootstrap
+
+- Public milestone created:
+  - `IaC + CI/CD Initialization`
+- Public follow-up issue created:
+  - `#1 Track initialization milestone close-out`
+- Additional GitHub labels created for public-facing tracking:
+  - `showcase`
+  - `architecture`
+- `README.md` now names the concrete environment mapping:
+  - `dev` -> `portfolio-tq-dev`
+  - `prod` -> `portfolio-tq-prod`
+- `docs/architecture/system-architecture.md` now includes early placeholder diagrams for:
+  - runtime architecture
+  - delivery pipeline
+  - data and observability flow
+- The generated `/repo-workflow` page content was expanded so the public web shell now reflects:
+  - branch/environment strategy
+  - CI/CD pipeline summary
+  - frontend environment strategy
+  - Terraform/public-workflow rationale
 
 ## Follow-up note for future infra work
 
 - Current `firebase.json` still references the default Firestore database ID.
 - When Firestore rules and indexes are automated, the Firebase/Terraform configuration should be revisited so it explicitly targets the named environment databases created during bootstrap.
+- Expect direct client Firestore access to fail until explicit narrow rules are added on purpose. When future web features need client reads or writes, relax `firestore.rules` only for the specific collection/path and access pattern required.
 - Firebase default hosting sites already exist outside Terraform. In this first-pass Terraform scaffold, the environment configs reference those existing site IDs without creating or importing them.
 - Ignore files were strengthened early, but they still need to be reviewed whenever new local tooling, deploy flows, artifact types, or secret-handling patterns are introduced.

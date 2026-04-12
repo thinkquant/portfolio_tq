@@ -46,18 +46,15 @@ const pages: PageDefinition[] = [
     title: 'Home',
     eyebrow: 'Public build log',
     heading: 'A portfolio app built as a real system from day one.',
-    lead:
-      'portfolio_tq is a public proof-of-work repo for showing architecture, delivery discipline, and AI-native workflow design in the open.',
+    lead: 'portfolio_tq is a public proof-of-work repo for showing architecture, delivery discipline, and AI-native workflow design in the open.',
     sections: [
       {
         title: 'What this shell proves',
-        body:
-          'The web deployment path is now live on Firebase Hosting, with separate dev and prod projects, static route coverage, and source-controlled delivery assets.',
+        body: 'The web deployment path is now live on Firebase Hosting, with separate dev and prod projects, static route coverage, and source-controlled delivery assets.',
       },
       {
         title: 'Current focus',
-        body:
-          'This stage is intentionally lean: it prioritizes environment separation, deployment repeatability, and public-repo safety before deeper frontend implementation begins.',
+        body: 'This stage is intentionally lean: it prioritizes environment separation, deployment repeatability, and public-repo safety before deeper frontend implementation begins.',
       },
     ],
   },
@@ -65,18 +62,19 @@ const pages: PageDefinition[] = [
     path: '/projects',
     title: 'Projects',
     eyebrow: 'Portfolio modules',
-    heading: 'Flagship demos are scaffolded as product surfaces, not one-off experiments.',
-    lead:
-      'Each project area is meant to demonstrate architecture, orchestration, observability, and operational judgment, not just isolated code samples.',
+    heading:
+      'Flagship demos are scaffolded as product surfaces, not one-off experiments.',
+    lead: 'Each project area is meant to demonstrate architecture, orchestration, observability, and operational judgment, not just isolated code samples.',
     sections: [
       {
         title: 'Initial project set',
-        body: projectPages.map((page) => `${page.label}: ${page.summary}`).join(' '),
+        body: projectPages
+          .map((page) => `${page.label}: ${page.summary}`)
+          .join(' '),
       },
       {
         title: 'Delivery note',
-        body:
-          'The routes are intentionally live now so Hosting, rewrites, and smoke verification can be exercised before the richer React experience lands.',
+        body: 'The routes are intentionally live now so Hosting, rewrites, and smoke verification can be exercised before the richer React experience lands.',
       },
     ],
   },
@@ -85,18 +83,15 @@ const pages: PageDefinition[] = [
     title: 'Payment Exception Review Agent',
     eyebrow: 'Example project page',
     heading: 'Payment Exception Review Agent',
-    lead:
-      'This project demonstrates how ambiguous operations work can be shaped into a typed, confidence-aware workflow with escalation paths and traceability.',
+    lead: 'This project demonstrates how ambiguous operations work can be shaped into a typed, confidence-aware workflow with escalation paths and traceability.',
     sections: [
       {
         title: 'Why it belongs in the portfolio',
-        body:
-          'It showcases structured outputs, tool orchestration, fallback behavior, and the kind of review logic that matters in operationally sensitive domains.',
+        body: 'It showcases structured outputs, tool orchestration, fallback behavior, and the kind of review logic that matters in operationally sensitive domains.',
       },
       {
         title: 'What comes next',
-        body:
-          'The eventual app route will add richer UI, live traces, evaluation surfaces, and backend-driven demo execution on top of this deployed route shell.',
+        body: 'The eventual app route will add richer UI, live traces, evaluation surfaces, and backend-driven demo execution on top of this deployed route shell.',
       },
     ],
   },
@@ -105,18 +100,15 @@ const pages: PageDefinition[] = [
     title: 'Architecture',
     eyebrow: 'System framing',
     heading: 'One monorepo, two environments, visible delivery discipline.',
-    lead:
-      'The portfolio is structured as a web app on Firebase Hosting, an API on Cloud Run, shared packages, and Terraform-managed infrastructure from the beginning.',
+    lead: 'The portfolio is structured as a web app on Firebase Hosting, an API on Cloud Run, shared packages, and Terraform-managed infrastructure from the beginning.',
     sections: [
       {
         title: 'Infra stance',
-        body:
-          'Separate dev and prod projects exist, GitHub OIDC is in place for deploy auth, and Terraform owns the infrastructure shape instead of console-only drift.',
+        body: 'Separate dev and prod projects exist, GitHub OIDC is in place for deploy auth, and Terraform owns the infrastructure shape instead of console-only drift.',
       },
       {
         title: 'Why this matters',
-        body:
-          'Even at an early stage, the repo should show operational clarity, not just UI ambition. The deployment path is part of the product story.',
+        body: 'Even at an early stage, the repo should show operational clarity, not just UI ambition. The deployment path is part of the product story.',
       },
     ],
   },
@@ -125,19 +117,16 @@ const pages: PageDefinition[] = [
     title: 'Observability',
     eyebrow: 'Signals and traces',
     heading: 'Observability is a first-class feature, not an afterthought.',
-    lead:
-      'Cloud Logging, Monitoring, Firestore-backed run records, and in-app dashboards are all part of the target operating model for this portfolio.',
+    lead: 'Cloud Logging, Monitoring, Firestore-backed run records, and in-app dashboards are all part of the target operating model for this portfolio.',
     extraContent: '__OBSERVABILITY_DASHBOARD__',
     sections: [
       {
         title: 'Platform-level',
-        body:
-          'Cloud Run request volume, latency, error behavior, and deploy metadata will surface through the provisioned dashboard and log-based metrics.',
+        body: 'Cloud Run request volume, latency, error behavior, and deploy metadata will surface through the provisioned dashboard and log-based metrics.',
       },
       {
         title: 'Application-level',
-        body:
-          'Runs, tool calls, fallbacks, and evaluations will later feed the web app so architecture and behavior can be reviewed together.',
+        body: 'Runs, tool calls, fallbacks, and evaluations will later feed the web app so architecture and behavior can be reviewed together.',
       },
     ],
   },
@@ -145,19 +134,25 @@ const pages: PageDefinition[] = [
     path: '/repo-workflow',
     title: 'Repo Workflow',
     eyebrow: 'Operating rules',
-    heading: 'Public-repo safety and deployment repeatability are part of the implementation standard.',
-    lead:
-      'This repository is public, so frontend deploys must keep secrets out of source, keep ignore files current, and separate public config from backend-only credentials.',
+    heading:
+      'Public-repo safety and deployment repeatability are part of the implementation standard.',
+    lead: 'This repository is public, so frontend deploys must keep secrets out of source, keep ignore files current, and separate public config from backend-only credentials.',
     sections: [
       {
-        title: 'Frontend env strategy',
-        body:
-          'The current web shell ships no secret runtime configuration. Any future client-exposed values should be explicitly public, build-time only, and named to make that obvious. Backend secrets stay in Secret Manager and never move into frontend bundles.',
+        title: 'Branch and environment strategy',
+        body: 'Daily integration work lands on dev and maps to the portfolio-tq-dev Firebase and GCP project pair. Milestone-ready work promotes to main and maps to the portfolio-tq-prod environment. The branch model is intentionally simple so technical reviewers can follow the build story without decoding a custom release process.',
       },
       {
-        title: 'Release flow',
-        body:
-          'Active validation happens on the dev Firebase project, while milestone-grade releases promote the same static site build to the prod Firebase project.',
+        title: 'CI/CD pipeline summary',
+        body: 'Pull requests run GitHub Actions checks for install, lint, typecheck, test, app builds, and Terraform validation. Pushes to dev and main use OIDC-backed GitHub Actions deploy workflows that build the API image, apply Terraform with the commit-specific container URI, deploy the web shell, and run smoke checks.',
+      },
+      {
+        title: 'Frontend env strategy',
+        body: 'The current web shell ships no secret runtime configuration. Any future client-exposed values should be explicitly public, build-time only, and named to make that obvious. Backend secrets stay in Secret Manager and never move into frontend bundles.',
+      },
+      {
+        title: 'Terraform and public workflow rationale',
+        body: 'Terraform defines the shared cloud shape from the beginning so infra decisions stay reviewable in the repo. The docs, issue tracker, milestone notes, and environment-specific workflows are all meant to make the reasoning behind the build visible, not just the latest output.',
       },
     ],
   },
@@ -769,7 +764,10 @@ async function main(): Promise<void> {
   await rm(distDir, { recursive: true, force: true });
   await mkdir(assetsDir, { recursive: true });
 
-  const cssHash = createHash('sha256').update(styles).digest('hex').slice(0, 10);
+  const cssHash = createHash('sha256')
+    .update(styles)
+    .digest('hex')
+    .slice(0, 10);
   const cssFileName = `site.${cssHash}.css`;
   const cssFilePath = path.join(assetsDir, cssFileName);
   const cssHref = `/assets/${cssFileName}`;
@@ -782,7 +780,11 @@ async function main(): Promise<void> {
     await writeFile(filePath, `${renderPage(page, cssHref)}\n`, 'utf8');
   }
 
-  await writeFile(path.join(distDir, '404.html'), `${renderNotFound(cssHref)}\n`, 'utf8');
+  await writeFile(
+    path.join(distDir, '404.html'),
+    `${renderNotFound(cssHref)}\n`,
+    'utf8',
+  );
 }
 
 await main();

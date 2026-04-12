@@ -7,7 +7,7 @@
   "scripts": {
     "dev:web": "pnpm --filter @portfolio-tq/web dev",
     "dev:api": "pnpm --filter @portfolio-tq/api dev",
-    "build": "pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run build",
+    "build": "pnpm -r --workspace-concurrency=1 --filter \"./packages/*\" --filter \"./apps/*\" run build",
     "lint": "pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run lint",
     "typecheck": "pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run typecheck",
     "test": "pnpm -r --filter \"./packages/*\" --filter \"./apps/*\" run test",
