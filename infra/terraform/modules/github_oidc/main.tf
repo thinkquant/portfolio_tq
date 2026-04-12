@@ -27,7 +27,7 @@ resource "google_iam_workload_identity_pool" "this" {
 
   project                   = var.project_id
   workload_identity_pool_id = var.pool_id
-  display_name              = "GitHub Actions ${var.pool_id}"
+  display_name              = "GitHub ${var.pool_id}"
   description               = "OIDC trust for GitHub Actions in ${var.github_repository}."
 }
 

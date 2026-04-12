@@ -270,41 +270,65 @@ Reference docs:
 - `docs/specs/technical-spec-overall.md`
 
 ### 4.1 GitHub to GCP auth strategy
-- [ ] Use GitHub Actions OIDC.
-- [ ] Do not use long-lived service account keys for deployment.
-- [ ] Create Workload Identity Pool.
-- [ ] Create Workload Identity Provider for GitHub.
-- [ ] Restrict provider conditions to the correct repo.
-- [ ] Bind deploy service account(s) to workload identity principal.
+- [x] Use GitHub Actions OIDC.
+- [x] Do not use long-lived service account keys for deployment.
+- [x] Create Workload Identity Pool.
+- [x] Create Workload Identity Provider for GitHub.
+- [x] Restrict provider conditions to the correct repo.
+- [x] Bind deploy service account(s) to workload identity principal.
 
 ### 4.2 Service accounts
-- [ ] Create deploy service account for `dev`.
-- [ ] Create deploy service account for `prod`.
-- [ ] Grant minimum required roles for:
-  - [ ] Cloud Run deploy
-  - [ ] Artifact Registry push/read
-  - [ ] Firebase Hosting deploy
-  - [ ] Secret access where needed
-  - [ ] Monitoring/logging write if needed
-- [ ] Avoid broad owner/editor roles.
+- [x] Create deploy service account for `dev`.
+- [x] Create deploy service account for `prod`.
+- [x] Grant minimum required roles for:
+  - [x] Cloud Run deploy
+  - [x] Artifact Registry push/read
+  - [x] Firebase Hosting deploy
+  - [x] Secret access where needed
+  - [x] Monitoring/logging write if needed
+- [x] Avoid broad owner/editor roles.
 
 ### 4.3 GitHub secrets and variables
 Only store what is still necessary.
-- [ ] Add GCP project IDs as repo/environment variables.
-- [ ] Add Firebase project aliases or site IDs if needed.
-- [ ] Add any non-secret config values as repo variables.
-- [ ] Store only genuinely required secrets.
-- [ ] Prefer GitHub Environments for `dev` and `prod`.
+- [x] Add GCP project IDs as repo/environment variables.
+- [x] Add Firebase project aliases or site IDs if needed.
+- [x] Add any non-secret config values as repo variables.
+- [x] Store only genuinely required secrets.
+- [x] Prefer GitHub Environments for `dev` and `prod`.
 - [ ] Configure environment approvals for `prod` if desired.
 
 ### 4.4 Application secrets strategy
-- [ ] Define initial Secret Manager secrets:
-  - [ ] Vertex AI related config if needed
-  - [ ] app-specific access keys if any
-  - [ ] optional demo gate secret
-- [ ] Add Terraform resources for secrets.
-- [ ] Document which values are set manually after creation.
-- [ ] Ensure no secret values are committed.
+- [x] Define initial Secret Manager secrets:
+  - [x] Vertex AI related config if needed
+  - [x] app-specific access keys if any
+  - [x] optional demo gate secret
+- [x] Add Terraform resources for secrets.
+- [x] Document which values are set manually after creation.
+- [x] Ensure no secret values are committed.
+
+### Section 4 status notes
+- Terraform-backed identity resources were applied for `dev` and `prod` with targeted applies limited to `module.github_oidc`, `module.deploy_service_account`, and `module.secrets` so section 4 could be completed without prematurely applying later deploy resources.
+- Active Workload Identity Pools now exist in both projects:
+  - `projects/932345783663/locations/global/workloadIdentityPools/github-actions-dev`
+  - `projects/723738590534/locations/global/workloadIdentityPools/github-actions-prod`
+- Active GitHub OIDC providers now exist in both projects and are restricted to `assertion.repository == "thinkquant/portfolio_tq"`.
+- Deploy service accounts now exist in both projects:
+  - `github-deploy-dev@portfolio-tq-dev.iam.gserviceaccount.com`
+  - `github-deploy-prod@portfolio-tq-prod.iam.gserviceaccount.com`
+- Deploy service accounts are bound to the workload identity principal set for `thinkquant/portfolio_tq`.
+- Deploy service accounts were granted these project roles and no broad `owner` or `editor` roles:
+  - `roles/run.admin`
+  - `roles/artifactregistry.writer`
+  - `roles/firebasehosting.admin`
+  - `roles/secretmanager.secretAccessor`
+  - `roles/iam.serviceAccountUser`
+- Verification confirmed no user-managed service account keys exist for either deploy service account. Google-managed system keys still appear in IAM, which is normal and is not the same as storing long-lived user-managed deploy keys.
+- GitHub Environments `dev` and `prod` now exist. Environment-scoped variables were added for project ID, project number, Firebase alias, Firebase site ID, Firestore database ID, workload identity provider, and deploy service account. Repo-level variables `GCP_REGION` and `FIRESTORE_LOCATION` were also added.
+- GitHub repository secrets and environment secrets remain empty at this stage, which is intentional because OIDC removes the need for long-lived cloud key secrets.
+- Initial Secret Manager secret containers now exist in both projects for `vertex-ai-location` and `demo-access-gate`. No secret versions were created in this pass.
+- No app-specific access keys are currently required, so none were defined.
+- Secret values still require manual population later through Secret Manager before runtime or deployment steps depend on them. Those values must never be written into the repo, docs, workflow YAML, or local tracked files.
+- `prod` environment approvals were not configured in this pass. That remains an optional workflow-policy decision and may require your manual choice about reviewers or approval rules.
 
 ---
 

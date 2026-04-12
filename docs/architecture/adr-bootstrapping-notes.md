@@ -76,6 +76,51 @@ Verified on April 12, 2026:
 - Both buckets have a lifecycle rule that deletes noncurrent object versions after 30 days.
 - Terraform environments are configured to use the `gcs` backend with prefix `terraform/state`.
 
+## Identity and CI/CD auth bootstrap
+- GitHub Actions auth strategy: OIDC through Google Workload Identity Federation.
+- Dev workload identity provider:
+  - Pool: `projects/932345783663/locations/global/workloadIdentityPools/github-actions-dev`
+  - Provider: `projects/932345783663/locations/global/workloadIdentityPools/github-actions-dev/providers/github-dev`
+- Prod workload identity provider:
+  - Pool: `projects/723738590534/locations/global/workloadIdentityPools/github-actions-prod`
+  - Provider: `projects/723738590534/locations/global/workloadIdentityPools/github-actions-prod/providers/github-prod`
+- Both providers restrict access to the GitHub repository `thinkquant/portfolio_tq`.
+- Deploy service accounts:
+  - `github-deploy-dev@portfolio-tq-dev.iam.gserviceaccount.com`
+  - `github-deploy-prod@portfolio-tq-prod.iam.gserviceaccount.com`
+- Deploy role set currently granted to each environment-specific service account:
+  - `roles/run.admin`
+  - `roles/artifactregistry.writer`
+  - `roles/firebasehosting.admin`
+  - `roles/secretmanager.secretAccessor`
+  - `roles/iam.serviceAccountUser`
+- No user-managed service account keys were created for these deploy service accounts.
+
+## GitHub environments and variables bootstrap
+- GitHub Environments created:
+  - `dev`
+  - `prod`
+- Repo variables created:
+  - `GCP_REGION`
+  - `FIRESTORE_LOCATION`
+- Environment variables created in both `dev` and `prod`:
+  - `GCP_PROJECT_ID`
+  - `GCP_PROJECT_NUMBER`
+  - `FIREBASE_PROJECT_ALIAS`
+  - `FIREBASE_SITE_ID`
+  - `FIRESTORE_DATABASE_ID`
+  - `GCP_WORKLOAD_IDENTITY_PROVIDER`
+  - `GCP_DEPLOY_SERVICE_ACCOUNT`
+- GitHub repository secrets and environment secrets were intentionally left empty at this stage.
+- `prod` environment approvals were not configured yet.
+
+## Secret Manager bootstrap
+- Secret containers created in both projects:
+  - `vertex-ai-location`
+  - `demo-access-gate`
+- No secret versions or values were created during bootstrap.
+- Secret values must be populated manually later in Secret Manager and must never be committed to the public repository or copied into docs.
+
 ## Follow-up note for future infra work
 - Current `firebase.json` still references the default Firestore database ID.
 - When Firestore rules and indexes are automated, the Firebase/Terraform configuration should be revisited so it explicitly targets the named environment databases created during bootstrap.
