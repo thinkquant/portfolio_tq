@@ -1,8 +1,9 @@
 # Master Checklist
 
 ## 0. Foundation
-- [ ] Create public GitHub repo `portfolio-tq`
+- [ ] Create public GitHub repo `portfolio_tq`
 - [ ] Add license, README, `.gitignore`, editorconfig
+- [ ] Review `.gitignore`, `.dockerignore`, and `.gcloudignore` before commits whenever new tooling or deployment flows are introduced
 - [ ] Initialize monorepo tooling
 - [ ] Create repo skeleton folders
 - [ ] Add docs skeleton
@@ -132,3 +133,4 @@
 - [ ] Open PRs even if solo
 - [ ] Add comments explaining key choices
 - [ ] Tag major milestones/releases
+- [ ] Keep the public repo scrubbed of secrets, service account keys, `.tfvars`, state files, plans, and sensitive notes in docs or code

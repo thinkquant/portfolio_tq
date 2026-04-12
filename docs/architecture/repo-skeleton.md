@@ -1,7 +1,7 @@
-# `portfolio-tq` Monorepo Skeleton
+# `portfolio_tq` Monorepo Skeleton
 
 ```txt
-portfolio-tq/
+portfolio_tq/
   apps/
     web/
       src/

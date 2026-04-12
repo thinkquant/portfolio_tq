@@ -17,6 +17,7 @@
 - `architecture/system-architecture.md`
 - `architecture/observability-and-dashboards.md`
 - `architecture/iac-and-cicd.md`
+- `architecture/adr-bootstrapping-notes.md`
 
 ## Checklists
 - `checklists/master-checklist.md`

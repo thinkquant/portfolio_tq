@@ -4,6 +4,7 @@
 A release is done when:
 - the public site is live
 - the repo is public and understandable
+- the repo remains public-safe with no secrets, state files, `.tfvars`, or sensitive notes committed
 - the main pages are complete and linked
 - at least 3 demos are fully interactive
 - the eval console shows live run data from the demos
@@ -60,6 +61,7 @@ A release is done when:
 - [ ] Terraform fmt/validate pass
 - [ ] Deploy path automated
 - [ ] Secrets not hardcoded
+- [ ] Ignore files reviewed for env files, Terraform state/plans, `.tfvars`, service-account keys, and deployment artifacts
 - [ ] GitHub Actions badges present
 - [ ] OIDC-based auth working or clearly staged next
 

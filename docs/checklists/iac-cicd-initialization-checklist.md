@@ -24,6 +24,7 @@ Agent operating rules:
 - Keep all environment names consistent with `dev` and `prod`.
 - Prefer Terraform-managed setup over click-ops, except for unavoidable bootstrap steps.
 - Never commit secrets, service account keys, `.tfvars`, or local env files.
+- Never write sensitive values into docs, comments, examples, commits, or source files; this repository is public.
 - If a manual cloud console step is unavoidable, document it in a short markdown note under `docs/architecture/adr-bootstrapping-notes.md`.
 
 ---
@@ -76,6 +77,12 @@ Initialization is complete when all of the following are true:
 - [x] Add commit message convention note in `README.md` or `docs/README.md`.
 - [x] Add issue templates for bug, infra task, feature.
 - [x] Add pull request template.
+
+### 0.5 Public repo safety guardrails
+- [x] Keep `.gitignore` blocking env files, Terraform state, Terraform plans, `.tfvars`, Firebase debug logs, service-account keys, build artifacts, and IDE/system files.
+- [x] Add `.dockerignore` ahead of containerization work.
+- [x] Add optional `.gcloudignore` ahead of any future source-based gcloud deploy flow.
+- [x] Document that ignore files must be reviewed and updated before commits whenever new tooling, deploy flows, or local artifacts are introduced.
 
 ---
 
@@ -132,12 +139,12 @@ Reference docs:
 
 ### Section 1 status notes
 - Repo verification was completed after following the required reading order listed above.
-- The public GitHub repo exists at `thinkquant/portfolio_tq`; the repo-name item stays open because it uses an underscore instead of `portfolio_tq`.
+- The public GitHub repo exists at `thinkquant/portfolio_tq`; the underscore name is intentional and now treated as canonical in repo-facing docs.
 - GitHub repo description and topics were set during this pass.
-- `main` and `dev` are both currently unprotected, and squash, rebase, and merge-commit merges are all enabled, so section 0.3 remains open.
+- `main` is protected through the active GitHub ruleset `protect_main`, which blocks deletion, blocks non-fast-forward updates, and requires pull requests with one approval.
+- `main` still does not have required status checks, `dev` is not yet protected, and the default merge method is still undecided, so those checklist items remain open.
 - `firebase` was not installed globally on this machine, but it is now available repo-locally via `pnpm exec firebase`.
 - Section 1 scaffold verification completed successfully with `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`.
-- The initial scaffold commit items remain open because this pass did not create or move commits.
 
 ---
 
@@ -148,37 +155,46 @@ Reference docs:
 - `docs/specs/technical-spec-overall.md`
 
 ### 2.1 Cloud project strategy
-- [ ] Create one GCP project for `dev`.
-- [ ] Create one GCP project for `prod`.
-- [ ] Decide naming convention and document it in `docs/architecture/adr-bootstrapping-notes.md`.
-- [ ] Enable billing on both.
+- [x] Create one GCP project for `dev`.
+- [x] Create one GCP project for `prod`.
+- [x] Decide naming convention and document it in `docs/architecture/adr-bootstrapping-notes.md`.
+- [x] Enable billing on both.
 
 ### 2.2 Required APIs
 For both projects:
-- [ ] Enable Cloud Run API.
-- [ ] Enable Artifact Registry API.
-- [ ] Enable Firestore API.
-- [ ] Enable Secret Manager API.
-- [ ] Enable Cloud Build API if needed by chosen deploy flow.
-- [ ] Enable IAM Credentials API if needed.
-- [ ] Enable Service Usage API.
-- [ ] Enable Cloud Resource Manager API.
-- [ ] Enable Logging API.
-- [ ] Enable Monitoring API.
-- [ ] Enable Vertex AI API.
-- [ ] Enable Firebase Management / Hosting related setup as needed.
+- [x] Enable Cloud Run API.
+- [x] Enable Artifact Registry API.
+- [x] Enable Firestore API.
+- [x] Enable Secret Manager API.
+- [x] Enable Cloud Build API if needed by chosen deploy flow.
+- [x] Enable IAM Credentials API if needed.
+- [x] Enable Service Usage API.
+- [x] Enable Cloud Resource Manager API.
+- [x] Enable Logging API.
+- [x] Enable Monitoring API.
+- [x] Enable Vertex AI API.
+- [x] Enable Firebase Management / Hosting related setup as needed.
 
 ### 2.3 Firebase setup
-- [ ] Attach Firebase to `dev` project.
-- [ ] Attach Firebase to `prod` project.
-- [ ] Initialize Hosting target structure for the web app.
-- [ ] Decide site/channel naming convention.
-- [ ] Document Firebase project aliases.
+- [x] Attach Firebase to `dev` project.
+- [x] Attach Firebase to `prod` project.
+- [x] Initialize Hosting target structure for the web app.
+- [x] Decide site/channel naming convention.
+- [x] Document Firebase project aliases.
 
 ### 2.4 Firestore mode
-- [ ] Create Firestore in Native mode for `dev`.
-- [ ] Create Firestore in Native mode for `prod`.
-- [ ] Document region choice.
+- [x] Create Firestore in Native mode for `dev`.
+- [x] Create Firestore in Native mode for `prod`.
+- [x] Document region choice.
+
+### Section 2 status notes
+- GCP project names are `portfolio-tq-dev` and `portfolio-tq-prod`.
+- Firebase project names match the GCP project names exactly, with local aliases `dev` and `prod` configured in `.firebaserc`.
+- Billing is linked on both projects.
+- The active hosting strategy is environment-per-project rather than preview channels: active development deploys to `portfolio-tq-dev`, and milestone releases deploy to `portfolio-tq-prod`.
+- Bootstrap API enablement was performed with `gcloud services enable` for `serviceusage.googleapis.com`, `cloudresourcemanager.googleapis.com`, `iam.googleapis.com`, `iamcredentials.googleapis.com`, `sts.googleapis.com`, `run.googleapis.com`, `artifactregistry.googleapis.com`, `secretmanager.googleapis.com`, `firestore.googleapis.com`, `firebase.googleapis.com`, `firebasehosting.googleapis.com`, and `aiplatform.googleapis.com`.
+- Live verification on April 12, 2026 also confirmed `logging.googleapis.com` and `monitoring.googleapis.com` are enabled on both projects; `cloudbuild.googleapis.com` is enabled on `portfolio-tq-prod` and is not currently required for the planned direct deploy flow in `dev`.
+- Firestore is configured in Native mode in region `nam5`, using named databases `portfolio-tq-dev` and `portfolio-tq-prod` rather than the default database ID.
 
 ---
 
@@ -190,50 +206,60 @@ Reference docs:
 - `docs/architecture/observability-and-dashboards.md`
 
 ### 3.1 Terraform root setup
-- [ ] Create provider configuration pattern.
-- [ ] Create environment folders:
-  - [ ] `infra/terraform/environments/dev`
-  - [ ] `infra/terraform/environments/prod`
-- [ ] Create module folders listed in the spec.
-- [ ] Add `versions.tf` in each environment.
-- [ ] Add `providers.tf` in each environment.
-- [ ] Add `variables.tf`, `outputs.tf`, `main.tf` in each environment.
-- [ ] Add `terraform.tfvars.example` in each environment.
+- [x] Create provider configuration pattern.
+- [x] Create environment folders:
+  - [x] `infra/terraform/environments/dev`
+  - [x] `infra/terraform/environments/prod`
+- [x] Create module folders listed in the spec.
+- [x] Add `versions.tf` in each environment.
+- [x] Add `providers.tf` in each environment.
+- [x] Add `variables.tf`, `outputs.tf`, `main.tf` in each environment.
+- [x] Add `terraform.tfvars.example` in each environment.
 
 ### 3.2 Remote state
-- [ ] Decide remote state backend strategy.
-- [ ] Create GCS bucket(s) for Terraform state.
-- [ ] Enable versioning on state bucket(s).
-- [ ] Enable uniform bucket-level access.
-- [ ] Set lifecycle rules if desired.
-- [ ] Wire backend configuration for `dev`.
-- [ ] Wire backend configuration for `prod`.
-- [ ] Confirm state is not local-only after bootstrap.
+- [x] Decide remote state backend strategy.
+- [x] Create GCS bucket(s) for Terraform state.
+- [x] Enable versioning on state bucket(s).
+- [x] Enable uniform bucket-level access.
+- [x] Set lifecycle rules if desired.
+- [x] Wire backend configuration for `dev`.
+- [x] Wire backend configuration for `prod`.
+- [x] Confirm state is not local-only after bootstrap.
 
 ### 3.3 Core modules
 Create first-pass Terraform modules for:
-- [ ] `github_oidc`
-- [ ] `iam_service_account`
-- [ ] `artifact_registry`
-- [ ] `cloud_run_service`
-- [ ] `firebase_hosting`
-- [ ] `firestore_indexes`
-- [ ] `secrets`
-- [ ] `logging_metrics`
-- [ ] `monitoring_dashboard`
+- [x] `github_oidc`
+- [x] `iam_service_account`
+- [x] `artifact_registry`
+- [x] `cloud_run_service`
+- [x] `firebase_hosting`
+- [x] `firestore_indexes`
+- [x] `secrets`
+- [x] `logging_metrics`
+- [x] `monitoring_dashboard`
 
 ### 3.4 Environment composition
-- [ ] Compose `dev` environment using modules.
-- [ ] Compose `prod` environment using modules.
-- [ ] Keep variable names consistent across environments.
-- [ ] Ensure plans are environment-isolated.
+- [x] Compose `dev` environment using modules.
+- [x] Compose `prod` environment using modules.
+- [x] Keep variable names consistent across environments.
+- [x] Ensure plans are environment-isolated.
 
 ### 3.5 Terraform quality gates
-- [ ] Add `terraform fmt -check` pass.
-- [ ] Add `terraform validate` pass.
-- [ ] Run `plan` cleanly for `dev`.
-- [ ] Run `plan` cleanly for `prod`.
-- [ ] Record any unavoidable manual steps.
+- [x] Add `terraform fmt -check` pass.
+- [x] Add `terraform validate` pass.
+- [x] Run `plan` cleanly for `dev`.
+- [x] Run `plan` cleanly for `prod`.
+- [x] Record any unavoidable manual steps.
+
+### Section 3 status notes
+- Terraform foundation files now exist under `infra/terraform/modules/*` and `infra/terraform/environments/{dev,prod}` with `versions.tf`, `providers.tf`, `variables.tf`, `main.tf`, `outputs.tf`, and `terraform.tfvars.example` in each environment.
+- Remote state uses one GCS bucket per environment: `gs://portfolio-tq-dev-tfstate` and `gs://portfolio-tq-prod-tfstate`.
+- Both state buckets were created in `US` with uniform bucket-level access, object versioning, and a lifecycle rule deleting noncurrent object versions after 30 days.
+- Both environments were initialized against the `gcs` backend successfully with prefix `terraform/state`.
+- Verification completed successfully with `terraform fmt -recursive infra/terraform`, `terraform -chdir=infra/terraform/environments/dev init -reconfigure`, `terraform -chdir=infra/terraform/environments/prod init -reconfigure`, `terraform validate` in both environments, and clean plans for both environments.
+- The current first-pass scaffold references the already-existing Firebase Hosting site IDs but does not import or recreate them. Terraform management of those existing default sites can be added later if desired.
+- No user-executed manual step was required to complete section 3 during this pass.
+- Before future commits or new deployment tooling, re-check `.gitignore`, `.dockerignore`, and `.gcloudignore` so new local artifacts, secrets, plans, or generated files stay excluded from the public repo.
 
 ---
 
@@ -552,5 +578,3 @@ Recommended for this project:
 - Use feature branches off `dev` only when a change is large enough that you do not want to destabilize `dev`.
 - Rebase or merge `main` back into `dev` after milestone releases as needed.
 - Avoid letting `dev` drift too far from `main` for long periods.
-
-This gives you visible public development without making `main` look chaotic.

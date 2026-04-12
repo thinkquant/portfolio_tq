@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "portfolio-tq-dev",
+    "dev": "portfolio-tq-dev",
+    "prod": "portfolio-tq-prod"
+  },
+  "targets": {},
+  "etags": {}
+}
