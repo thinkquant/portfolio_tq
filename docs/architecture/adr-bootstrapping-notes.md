@@ -111,6 +111,12 @@ Verified on April 12, 2026:
   - `roles/firebasehosting.admin`
   - `roles/secretmanager.secretAccessor`
   - `roles/iam.serviceAccountUser`
+- Additional bootstrap roles were added on April 12, 2026 so GitHub Actions can run full Terraform plan/apply against the currently managed resources:
+  - `roles/iam.workloadIdentityPoolAdmin`
+  - `roles/resourcemanager.projectIamAdmin`
+  - `roles/secretmanager.admin`
+  - `roles/logging.configWriter`
+  - `roles/monitoring.editor`
 - No user-managed service account keys were created for these deploy service accounts.
 
 ## GitHub environments and variables bootstrap
@@ -130,7 +136,8 @@ Verified on April 12, 2026:
   - `GCP_WORKLOAD_IDENTITY_PROVIDER`
   - `GCP_DEPLOY_SERVICE_ACCOUNT`
 - GitHub repository secrets and environment secrets were intentionally left empty at this stage.
-- `prod` environment approvals were not configured yet.
+- `prod` environment now requires manual approval from `thinkquant`.
+- `dev` environment remains ungated for active integration deploys.
 
 ## Secret Manager bootstrap
 
@@ -262,7 +269,7 @@ Verified on April 12, 2026:
 
 - Workflow files added:
   - `.github/workflows/ci.yml`
-  - `.github/workflows/terraform-plan.yml`
+  - `.github/workflows/infra-plan.yml`
   - `.github/workflows/deploy-dev.yml`
   - `.github/workflows/deploy-prod.yml`
 - GitHub Actions is enabled for the repository.
@@ -281,15 +288,16 @@ Verified on April 12, 2026:
   - `GCP_WORKLOAD_IDENTITY_PROVIDER`
   - `GCP_DEPLOY_SERVICE_ACCOUNT`
 - The branch deploy workflows now use GitHub OIDC and direct GitHub-runner Docker builds to push API images to Artifact Registry, then apply Terraform with the commit-specific image URI.
-- The optional Terraform plan workflow uploads plan artifacts for infra-related PRs and intentionally skips fork PRs for cloud-authenticated execution.
+- The optional infra-plan workflow uploads plan artifacts for infra-related pushes/PRs and intentionally skips fork PRs for cloud-authenticated execution.
 - Local workflow verification on April 12, 2026 covered:
   - YAML formatting via `npx prettier --check .github/workflows/*.yml`
   - GitHub Actions repo-permission check
   - GitHub environment and variable presence checks
 - End-to-end workflow execution is still pending a real push or manual dispatch after these files are committed.
-- Repository ruleset follow-up still remains after the first real CI run:
-  - only the `protect_main` ruleset is currently visible via the GitHub API
-  - the actual CI check name should be added to required status checks on `main` and `dev` after the first successful run
+- Repository ruleset posture as of April 12, 2026:
+  - `protect_main` is active and currently blocks deletion, blocks non-fast-forward updates, and requires pull requests on the default branch
+  - `protect_dev` is now active and blocks deletion plus non-fast-forward updates on `dev`
+  - the actual CI check names still need to be added to required status checks on `main` after the first successful live CI runs
 - Final initialization verification on April 12, 2026 surfaced one real GitHub-side deploy failure on push to `dev`:
   - run: `Deploy Dev` -> `https://github.com/thinkquant/portfolio_tq/actions/runs/24318279289`
   - the web job failed because pnpm cache setup ran before pnpm was installed
@@ -297,10 +305,25 @@ Verified on April 12, 2026:
 - Follow-up completed in the same verification pass:
   - local workflow files were updated to run `pnpm/action-setup@v4` before `actions/setup-node`
   - `github-deploy-dev@portfolio-tq-dev.iam.gserviceaccount.com` and `github-deploy-prod@portfolio-tq-prod.iam.gserviceaccount.com` were granted bucket-level access to their Terraform state buckets so GitHub Actions can initialize the remote backend
+- A newer `dev` deploy run on April 12, 2026 (`https://github.com/thinkquant/portfolio_tq/actions/runs/24318780995`) also confirmed the deploy service account needed broader Terraform-management permissions for:
+  - workload identity pools
+  - project IAM policy members
+  - Secret Manager admin reads/writes
+  - log-based metrics
+  - Monitoring dashboards
+- Follow-up completed in the same pass:
+  - local Terraform env definitions were updated so the deploy service account role set now includes the additional roles above
+  - matching live IAM bindings were added manually in both projects so the next GitHub-triggered Terraform plan/apply can read and manage those resources
+- The next observed `dev` deploy run on April 12, 2026 (`https://github.com/thinkquant/portfolio_tq/actions/runs/24318866127`) confirmed the remote deploy workflow now includes the pnpm bootstrap fix, but surfaced one more clean-runner issue:
+  - `pnpm deploy:web:dev` built only `@portfolio-tq/web`, while the web build on GitHub also needs the workspace dependency builds from `packages/*`
+  - that was fixed locally by changing the root web deploy scripts to build `@portfolio-tq/web...` before Firebase deploy
+- That same run still failed in the Terraform plan job even after the new IAM bindings were added. The broadened roles are now confirmed live on the deploy service account in both projects, so the next rerun is needed to verify end-to-end GitHub execution rather than additional bootstrap IAM changes.
 - Remaining GitHub activation gap after that verification:
   - the workflow-file fixes are local until committed and pushed
+  - the local CI workflow now targets pushes to `dev`, pull requests to `main`, and manual dispatch, but GitHub has not received that update yet
+  - the local Terraform plan workflow was renamed to `.github/workflows/infra-plan.yml`, but GitHub has not received that rename yet
   - `main` still does not expose the workflow files through the GitHub contents API
-  - `dev` is still not protected, so the intended CI/CD enforcement path is not fully active yet
+  - `main` still does not require CI status checks, so the intended CI/CD enforcement path is not fully active yet
 
 ## Repository showcase tracking bootstrap
 

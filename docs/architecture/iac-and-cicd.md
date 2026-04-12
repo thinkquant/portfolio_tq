@@ -129,7 +129,7 @@ All cloud resources are provisioned through Terraform from the beginning.
 - run Terraform fmt/validate
 - optionally build web + api
 - current workflow file: `.github/workflows/ci.yml`
-- optional Terraform plan artifacts for infra-related PRs live in `.github/workflows/terraform-plan.yml`
+- optional Terraform plan artifacts for infra-related pushes/PRs live in `.github/workflows/infra-plan.yml`
 
 ### Main branch
 
@@ -141,13 +141,13 @@ All cloud resources are provisioned through Terraform from the beginning.
 ## Current GitHub Actions workflow map
 
 - `ci.yml`
-  - runs on pull requests
+  - runs on pushes to `dev`, pull requests to `main`, and manual dispatch
   - installs dependencies with pnpm cache
   - runs lint, typecheck, tests, web build, API build, Terraform fmt, and Terraform validate
-- `terraform-plan.yml`
-  - runs on PRs touching Terraform or workflow files
+- `infra-plan.yml`
+  - runs on `dev` pushes that touch `infra/**`, pull requests to `main` that touch `infra/**`, and manual dispatch
   - authenticates with OIDC
-  - uploads `dev` and `prod` Terraform plan artifacts
+  - uploads `dev` plan artifacts on `dev` pushes and `dev`/`prod` plan artifacts on same-repo pull requests
   - intentionally skips fork PRs for cloud-authenticated plan execution
 - `deploy-dev.yml`
   - runs on pushes to `dev` and by manual dispatch

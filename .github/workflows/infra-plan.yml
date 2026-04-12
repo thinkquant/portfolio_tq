@@ -1,23 +1,32 @@
-name: Terraform Plan
+name: infra-plan
 
 on:
-  pull_request:
+  push:
+    branches:
+      - dev
     paths:
-      - .github/workflows/**
-      - infra/terraform/**
+      - infra/**
+      - .github/workflows/infra-plan.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - infra/**
+      - .github/workflows/infra-plan.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
   id-token: write
 
 concurrency:
-  group: terraform-plan-${{ github.event.pull_request.number || github.ref }}
+  group: infra-plan-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   plan-dev:
-    name: Terraform plan (dev)
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    name: plan-dev
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     environment:
       name: dev
@@ -41,8 +50,14 @@ jobs:
         with:
           terraform_wrapper: false
 
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive infra/terraform
+
       - name: Terraform init
         run: terraform -chdir=infra/terraform/environments/dev init -input=false
+
+      - name: Terraform validate
+        run: terraform -chdir=infra/terraform/environments/dev validate -no-color
 
       - name: Terraform plan
         run: terraform -chdir=infra/terraform/environments/dev plan -input=false -no-color -out=tfplan
@@ -65,8 +80,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   plan-prod:
-    name: Terraform plan (prod)
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    name: plan-prod
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     environment:
       name: prod
@@ -90,8 +105,14 @@ jobs:
         with:
           terraform_wrapper: false
 
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive infra/terraform
+
       - name: Terraform init
         run: terraform -chdir=infra/terraform/environments/prod init -input=false
+
+      - name: Terraform validate
+        run: terraform -chdir=infra/terraform/environments/prod validate -no-color
 
       - name: Terraform plan
         run: terraform -chdir=infra/terraform/environments/prod plan -input=false -no-color -out=tfplan

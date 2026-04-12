@@ -70,10 +70,10 @@ Initialization is complete when all of the following are true:
 ### 0.3 Protect branches
 
 - [x] Protect `main` with required PRs.
-- [x] Require status checks on `main`.
-- [x] Protect `dev` with at least CI checks once workflows exist.
+- [ ] Require status checks on `main`.
+- [ ] Protect `dev` with at least CI checks once workflows exist.
 - [x] Disable force-push to `main`.
-- [x] Decide whether squash merge or rebase merge is the default.
+- [ ] Decide whether squash merge or rebase merge is the default.
 
 ### 0.4 Public workflow hygiene
 
@@ -154,7 +154,7 @@ Reference docs:
 - The public GitHub repo exists at `thinkquant/portfolio_tq`; the underscore name is intentional and now treated as canonical in repo-facing docs.
 - GitHub repo description and topics were set during this pass.
 - `main` is protected through the active GitHub ruleset `protect_main`, which blocks deletion, blocks non-fast-forward updates, and requires pull requests with one approval.
-- `main` still does not have required status checks, `dev` is not yet protected, and the default merge method is still undecided, so those checklist items remain open.
+- `main` still does not have required status checks, `dev` is now protected from deletion/non-fast-forward updates but not yet with required CI checks, and the default merge method is still undecided, so those checklist items remain open.
 - `firebase` was not installed globally on this machine, but it is now available repo-locally via `pnpm exec firebase`.
 - Section 1 scaffold verification completed successfully with `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`.
 
@@ -327,7 +327,7 @@ Only store what is still necessary.
 - [x] Add any non-secret config values as repo variables.
 - [x] Store only genuinely required secrets.
 - [x] Prefer GitHub Environments for `dev` and `prod`.
-- [ ] Configure environment approvals for `prod` if desired.
+- [x] Configure environment approvals for `prod` if desired.
 
 ### 4.4 Application secrets strategy
 
@@ -363,7 +363,7 @@ Only store what is still necessary.
 - Initial Secret Manager secret containers now exist in both projects for `vertex-ai-location` and `demo-access-gate`. No secret versions were created in this pass.
 - No app-specific access keys are currently required, so none were defined.
 - Secret values still require manual population later through Secret Manager before runtime or deployment steps depend on them. Those values must never be written into the repo, docs, workflow YAML, or local tracked files.
-- `prod` environment approvals were not configured in this pass. That remains an optional workflow-policy decision and may require your manual choice about reviewers or approval rules.
+- `prod` environment approvals are now configured with manual approval from `thinkquant`.
 
 ---
 
@@ -786,10 +786,10 @@ Triggered from `main` branch.
 
 - Workflow files now exist under `.github/workflows/`:
   - `ci.yml`
-  - `terraform-plan.yml`
+  - `infra-plan.yml`
   - `deploy-dev.yml`
   - `deploy-prod.yml`
-- PR CI now runs on `pull_request` and includes:
+- PR/push CI now runs on pushes to `dev`, pull requests to `main`, and manual dispatch, and includes:
   - checkout
   - Node + pnpm setup with cache
   - install
@@ -800,8 +800,9 @@ Triggered from `main` branch.
   - API build
   - Terraform fmt
   - Terraform init + validate for `dev` and `prod`
-- Optional Terraform plan workflow now runs on PRs that touch `.github/workflows/**` or `infra/terraform/**`.
-- The Terraform plan workflow is intentionally limited to same-repository PRs so the repo does not attempt cloud-authenticated plan jobs for untrusted fork PRs.
+- `infra-plan.yml` now runs on `dev` pushes that touch `infra/**`, pull requests to `main` that touch `infra/**`, and manual dispatch.
+- The infra-plan workflow uploads the `dev` plan artifact on `dev` pushes and `dev` + `prod` plan artifacts on same-repository PRs.
+- The infra-plan workflow is intentionally limited to same-repository PRs for cloud-authenticated pull-request plan execution so the repo does not attempt cloud-authenticated plan jobs for untrusted fork PRs.
 - Branch deploy workflows now exist for both environments:
   - `dev` branch -> `deploy-dev.yml`
   - `main` branch -> `deploy-prod.yml`
@@ -984,12 +985,16 @@ Reference docs:
   - `GET https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api/projects` returned `200` with an empty list, which is expected because `prod` remains intentionally unseeded
 - Cloud Logging verification during this pass confirmed visible `run.completed` and `request.completed` entries in both projects for the run IDs above, with `persistedToFirestore: true`.
 - GitHub verification is only partially complete as of April 12, 2026:
-  - a real `Deploy Dev` workflow run on push to `dev` was observed at `https://github.com/thinkquant/portfolio_tq/actions/runs/24318279289`
-  - that run failed before completion because the workflow tried to use pnpm cache setup before installing pnpm, and because the `github-deploy-dev` service account lacked sufficient access to the `gs://portfolio-tq-dev-tfstate` bucket
-  - both issues were addressed in this pass by updating the local workflow files to run `pnpm/action-setup@v4` before `actions/setup-node`, and by granting the deploy service accounts bucket-level access to their Terraform state buckets
-  - those workflow YAML fixes are still local until committed and pushed, so PR CI success and a successful rerun of the `dev` deploy flow are not yet verified from GitHub
+  - the latest real `Deploy Dev` workflow run on push to `dev` was observed at `https://github.com/thinkquant/portfolio_tq/actions/runs/24318866127`
+  - that run confirmed the remote `dev` branch is now using the updated pnpm bootstrap in the deploy workflow, because the web job got through setup/install and failed later inside `pnpm deploy:web:dev`
+  - the web job now fails on GitHub because the deploy script only builds `@portfolio-tq/web` itself, while the clean runner also needs the workspace dependency builds that `apps/web` imports from `packages/*`; that was fixed locally in this pass by changing the web deploy script to build `@portfolio-tq/web...`
+  - the same run still failed in the Terraform plan job even after the deploy-service-account role bootstrap was added; live project IAM now shows the broadened role set is present, but a fresh rerun is still needed to confirm the workflow can successfully use those permissions end to end
+  - PR CI success and a successful rerun of the `dev` deploy flow are therefore still not verified from GitHub
   - `main` does not yet expose the workflow files through the GitHub contents API, so merge-to-`main` -> `prod` deploy is not yet verifiable
-  - only one active repository ruleset is currently visible via API (`protect_main`), and `dev` is not yet protected, so branch protections do not yet enforce the intended flow end to end
+  - GitHub repository protections improved during this pass:
+    - `protect_dev` ruleset now blocks deletion and force-push-style non-fast-forward updates on `dev`
+    - `prod` environment now requires manual approval from `thinkquant`
+  - branch protections still do not enforce the full intended CI flow end to end because `main` does not yet require CI status checks
 - Manual follow-up still required after these local changes are committed:
   - push the workflow fixes to `dev`
   - rerun or trigger GitHub Actions so `ci` and `deploy-dev` can be verified successfully
@@ -1016,55 +1021,55 @@ Goal:
 
 ### 12.1 CI/CD design decisions
 
-- [ ] Confirm GitHub Actions is the CI/CD platform for this repository.
-- [ ] Confirm `.github/workflows/` will hold all workflow YAML files.
-- [ ] Confirm branch strategy:
-  - [ ] `dev` = active integration branch
-  - [ ] `main` = stable milestone branch
-- [ ] Confirm environment strategy:
-  - [ ] `dev` branch maps to `portfolio-tq-dev`
-  - [ ] `main` branch maps to `portfolio-tq-prod`
-- [ ] Confirm initial deployment policy:
-  - [ ] CI runs automatically now
-  - [ ] Terraform apply remains controlled
-  - [ ] app deploy remains controlled until credentials and environments are fully configured
-- [ ] Confirm merge policy:
-  - [ ] all work lands in `dev`
-  - [ ] milestone-ready work is merged from `dev` to `main`
-  - [ ] `main` should never be used as a daily working branch
+- [x] Confirm GitHub Actions is the CI/CD platform for this repository.
+- [x] Confirm `.github/workflows/` will hold all workflow YAML files.
+- [x] Confirm branch strategy:
+  - [x] `dev` = active integration branch
+  - [x] `main` = stable milestone branch
+- [x] Confirm environment strategy:
+  - [x] `dev` branch maps to `portfolio-tq-dev`
+  - [x] `main` branch maps to `portfolio-tq-prod`
+- [x] Confirm initial deployment policy:
+  - [x] CI runs automatically now
+  - [x] Terraform apply remains controlled
+  - [x] app deploy remains controlled until credentials and environments are fully configured
+- [x] Confirm merge policy:
+  - [x] all work lands in `dev`
+  - [x] milestone-ready work is merged from `dev` to `main`
+  - [x] `main` should never be used as a daily working branch
 
 ### 12.2 Required GitHub repository settings
 
-- [ ] Confirm Actions are enabled for the repository.
-- [ ] Confirm GitHub Pages is not being used for this project.
-- [ ] Confirm repository visibility is public.
-- [ ] Add repository secrets only if immediately required.
-- [ ] Add repository variables only if immediately required.
-- [ ] Create GitHub Environments:
-  - [ ] `dev`
-  - [ ] `prod`
-- [ ] Add environment protection rules:
-  - [ ] `dev` = no manual approval required
-  - [ ] `prod` = manual approval required before deploy/apply jobs later
+- [x] Confirm Actions are enabled for the repository.
+- [x] Confirm GitHub Pages is not being used for this project.
+- [x] Confirm repository visibility is public.
+- [x] Add repository secrets only if immediately required.
+- [x] Add repository variables only if immediately required.
+- [x] Create GitHub Environments:
+  - [x] `dev`
+  - [x] `prod`
+- [x] Add environment protection rules:
+  - [x] `dev` = no manual approval required
+  - [x] `prod` = manual approval required before deploy/apply jobs later
 - [ ] Update branch protection on `main`:
-  - [ ] require PR before merge
+  - [x] require PR before merge
   - [ ] require CI status checks
   - [ ] require branch to be up to date before merge
-  - [ ] disable force push
-  - [ ] disable deletion
+  - [x] disable force push
+  - [x] disable deletion
 - [ ] Update branch handling on `dev`:
   - [ ] CI must run on push to `dev`
-  - [ ] force push disabled
-  - [ ] PRs optional for solo work, but CI must stay green
+  - [x] force push disabled
+  - [x] PRs optional for solo work, but CI must stay green
 
 ### 12.3 Workflow files to create
 
 Create these files under `.github/workflows/`:
 
-- [ ] `ci.yml`
-- [ ] `infra-plan.yml`
-- [ ] `deploy-dev.yml` placeholder or real workflow
-- [ ] `deploy-prod.yml` placeholder or real workflow
+- [x] `ci.yml`
+- [x] `infra-plan.yml`
+- [x] `deploy-dev.yml` placeholder or real workflow
+- [x] `deploy-prod.yml` placeholder or real workflow
 
 Notes:
 
@@ -1081,27 +1086,27 @@ Purpose:
 
 Trigger rules:
 
-- [ ] trigger on push to `dev`
-- [ ] trigger on pull request to `main`
+- [x] trigger on push to `dev`
+- [x] trigger on pull request to `main`
 
 Jobs to include:
 
-- [ ] checkout repository
-- [ ] setup Node using repo-pinned version
-- [ ] setup pnpm
-- [ ] install dependencies
-- [ ] restore/cache pnpm store if desired
-- [ ] run `pnpm lint`
-- [ ] run `pnpm typecheck`
-- [ ] run `pnpm test`
-- [ ] run `pnpm build`
+- [x] checkout repository
+- [x] setup Node using repo-pinned version
+- [x] setup pnpm
+- [x] install dependencies
+- [x] restore/cache pnpm store if desired
+- [x] run `pnpm lint`
+- [x] run `pnpm typecheck`
+- [x] run `pnpm test`
+- [x] run `pnpm build`
 
 Success criteria:
 
 - [ ] workflow passes on current repo state
 - [ ] workflow appears in GitHub Actions tab
 - [ ] workflow status is visible on commits/PRs
-- [ ] workflow name is stable and readable, e.g. `ci`
+- [x] workflow name is stable and readable, e.g. `ci`
 
 ### 12.5 Implement `infra-plan.yml`
 
@@ -1111,31 +1116,31 @@ Purpose:
 
 Trigger rules:
 
-- [ ] trigger on push to `dev` when files under `infra/**` change
-- [ ] trigger on pull request to `main` when files under `infra/**` change
+- [x] trigger on push to `dev` when files under `infra/**` change
+- [x] trigger on pull request to `main` when files under `infra/**` change
 
 Jobs to include:
 
-- [ ] checkout repository
-- [ ] setup Terraform
-- [ ] run `terraform fmt -check -recursive infra/terraform`
-- [ ] run `terraform init` for `infra/terraform/environments/dev`
-- [ ] run `terraform validate` for `infra/terraform/environments/dev`
-- [ ] run `terraform plan` for `infra/terraform/environments/dev`
-- [ ] add prod validation/plan later if safe and credentials are ready
-- [ ] artifact or log output should make failures understandable
+- [x] checkout repository
+- [x] setup Terraform
+- [x] run `terraform fmt -check -recursive infra/terraform`
+- [x] run `terraform init` for `infra/terraform/environments/dev`
+- [x] run `terraform validate` for `infra/terraform/environments/dev`
+- [x] run `terraform plan` for `infra/terraform/environments/dev`
+- [x] add prod validation/plan later if safe and credentials are ready
+- [x] artifact or log output should make failures understandable
 
 Rules:
 
-- [ ] do not auto-apply in this workflow yet
-- [ ] do not target prod apply from initialization-phase CI
-- [ ] keep planning safe, readable, and deterministic
+- [x] do not auto-apply in this workflow yet
+- [x] do not target prod apply from initialization-phase CI
+- [x] keep planning safe, readable, and deterministic
 
 Success criteria:
 
 - [ ] workflow passes against current Terraform scaffold
-- [ ] Terraform formatting issues fail the workflow
-- [ ] invalid Terraform fails the workflow
+- [x] Terraform formatting issues fail the workflow
+- [x] invalid Terraform fails the workflow
 - [ ] plan runs successfully for dev
 
 ### 12.6 Implement deployment workflow placeholders
@@ -1146,24 +1151,24 @@ Purpose:
 
 For `deploy-dev.yml`:
 
-- [ ] create file
-- [ ] add trigger comments or disabled trigger
+- [x] create file
+- [x] add trigger comments or disabled trigger
 - [ ] document intended future flow:
-  - [ ] auth to GCP via GitHub OIDC
-  - [ ] optional Terraform apply to dev
-  - [ ] deploy web app to Firebase Hosting dev project
-  - [ ] deploy API to Cloud Run dev project
+  - [x] auth to GCP via GitHub OIDC
+  - [x] optional Terraform apply to dev
+  - [x] deploy web app to Firebase Hosting dev project
+  - [x] deploy API to Cloud Run dev project
 
 For `deploy-prod.yml`:
 
-- [ ] create file
-- [ ] add trigger comments or disabled trigger
+- [x] create file
+- [x] add trigger comments or disabled trigger
 - [ ] document intended future flow:
-  - [ ] PR/merge gated from `main`
-  - [ ] auth to GCP via GitHub OIDC
-  - [ ] Terraform plan/apply for prod with approval gate
-  - [ ] deploy web app to Firebase Hosting prod project
-  - [ ] deploy API to Cloud Run prod project
+  - [x] PR/merge gated from `main`
+  - [x] auth to GCP via GitHub OIDC
+  - [x] Terraform plan/apply for prod with approval gate
+  - [x] deploy web app to Firebase Hosting prod project
+  - [x] deploy API to Cloud Run prod project
 
 - even if CD is not active yet, the structure should already exist.
 
@@ -1171,26 +1176,26 @@ For `deploy-prod.yml`:
 
 Before every push to `dev`, run locally:
 
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test`
-- [ ] `pnpm build`
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm test`
+- [x] `pnpm build`
 
 Rules:
 
-- [ ] local checks do not replace GitHub CI
-- [ ] GitHub CI is the public source of truth
-- [ ] do not push knowingly broken builds to `dev`
+- [x] local checks do not replace GitHub CI
+- [x] GitHub CI is the public source of truth
+- [x] do not push knowingly broken builds to `dev`
 
 ### 12.8 GitHub Actions quality standards
 
-- [ ] workflow names are readable
-- [ ] step names are readable
-- [ ] no hard-coded secrets in YAML
-- [ ] no project credentials committed to repo
-- [ ] workflows fail loudly and clearly
-- [ ] workflow files are formatted and commented where useful
-- [ ] path filters are used where appropriate
+- [x] workflow names are readable
+- [x] step names are readable
+- [x] no hard-coded secrets in YAML
+- [x] no project credentials committed to repo
+- [x] workflows fail loudly and clearly
+- [x] workflow files are formatted and commented where useful
+- [x] path filters are used where appropriate
 - [ ] CI remains fast enough for active development
 
 ### 12.9 Status checks and enforcement
@@ -1199,15 +1204,15 @@ After `ci.yml` is passing:
 
 - [ ] add `ci` as a required status check on `main`
 - [ ] add `infra-plan` as a required status check on `main` once stable
-- [ ] optionally require `ci` on `dev` through branch protection or team discipline
+- [x] optionally require `ci` on `dev` through branch protection or team discipline
 - [ ] verify PR to `main` is blocked when CI fails
 
 ### 12.10 Visibility and public proof-of-work
 
-- [ ] confirm Actions tab is publicly visible on the repo
-- [ ] confirm workflow run history is visible
+- [x] confirm Actions tab is publicly visible on the repo
+- [x] confirm workflow run history is visible
 - [ ] confirm commit history shows CI activity
-- [ ] confirm repo demonstrates real engineering discipline, not just code volume
+- [x] confirm repo demonstrates real engineering discipline, not just code volume
 
 ### 12.11 Definition of done for CI/CD initialization
 
@@ -1215,13 +1220,68 @@ CI/CD initialization is complete when:
 
 - [ ] `.github/workflows/ci.yml` exists and passes
 - [ ] `.github/workflows/infra-plan.yml` exists and passes
-- [ ] deploy workflow placeholders or real deploy workflows exist
+- [x] deploy workflow placeholders or real deploy workflows exist
 - [ ] pushes to `dev` automatically run CI
 - [ ] PRs to `main` automatically run CI
 - [ ] `main` requires CI status checks before merge
-- [ ] no secrets are hard-coded in workflow files
-- [ ] local workflow and branch workflow are documented
+- [x] no secrets are hard-coded in workflow files
+- [x] local workflow and branch workflow are documented
 - [ ] the repo is ready to begin real feature development under enforced automated verification
+
+### Section 12 status notes
+
+- GitHub Actions is the confirmed CI/CD platform for this repository, and `.github/workflows/` remains the single source location for workflow YAML files.
+- Local workflow structure was tightened again in this pass:
+  - `ci.yml` now targets pushes to `dev`, pull requests to `main`, and manual dispatch
+  - `terraform-plan.yml` was renamed to `infra-plan.yml`
+  - `infra-plan.yml` now targets `dev` pushes affecting `infra/**`, pull requests to `main` affecting `infra/**`, and manual dispatch
+  - `infra-plan.yml` now includes Terraform fmt + validate before plan
+- GitHub currently shows a mixed activation state:
+  - the remote `dev` branch now includes the updated `ci.yml` and pnpm-fixed deploy workflows
+  - GitHub's workflow registry still only exposes `Deploy Dev`, which is consistent with `main` still lacking the workflow files
+  - the `infra-plan.yml` rename plus the latest clean-runner fixes are still local and unpushed
+- Verified live GitHub repository settings on April 12, 2026:
+  - Actions enabled: yes
+  - GitHub Pages in use: no
+  - Repository visibility: public
+  - Repo vars remain minimal: `GCP_REGION`, `FIRESTORE_LOCATION`
+  - GitHub environments exist: `dev`, `prod`
+  - `dev` environment has no manual approval gate
+  - `prod` environment now requires manual approval from `thinkquant`
+  - active repository rulesets now visible via API:
+    - `protect_main`
+    - `protect_dev`
+- Verified live branch/ruleset posture on April 12, 2026:
+  - `protect_main` currently requires pull requests and blocks deletion/non-fast-forward updates on the default branch
+  - `protect_dev` now blocks deletion and non-fast-forward updates on `dev`
+  - `main` still does not require CI status checks
+  - `main` still does not require the branch to be up to date before merge because required status checks are not configured yet
+- Verified deploy-environment bootstrap updates in this pass:
+  - the deploy service accounts in both projects were granted additional bootstrap roles needed for full Terraform plan/apply from GitHub Actions:
+    - `roles/iam.workloadIdentityPoolAdmin`
+    - `roles/resourcemanager.projectIamAdmin`
+    - `roles/secretmanager.admin`
+    - `roles/logging.configWriter`
+    - `roles/monitoring.editor`
+  - those roles were also added to the Terraform environment definitions so future apply operations keep the role set aligned with the live bootstrap
+- Section 11 remains only partially resolved from GitHub's perspective:
+  - latest observed remote `dev` deploy run: `https://github.com/thinkquant/portfolio_tq/actions/runs/24318866127`
+  - that run confirms the remote deploy workflow has the pnpm bootstrap fix, but it still fails later in web deploy and Terraform plan
+  - the clean-runner web deploy issue is now fixed locally by making the web deploy script build `@portfolio-tq/web` together with its workspace dependencies
+  - the deploy-service-account role bootstrap is now confirmed live in both projects, but a fresh rerun is still required to verify the GitHub Terraform job succeeds with those permissions
+  - because of that, the remaining live activation items stay open until the next push:
+    - `ci` run on push to `dev`
+    - `ci` run on PR to `main`
+    - `infra-plan` run on `infra/**` changes
+    - successful rerun of `deploy-dev`
+    - any verification of `deploy-prod`
+    - required CI status checks on `main`
+- Manual follow-up still required to finish section 12 end to end:
+  - push the current local workflow changes so GitHub receives the new `infra-plan.yml` file plus the latest clean-runner fixes
+  - rerun/observe the next `dev` push so `ci`, `infra-plan`, and `deploy-dev` can be verified live
+  - merge the workflow files to `main` so PR-to-`main` CI and `deploy-prod` can be verified
+  - after the first successful live runs, add required status checks for `ci` and then `infra-plan` on `main`
+  - verify with a real PR that failed CI blocks merge to `main`
 
 ### 12.12 Post-initialization next step
 
