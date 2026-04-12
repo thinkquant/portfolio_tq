@@ -56,19 +56,19 @@ Initialization is complete when all of the following are true:
 - [x] Merge to `main` only at clear milestones.
 
 ### 0.2 Configure repo defaults
-- [ ] Create public GitHub repository named `portfolio_tq`.
+- [x] Create public GitHub repository named `portfolio_tq`.
 - [x] Set repo description and topics.
-- [ ] Add license file.
+- [x] Add license file.
 - [x] Add root `README.md` with short project summary and architecture links.
 - [x] Set default branch initially to `main`.
-- [ ] Create `dev` branch immediately after first scaffold commit.
+- [x] Create `dev` branch immediately after first scaffold commit.
 
 ### 0.3 Protect branches
-- [ ] Protect `main` with required PRs.
-- [ ] Require status checks on `main`.
-- [ ] Protect `dev` with at least CI checks once workflows exist.
-- [ ] Disable force-push to `main`.
-- [ ] Decide whether squash merge or rebase merge is the default.
+- [x] Protect `main` with required PRs.
+- [x] Require status checks on `main`.
+- [x] Protect `dev` with at least CI checks once workflows exist.
+- [x] Disable force-push to `main`.
+- [x] Decide whether squash merge or rebase merge is the default.
 
 ### 0.4 Public workflow hygiene
 - [x] Add `.gitignore` for Node, Terraform, Firebase, IDE files, env files.
@@ -126,8 +126,8 @@ Reference docs:
 - [x] Ensure root `build`, `lint`, and `typecheck` run cleanly.
 
 ### 1.4 Initial commit
-- [ ] Make first scaffold commit on `main`.
-- [ ] Create `dev` from that commit.
+- [x] Make first scaffold commit on `main`.
+- [x] Create `dev` from that commit.
 - [x] Continue active setup work on `dev`.
 
 ### Section 1 status notes
