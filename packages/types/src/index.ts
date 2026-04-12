@@ -48,6 +48,12 @@ export interface DemoRun {
   id: string;
   projectId: ProjectId;
   status: DemoRunStatus;
+  inputRef: string;
+  outputRef?: string;
+  confidence?: number;
+  latencyMs?: number;
+  estimatedCostUsd?: number;
+  promptVersionId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -75,10 +81,9 @@ export interface ProjectRecord {
 
 export interface RunRecord extends DemoRun {
   environment: Environment;
-  durationMs: number;
   summary: string;
-  promptVersionId: string;
   evaluationStatus: EvaluationStatus;
+  fallbackTriggered: boolean;
   escalated: boolean;
   toolInvocationCount: number;
 }

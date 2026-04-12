@@ -98,26 +98,195 @@ locals {
       description = "Count failed Cloud Run request/error events for the API service."
       filter      = "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"${var.cloud_run_service_name}\" severity>=ERROR"
     }
+    fallback-triggered = {
+      description = "Count fallback-triggered run lifecycle events for the API service."
+      filter      = "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"${var.cloud_run_service_name}\" jsonPayload.eventType=\"fallback.triggered\""
+    }
   }
 
   dashboard_json = jsonencode({
-    displayName = "portfolio_tq dev overview"
+    displayName      = "portfolio_tq dev overview"
+    dashboardFilters = []
     mosaicLayout = {
-      columns = 12
+      columns = 48
       tiles = [
         {
           xPos   = 0
           yPos   = 0
-          width  = 12
+          width  = 48
           height = 4
           widget = {
             title = "Environment summary"
             text = {
-              content = "Environment: dev\\nProject: ${var.project_id}\\nCloud Run service: ${var.cloud_run_service_name}\\nFirebase site: ${var.firebase_site_id}"
+              content = "Environment: dev\\nProject: ${var.project_id}\\nCloud Run service: ${var.cloud_run_service_name}\\nFirebase site: ${var.firebase_site_id}\\nApplication observability feeds now come from Firestore-backed API endpoints, while platform metrics come from Cloud Run and log-based metrics."
             }
           }
-        }
+        },
+        {
+          xPos   = 0
+          yPos   = 4
+          width  = 24
+          height = 12
+          widget = {
+            title = "Request count"
+            xyChart = {
+              chartOptions = {
+                mode = "COLOR"
+              }
+              dataSets = [
+                {
+                  plotType           = "LINE"
+                  targetAxis         = "Y1"
+                  minAlignmentPeriod = "60s"
+                  timeSeriesQuery = {
+                    timeSeriesFilter = {
+                      filter = "metric.type=\"run.googleapis.com/request_count\" resource.type=\"cloud_run_revision\" resource.label.\"service_name\"=\"${var.cloud_run_service_name}\""
+                      aggregation = {
+                        alignmentPeriod    = "60s"
+                        perSeriesAligner   = "ALIGN_DELTA"
+                        crossSeriesReducer = "REDUCE_SUM"
+                        groupByFields      = []
+                      }
+                    }
+                  }
+                }
+              ]
+              thresholds = []
+              yAxis = {
+                label = "Requests / min"
+                scale = "LINEAR"
+              }
+            }
+          }
+        },
+        {
+          xPos   = 24
+          yPos   = 4
+          width  = 24
+          height = 12
+          widget = {
+            title = "P95 request latency"
+            xyChart = {
+              chartOptions = {
+                mode = "COLOR"
+              }
+              dataSets = [
+                {
+                  plotType           = "LINE"
+                  targetAxis         = "Y1"
+                  minAlignmentPeriod = "60s"
+                  timeSeriesQuery = {
+                    timeSeriesFilter = {
+                      filter = "metric.type=\"run.googleapis.com/request_latencies\" resource.type=\"cloud_run_revision\" resource.label.\"service_name\"=\"${var.cloud_run_service_name}\""
+                      aggregation = {
+                        alignmentPeriod    = "60s"
+                        perSeriesAligner   = "ALIGN_PERCENTILE_95"
+                        crossSeriesReducer = "REDUCE_NONE"
+                        groupByFields      = []
+                      }
+                    }
+                  }
+                }
+              ]
+              thresholds = []
+              yAxis = {
+                label = "Milliseconds"
+                scale = "LINEAR"
+              }
+            }
+          }
+        },
+        {
+          xPos   = 0
+          yPos   = 16
+          width  = 24
+          height = 12
+          widget = {
+            title = "Error count"
+            xyChart = {
+              chartOptions = {
+                mode = "COLOR"
+              }
+              dataSets = [
+                {
+                  plotType           = "STACKED_BAR"
+                  targetAxis         = "Y1"
+                  minAlignmentPeriod = "60s"
+                  timeSeriesQuery = {
+                    timeSeriesFilter = {
+                      filter = "metric.type=\"logging.googleapis.com/user/run-failures\" resource.type=\"global\""
+                      aggregation = {
+                        alignmentPeriod    = "60s"
+                        perSeriesAligner   = "ALIGN_DELTA"
+                        crossSeriesReducer = "REDUCE_SUM"
+                        groupByFields      = []
+                      }
+                    }
+                  }
+                }
+              ]
+              thresholds = []
+              yAxis = {
+                label = "Error events"
+                scale = "LINEAR"
+              }
+            }
+          }
+        },
+        {
+          xPos   = 24
+          yPos   = 16
+          width  = 24
+          height = 12
+          widget = {
+            title = "Fallback-triggered count"
+            xyChart = {
+              chartOptions = {
+                mode = "COLOR"
+              }
+              dataSets = [
+                {
+                  plotType           = "STACKED_BAR"
+                  targetAxis         = "Y1"
+                  minAlignmentPeriod = "60s"
+                  timeSeriesQuery = {
+                    timeSeriesFilter = {
+                      filter = "metric.type=\"logging.googleapis.com/user/fallback-triggered\" resource.type=\"global\""
+                      aggregation = {
+                        alignmentPeriod    = "60s"
+                        perSeriesAligner   = "ALIGN_DELTA"
+                        crossSeriesReducer = "REDUCE_SUM"
+                        groupByFields      = []
+                      }
+                    }
+                  }
+                }
+              ]
+              thresholds = []
+              yAxis = {
+                label = "Fallback events"
+                scale = "LINEAR"
+              }
+            }
+          }
+        },
+        {
+          xPos   = 0
+          yPos   = 28
+          width  = 48
+          height = 8
+          widget = {
+            title = "Recent API error logs"
+            logsPanel = {
+              filter        = "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"${var.cloud_run_service_name}\" severity>=ERROR"
+              resourceNames = ["projects/${var.project_id}"]
+            }
+          }
+        },
       ]
+    }
+    labels = {
+      portfolio = ""
     }
   })
 }

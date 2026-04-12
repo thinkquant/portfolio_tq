@@ -35,6 +35,7 @@ All cloud resources are provisioned through Terraform from the beginning.
 - Do not use Firebase preview channels for this project.
 - Use one live Hosting site per environment, with deploys going directly to `portfolio-tq-dev` for active validation and to `portfolio-tq-prod` for milestone-grade releases.
 - Keep the Firebase Hosting config in the repo root `firebase.json`, with `apps/web/dist` as the deploy artifact directory.
+- Run web deploys sequentially, not in parallel, because both environment deploy commands build into the shared `apps/web/dist` directory before upload.
 - Keep HTML responses revalidating on each request while serving hashed static assets under `/assets/**` with long-lived immutable caching.
 - The web app must never receive backend secrets. The current frontend build ships no runtime secrets; any future client-exposed values must be explicitly public, build-time only, and clearly named as such.
 - Deploy active integration work and preview-style validation to `portfolio-tq-dev`.
@@ -61,6 +62,7 @@ All cloud resources are provisioned through Terraform from the beginning.
 - Monitoring dashboard
 - log-based metrics
 - GitHub OIDC workload identity integration
+- observability feed API routes and smoke checks
 
 ## Firestore bootstrap strategy
 - Keep the named Firestore databases environment-specific:

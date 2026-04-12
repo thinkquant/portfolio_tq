@@ -194,6 +194,48 @@ Verified on April 12, 2026:
   - `GET /api/evaluations`
   - `GET /api/projects/:projectId/metrics`
 
+## Observability bootstrap
+- Structured API logging now flows through `apps/api/src/services/logs.ts`.
+- Verified structured log fields now present in Cloud Logging:
+  - `projectId`
+  - `runId`
+  - `environment`
+  - `eventType`
+  - `timestamp`
+  - optional `latencyMs`
+  - optional `promptVersionId`
+- Verified lifecycle events in both environments on April 12, 2026:
+  - `run.created`
+  - `run.started`
+  - `model.requested`
+  - `tool.called`
+  - `tool.completed`
+  - `model.completed`
+  - `schema.validated`
+  - `fallback.triggered`
+  - `escalation.created`
+  - `run.completed`
+- Monitoring dashboards created:
+  - `portfolio_tq dev overview` -> `projects/932345783663/dashboards/39e77f9e-f33b-4520-975d-11fed2dbbc82`
+  - `portfolio_tq prod overview` -> `projects/723738590534/dashboards/48c02f0a-2476-4b84-aeb6-944bcc3e9944`
+- Log-based metrics created in both projects:
+  - `fallback-triggered`
+  - `run-failures`
+- The dashboard feed route for the web app now exists at `GET /api/observability/overview`.
+- The public `/observability` route now renders a live shell backed by the environment-specific Cloud Run API.
+- Verified smoke commands on April 12, 2026:
+  - `pnpm smoke:api:dev`
+  - `pnpm smoke:api:prod`
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:web:prod`
+  - `pnpm smoke:observability:web:dev`
+  - `pnpm smoke:observability:web:prod`
+- Verified recent Cloud Run traffic through the Monitoring API over the prior 30 minutes on April 12, 2026:
+  - `portfolio-tq-api-dev` had nonzero `run.googleapis.com/request_count` on revisions `portfolio-tq-api-dev-00002-sdb` and `portfolio-tq-api-dev-00003-5v9`
+  - `portfolio-tq-api-prod` had nonzero `run.googleapis.com/request_count` on revisions `portfolio-tq-api-prod-00002-d5s` and `portfolio-tq-api-prod-00003-229`
+- The observability smoke script was adjusted to verify the public page shell and live API response without depending on browser-only module-script execution in `jsdom`.
+- During section 8 verification, the `dev` Hosting site briefly served an older `404` release. Rerunning `pnpm deploy:web:dev` corrected it.
+
 ## Follow-up note for future infra work
 - Current `firebase.json` still references the default Firestore database ID.
 - When Firestore rules and indexes are automated, the Firebase/Terraform configuration should be revisited so it explicitly targets the named environment databases created during bootstrap.

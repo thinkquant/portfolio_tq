@@ -18,6 +18,8 @@
     "smoke:firestore:dev": "pnpm --filter @portfolio-tq/api smoke:firestore https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app",
     "deploy:web:dev": "pnpm --filter @portfolio-tq/web build && npx -y firebase-tools@latest deploy --only hosting --project dev",
     "deploy:web:prod": "pnpm --filter @portfolio-tq/web build && npx -y firebase-tools@latest deploy --only hosting --project prod",
+    "smoke:observability:web:dev": "pnpm --filter @portfolio-tq/web smoke:observability https://portfolio-tq-dev.web.app",
+    "smoke:observability:web:prod": "pnpm --filter @portfolio-tq/web smoke:observability https://portfolio-tq-prod.web.app",
     "smoke:web:dev": "pnpm --filter @portfolio-tq/web smoke https://portfolio-tq-dev.web.app",
     "smoke:web:prod": "pnpm --filter @portfolio-tq/web smoke https://portfolio-tq-prod.web.app",
     "terraform:fmt": "terraform fmt -check -recursive infra/terraform",

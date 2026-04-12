@@ -563,33 +563,100 @@ Reference docs:
 - `docs/specs/service-web.md`
 
 ### 8.1 Logging standard
-- [ ] Implement structured logging fields:
-  - [ ] `projectId`
-  - [ ] `runId`
-  - [ ] `environment`
-  - [ ] `eventType`
-  - [ ] `timestamp`
-  - [ ] optional `latencyMs`
-  - [ ] optional `promptVersionId`
-- [ ] Add run lifecycle log helper.
-- [ ] Add error log helper.
+- [x] Implement structured logging fields:
+  - [x] `projectId`
+  - [x] `runId`
+  - [x] `environment`
+  - [x] `eventType`
+  - [x] `timestamp`
+  - [x] optional `latencyMs`
+  - [x] optional `promptVersionId`
+- [x] Add run lifecycle log helper.
+- [x] Add error log helper.
 
 ### 8.2 Cloud metrics and dashboards
-- [ ] Terraform module provisions at least one Cloud Monitoring dashboard.
-- [ ] Add log-based metric for fallback count or run failures.
-- [ ] Add latency chart widget.
-- [ ] Add error count widget.
-- [ ] Add request count widget.
+- [x] Terraform module provisions at least one Cloud Monitoring dashboard.
+- [x] Add log-based metric for fallback count or run failures.
+- [x] Add latency chart widget.
+- [x] Add error count widget.
+- [x] Add request count widget.
 
 ### 8.3 In-app observability readiness
-- [ ] Define API endpoint(s) for dashboard feed.
-- [ ] Confirm `runs` and `evaluations` can feed the web app.
-- [ ] Ensure at least one sample run can be rendered end to end.
+- [x] Define API endpoint(s) for dashboard feed.
+- [x] Confirm `runs` and `evaluations` can feed the web app.
+- [x] Ensure at least one sample run can be rendered end to end.
 
 ### 8.4 Observability smoke checks
-- [ ] API request creates logs.
-- [ ] Cloud Run dashboard shows traffic.
-- [ ] In-app observability page can load seeded metrics.
+- [x] API request creates logs.
+- [x] Cloud Run dashboard shows traffic.
+- [x] In-app observability page can load seeded metrics.
+
+### Section 8 status notes
+- Structured API logging is now implemented through `apps/api/src/services/logs.ts` and is used by the live demo route in `apps/api/src/index.ts`.
+- Verified structured log fields now present in Cloud Logging for both environments:
+  - required fields: `projectId`, `runId`, `environment`, `eventType`, `timestamp`
+  - optional fields when applicable: `latencyMs`, `promptVersionId`
+  - additional public-safe context now included for some events, such as `fallbackTriggered`, `evaluationStatus`, `toolName`, `confidence`, `estimatedCostUsd`, and `persistedToFirestore`
+- Verified lifecycle events in both projects on April 12, 2026 by issuing controlled demo requests and reading the resulting Cloud Run logs:
+  - `run.created`
+  - `run.started`
+  - `model.requested`
+  - `tool.called`
+  - `tool.completed`
+  - `model.completed`
+  - `schema.validated`
+  - `fallback.triggered`
+  - `escalation.created`
+  - `run.completed`
+- Error logging is now centralized through the same helper so request failures emit structured `ERROR` entries rather than ad hoc strings.
+- Terraform-backed Monitoring resources are now applied in both environments:
+  - `portfolio_tq dev overview` -> `projects/932345783663/dashboards/39e77f9e-f33b-4520-975d-11fed2dbbc82`
+  - `portfolio_tq prod overview` -> `projects/723738590534/dashboards/48c02f0a-2476-4b84-aeb6-944bcc3e9944`
+- Terraform-backed log-based metrics now exist in both environments:
+  - `fallback-triggered`
+  - `run-failures`
+- The current dashboard JSON now includes:
+  - request count chart
+  - p95 request latency chart
+  - error count chart
+  - fallback-triggered chart
+  - recent error logs panel
+- In-app observability feed routes now exist and are live:
+  - `GET /api/observability/overview`
+  - `GET /api/projects`
+  - `GET /api/runs`
+  - `GET /api/evaluations`
+  - `GET /api/projects/:projectId/metrics`
+- The web route `/observability` now ships a live source-controlled observability shell that reads the correct environment API based on hostname and renders:
+  - summary metrics
+  - project breakdown
+  - latest flagged runs
+- Live verification completed successfully on April 12, 2026 with:
+  - `pnpm install`
+  - `pnpm build`
+  - `pnpm lint`
+  - `pnpm typecheck`
+  - `terraform fmt -recursive infra/terraform`
+  - `terraform -chdir=infra/terraform/environments/dev validate`
+  - `terraform -chdir=infra/terraform/environments/prod validate`
+  - targeted Terraform applies for `module.cloud_run_service`, `module.logging_metrics`, and `module.monitoring_dashboard` in both environments
+  - `pnpm seed:firestore:dev`
+  - `pnpm smoke:api:dev`
+  - `pnpm smoke:api:prod`
+  - `pnpm deploy:web:dev`
+  - `pnpm deploy:web:prod`
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:web:prod`
+  - `pnpm smoke:observability:web:dev`
+  - `pnpm smoke:observability:web:prod`
+- Cloud Run request traffic was also verified directly through the Monitoring API over the prior 30 minutes on April 12, 2026:
+  - `portfolio-tq-api-dev` showed nonzero `run.googleapis.com/request_count` points on revisions `portfolio-tq-api-dev-00002-sdb` and `portfolio-tq-api-dev-00003-5v9`
+  - `portfolio-tq-api-prod` showed nonzero `run.googleapis.com/request_count` points on revisions `portfolio-tq-api-prod-00002-d5s` and `portfolio-tq-api-prod-00003-229`
+- The observability smoke script was tightened so it verifies the public `/observability` shell plus the live dashboard API response without depending on browser-only module-script execution in `jsdom`.
+- During verification, `https://portfolio-tq-dev.web.app` briefly served an older `404` release. Rerunning `pnpm deploy:web:dev` corrected it. This was a deploy-state issue, not a code issue.
+- No manual user step was required to complete section 8 from this environment.
+- Known follow-up note:
+  - `prod` remains intentionally sparse in the in-app observability feed because `portfolio-tq-prod` is still intentionally unseeded outside of explicit demo-run traffic
 
 ---
 

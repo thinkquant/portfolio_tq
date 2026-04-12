@@ -12,6 +12,7 @@ type PageDefinition = {
   eyebrow: string;
   heading: string;
   lead: string;
+  extraContent?: string;
   sections: Array<{
     title: string;
     body: string;
@@ -126,6 +127,7 @@ const pages: PageDefinition[] = [
     heading: 'Observability is a first-class feature, not an afterthought.',
     lead:
       'Cloud Logging, Monitoring, Firestore-backed run records, and in-app dashboards are all part of the target operating model for this portfolio.',
+    extraContent: '__OBSERVABILITY_DASHBOARD__',
     sections: [
       {
         title: 'Platform-level',
@@ -355,6 +357,118 @@ a {
   font-size: 0.95rem;
 }
 
+.observability-shell {
+  margin-top: 24px;
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: rgba(255, 252, 247, 0.88);
+  box-shadow: 0 16px 48px rgba(22, 33, 43, 0.08);
+}
+
+.observability-state {
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.metric-tile {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+}
+
+.metric-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.observability-panels {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+}
+
+.observability-panel {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 250, 241, 0.72);
+}
+
+.observability-panel h2 {
+  margin: 0 0 12px;
+}
+
+.observability-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.observability-list li {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--panel-strong);
+  background: var(--accent-deep);
+}
+
+.observability-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.96rem;
+}
+
+.observability-table th,
+.observability-table td {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.observability-table th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.observability-meta {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 @media (max-width: 900px) {
   .card,
   .project-card {
@@ -362,6 +476,11 @@ a {
   }
 
   .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid,
+  .observability-panels {
     grid-template-columns: 1fr;
   }
 }
@@ -424,8 +543,135 @@ function renderProjectGrid(): string {
   `.trim();
 }
 
+function renderObservabilityExperience(): string {
+  return `
+    <section class="observability-shell" data-observability-root>
+      <p class="observability-state" data-observability-state>Loading live observability feed...</p>
+      <div class="metric-grid" data-observability-summary></div>
+      <div class="observability-panels">
+        <article class="observability-panel">
+          <h2>Project breakdown</h2>
+          <div data-observability-projects class="observability-meta">Awaiting API response.</div>
+        </article>
+        <article class="observability-panel">
+          <h2>Latest flagged runs</h2>
+          <div data-observability-flagged class="observability-meta">Awaiting API response.</div>
+        </article>
+      </div>
+    </section>
+    <script type="module">
+      const root = document.querySelector('[data-observability-root]');
+
+      if (root) {
+        const state = root.querySelector('[data-observability-state]');
+        const summary = root.querySelector('[data-observability-summary]');
+        const projects = root.querySelector('[data-observability-projects]');
+        const flagged = root.querySelector('[data-observability-flagged]');
+
+        const API_BASES = {
+          dev: 'https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app',
+          prod: 'https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app',
+        };
+
+        function resolveEnvironment() {
+          const host = window.location.hostname;
+          return host.includes('portfolio-tq-prod') ? 'prod' : 'dev';
+        }
+
+        function formatPercent(value) {
+          return Number.isFinite(value) ? value.toFixed(1) + '%' : '0.0%';
+        }
+
+        function formatCurrency(value) {
+          return '$' + Number(value ?? 0).toFixed(4);
+        }
+
+        function renderSummaryCards(payload) {
+          const cards = [
+            { label: 'Total runs', value: String(payload.summary.totalRuns ?? 0) },
+            { label: 'Pass rate', value: formatPercent(payload.summary.passRate ?? 0) },
+            { label: 'Avg latency', value: String(payload.summary.averageLatencyMs ?? 0) + ' ms' },
+            { label: 'Fallback rate', value: formatPercent(payload.summary.fallbackRate ?? 0) },
+          ];
+
+          summary.innerHTML = cards
+            .map(function(card) {
+              return '<article class="metric-tile"><span class="metric-label">' + card.label + '</span><strong class="metric-value">' + card.value + '</strong></article>';
+            })
+            .join('');
+        }
+
+        function renderProjectBreakdown(payload) {
+          if (!payload.projectBreakdown?.length) {
+            projects.innerHTML = '<p class="observability-meta">No project metrics are available yet.</p>';
+            return;
+          }
+
+          projects.innerHTML =
+            '<table class="observability-table"><thead><tr><th>Project</th><th>Runs</th><th>Pass rate</th><th>Avg latency</th><th>Status</th></tr></thead><tbody>' +
+            payload.projectBreakdown
+              .map(function(project) {
+                return '<tr><td>' + project.title + '</td><td>' + project.runCount + '</td><td>' + formatPercent(project.passRate) + '</td><td>' + project.averageLatencyMs + ' ms</td><td><span class="status-pill">' + project.latestRunStatus + '</span></td></tr>';
+              })
+              .join('') +
+            '</tbody></table>' +
+            '<p class="observability-meta">Average confidence: ' +
+            Number(payload.summary.averageConfidence ?? 0).toFixed(3) +
+            ' · Avg estimated cost: ' +
+            formatCurrency(payload.summary.averageEstimatedCostUsd ?? 0) +
+            '</p>';
+        }
+
+        function renderFlaggedRuns(payload) {
+          if (!payload.latestFlaggedRuns?.length) {
+            flagged.innerHTML = '<p class="observability-meta">No flagged runs are present in this environment right now.</p>';
+            return;
+          }
+
+          flagged.innerHTML =
+            '<ul class="observability-list">' +
+            payload.latestFlaggedRuns
+              .map(function(run) {
+                return '<li><strong>' + run.projectId + '</strong><br>' + run.summary + '<br><span class="observability-meta">' + run.status + ' · ' + run.evaluationStatus + ' · confidence ' + Number(run.confidence ?? 0).toFixed(2) + '</span></li>';
+              })
+              .join('') +
+            '</ul>';
+        }
+
+        async function boot() {
+          const environment = resolveEnvironment();
+          const apiBase = API_BASES[environment];
+          const response = await fetch(apiBase + '/api/observability/overview');
+
+          if (!response.ok) {
+            throw new Error('Observability overview returned HTTP ' + response.status + '.');
+          }
+
+          const payload = await response.json();
+
+          renderSummaryCards(payload);
+          renderProjectBreakdown(payload);
+          renderFlaggedRuns(payload);
+
+          document.body.dataset.observabilityLoaded = 'true';
+          state.textContent = 'Live observability feed loaded from ' + environment + ' API.';
+        }
+
+        boot().catch(function(error) {
+          state.textContent = error instanceof Error ? error.message : 'Observability feed failed to load.';
+          state.style.color = '#6c1f1b';
+        });
+      }
+    </script>
+  `.trim();
+}
+
 function renderPage(page: PageDefinition, cssHref: string): string {
   const currentPath = normalizePath(page.path);
+  const extraContent =
+    page.extraContent === '__OBSERVABILITY_DASHBOARD__'
+      ? renderObservabilityExperience()
+      : (page.extraContent ?? '');
 
   return `
 <!DOCTYPE html>
@@ -477,6 +723,7 @@ function renderPage(page: PageDefinition, cssHref: string): string {
             .join('')}
         </section>
 
+        ${extraContent}
         ${currentPath === '/' || currentPath === '/projects' ? renderProjectGrid() : ''}
       </main>
 

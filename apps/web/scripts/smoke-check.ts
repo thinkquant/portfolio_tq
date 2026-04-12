@@ -23,6 +23,10 @@ const routes: RouteExpectation[] = [
     marker: 'Payment Exception Review Agent',
   },
   {
+    path: '/observability',
+    marker: 'Observability is a first-class feature, not an afterthought.',
+  },
+  {
     path: '/demo/runtime-route-check',
     marker: 'A portfolio app built as a real system from day one.',
   },

@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsx scripts/build-site.ts",
     "lint": "eslint src --ext .ts",
+    "smoke:observability": "tsx scripts/smoke-observability.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "smoke": "tsx scripts/smoke-check.ts",
     "test": "node -e \"console.log('No tests yet for @portfolio-tq/web')\""
@@ -15,5 +16,8 @@
     "@portfolio-tq/config": "workspace:*",
     "@portfolio-tq/types": "workspace:*",
     "@portfolio-tq/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
   }
 }
