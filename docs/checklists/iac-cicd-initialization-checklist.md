@@ -50,17 +50,17 @@ Initialization is complete when all of the following are true:
 ## 0. Branching and repo workflow
 
 ### 0.1 Decide branch model
-- [ ] Use `main` as the stable, publicly reviewable branch.
-- [ ] Use `dev` as the active integration branch for daily work.
-- [ ] Use short-lived feature branches off `dev` for larger changes if needed.
-- [ ] Merge to `main` only at clear milestones.
+- [x] Use `main` as the stable, publicly reviewable branch.
+- [x] Use `dev` as the active integration branch for daily work.
+- [x] Use short-lived feature branches off `dev` for larger changes if needed.
+- [x] Merge to `main` only at clear milestones.
 
 ### 0.2 Configure repo defaults
 - [ ] Create public GitHub repository named `portfolio-tq`.
-- [ ] Set repo description and topics.
+- [x] Set repo description and topics.
 - [ ] Add license file.
-- [ ] Add root `README.md` with short project summary and architecture links.
-- [ ] Set default branch initially to `main`.
+- [x] Add root `README.md` with short project summary and architecture links.
+- [x] Set default branch initially to `main`.
 - [ ] Create `dev` branch immediately after first scaffold commit.
 
 ### 0.3 Protect branches
@@ -71,11 +71,11 @@ Initialization is complete when all of the following are true:
 - [ ] Decide whether squash merge or rebase merge is the default.
 
 ### 0.4 Public workflow hygiene
-- [ ] Add `.gitignore` for Node, Terraform, Firebase, IDE files, env files.
-- [ ] Add `.editorconfig`.
-- [ ] Add commit message convention note in `README.md` or `docs/README.md`.
-- [ ] Add issue templates for bug, infra task, feature.
-- [ ] Add pull request template.
+- [x] Add `.gitignore` for Node, Terraform, Firebase, IDE files, env files.
+- [x] Add `.editorconfig`.
+- [x] Add commit message convention note in `README.md` or `docs/README.md`.
+- [x] Add issue templates for bug, infra task, feature.
+- [x] Add pull request template.
 
 ---
 
@@ -86,49 +86,58 @@ Reference docs:
 - `docs/specs/technical-spec-overall.md`
 
 ### 1.1 Toolchain
-- [ ] Pin Node version with `.nvmrc` or `.tool-versions`.
-- [ ] Decide package manager: `pnpm` recommended.
-- [ ] Install Terraform locally.
-- [ ] Install Google Cloud CLI locally.
-- [ ] Install Firebase CLI locally.
-- [ ] Install GitHub CLI locally.
+- [x] Pin Node version with `.nvmrc` or `.tool-versions`.
+- [x] Decide package manager: `pnpm` recommended.
+- [x] Install Terraform locally.
+- [x] Install Google Cloud CLI locally.
+- [x] Install Firebase CLI locally.
+- [x] Install GitHub CLI locally.
 
 ### 1.2 Root workspace setup
-- [ ] Create root `package.json`.
-- [ ] Create workspace config (`pnpm-workspace.yaml` if using pnpm).
-- [ ] Create root `tsconfig.base.json`.
-- [ ] Create root lint config.
-- [ ] Create root format config.
-- [ ] Add root scripts:
-  - [ ] `dev:web`
-  - [ ] `dev:api`
-  - [ ] `build`
-  - [ ] `lint`
-  - [ ] `typecheck`
-  - [ ] `test`
-  - [ ] `terraform:fmt`
-  - [ ] `terraform:validate`
-  - [ ] `terraform:plan:dev`
-  - [ ] `terraform:plan:prod`
+- [x] Create root `package.json`.
+- [x] Create workspace config (`pnpm-workspace.yaml` if using pnpm).
+- [x] Create root `tsconfig.base.json`.
+- [x] Create root lint config.
+- [x] Create root format config.
+- [x] Add root scripts:
+  - [x] `dev:web`
+  - [x] `dev:api`
+  - [x] `build`
+  - [x] `lint`
+  - [x] `typecheck`
+  - [x] `test`
+  - [x] `terraform:fmt`
+  - [x] `terraform:validate`
+  - [x] `terraform:plan:dev`
+  - [x] `terraform:plan:prod`
 
 ### 1.3 App and package scaffolding
-- [ ] Scaffold `apps/web`.
-- [ ] Scaffold `apps/api`.
-- [ ] Create packages:
-  - [ ] `packages/ui`
-  - [ ] `packages/schemas`
-  - [ ] `packages/agents`
-  - [ ] `packages/tools`
-  - [ ] `packages/evals`
-  - [ ] `packages/types`
-  - [ ] `packages/config`
-- [ ] Ensure local workspace imports resolve.
-- [ ] Ensure root `build`, `lint`, and `typecheck` run cleanly.
+- [x] Scaffold `apps/web`.
+- [x] Scaffold `apps/api`.
+- [x] Create packages:
+  - [x] `packages/ui`
+  - [x] `packages/schemas`
+  - [x] `packages/agents`
+  - [x] `packages/tools`
+  - [x] `packages/evals`
+  - [x] `packages/types`
+  - [x] `packages/config`
+- [x] Ensure local workspace imports resolve.
+- [x] Ensure root `build`, `lint`, and `typecheck` run cleanly.
 
 ### 1.4 Initial commit
 - [ ] Make first scaffold commit on `main`.
 - [ ] Create `dev` from that commit.
-- [ ] Continue active setup work on `dev`.
+- [x] Continue active setup work on `dev`.
+
+### Section 1 status notes
+- Repo verification was completed after following the required reading order listed above.
+- The public GitHub repo exists at `thinkquant/portfolio_tq`; the repo-name item stays open because it uses an underscore instead of `portfolio-tq`.
+- GitHub repo description and topics were set during this pass.
+- `main` and `dev` are both currently unprotected, and squash, rebase, and merge-commit merges are all enabled, so section 0.3 remains open.
+- `firebase` was not installed globally on this machine, but it is now available repo-locally via `pnpm exec firebase`.
+- Section 1 scaffold verification completed successfully with `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`.
+- The initial scaffold commit items remain open because this pass did not create or move commits.
 
 ---
 

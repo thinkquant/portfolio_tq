@@ -1,0 +1,19 @@
+{
+  "name": "@portfolio-tq/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -b tsconfig.json",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc -b tsconfig.json",
+    "test": "node -e \"console.log('No tests yet for @portfolio-tq/api')\""
+  },
+  "dependencies": {
+    "@portfolio-tq/agents": "workspace:*",
+    "@portfolio-tq/evals": "workspace:*",
+    "@portfolio-tq/schemas": "workspace:*",
+    "@portfolio-tq/types": "workspace:*"
+  }
+}

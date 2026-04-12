@@ -1,0 +1,31 @@
+{
+  "name": "portfolio-tq",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.27.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @portfolio-tq/web dev",
+    "dev:api": "pnpm --filter @portfolio-tq/api dev",
+    "build": "pnpm -r --filter ./packages/* --filter ./apps/* run build",
+    "lint": "pnpm -r --filter ./packages/* --filter ./apps/* run lint",
+    "typecheck": "pnpm -r --filter ./packages/* --filter ./apps/* run typecheck",
+    "test": "pnpm -r --filter ./packages/* --filter ./apps/* run test",
+    "format": "prettier --check .",
+    "terraform:fmt": "terraform fmt -check -recursive infra/terraform",
+    "terraform:validate": "terraform -chdir=infra/terraform/environments/dev validate && terraform -chdir=infra/terraform/environments/prod validate",
+    "terraform:plan:dev": "terraform -chdir=infra/terraform/environments/dev plan",
+    "terraform:plan:prod": "terraform -chdir=infra/terraform/environments/prod plan"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "firebase-tools": "^15.14.0",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2"
+  }
+}

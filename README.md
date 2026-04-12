@@ -124,9 +124,22 @@ Infrastructure is managed with Terraform, and the repo is structured so that env
 The intention is simple:
 
 - build quickly on `dev`
+- use short-lived feature branches off `dev` when a change is large or risky
 - keep `main` clean and milestone-based
 - maintain real environment discipline from the beginning
 - make the repo readable to technical reviewers
+
+## Commit convention
+
+Commits should stay small, readable, and scoped to one meaningful change.
+
+The working convention is:
+
+- `chore:` for tooling, scaffolding, and maintenance
+- `feat:` for new user-facing or system behavior
+- `fix:` for bug fixes and regressions
+- `infra:` for Terraform, cloud, and CI/CD changes
+- `docs:` for documentation-only updates
 
 ---
 
