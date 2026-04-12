@@ -166,7 +166,7 @@ This is deliberate. Even though the product is a portfolio, it is also meant to 
 ## Monorepo structure
 
 ```txt
-portfolio-tq/
+portfolio_tq/
   apps/
     web/        # portfolio frontend
     api/        # backend/demo orchestration service

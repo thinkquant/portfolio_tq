@@ -1,6 +1,6 @@
 # IaC + CI/CD Initialization Checklist
 
-Purpose: initialize `portfolio-tq` so infrastructure, environments, identity, CI/CD, and deployment workflows are set up correctly before heavy feature development begins.
+Purpose: initialize `portfolio_tq` so infrastructure, environments, identity, CI/CD, and deployment workflows are set up correctly before heavy feature development begins.
 
 This checklist is ordered. Run it top to bottom.
 
@@ -56,7 +56,7 @@ Initialization is complete when all of the following are true:
 - [x] Merge to `main` only at clear milestones.
 
 ### 0.2 Configure repo defaults
-- [ ] Create public GitHub repository named `portfolio-tq`.
+- [ ] Create public GitHub repository named `portfolio_tq`.
 - [x] Set repo description and topics.
 - [ ] Add license file.
 - [x] Add root `README.md` with short project summary and architecture links.
@@ -132,7 +132,7 @@ Reference docs:
 
 ### Section 1 status notes
 - Repo verification was completed after following the required reading order listed above.
-- The public GitHub repo exists at `thinkquant/portfolio_tq`; the repo-name item stays open because it uses an underscore instead of `portfolio-tq`.
+- The public GitHub repo exists at `thinkquant/portfolio_tq`; the repo-name item stays open because it uses an underscore instead of `portfolio_tq`.
 - GitHub repo description and topics were set during this pass.
 - `main` and `dev` are both currently unprotected, and squash, rebase, and merge-commit merges are all enabled, so section 0.3 remains open.
 - `firebase` was not installed globally on this machine, but it is now available repo-locally via `pnpm exec firebase`.
