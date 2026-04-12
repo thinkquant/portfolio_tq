@@ -20,6 +20,7 @@ Before making changes, read these documents in this order:
 8. `docs/checklists/build-checklist-definition-of-done.md`
 
 Agent operating rules:
+
 - Do not invent alternate architecture unless a checklist item explicitly calls for a deviation note.
 - Keep all environment names consistent with `dev` and `prod`.
 - Prefer Terraform-managed setup over click-ops, except for unavoidable bootstrap steps.
@@ -51,12 +52,14 @@ Initialization is complete when all of the following are true:
 ## 0. Branching and repo workflow
 
 ### 0.1 Decide branch model
+
 - [x] Use `main` as the stable, publicly reviewable branch.
 - [x] Use `dev` as the active integration branch for daily work.
 - [x] Use short-lived feature branches off `dev` for larger changes if needed.
 - [x] Merge to `main` only at clear milestones.
 
 ### 0.2 Configure repo defaults
+
 - [x] Create public GitHub repository named `portfolio_tq`.
 - [x] Set repo description and topics.
 - [x] Add license file.
@@ -65,6 +68,7 @@ Initialization is complete when all of the following are true:
 - [x] Create `dev` branch immediately after first scaffold commit.
 
 ### 0.3 Protect branches
+
 - [x] Protect `main` with required PRs.
 - [x] Require status checks on `main`.
 - [x] Protect `dev` with at least CI checks once workflows exist.
@@ -72,6 +76,7 @@ Initialization is complete when all of the following are true:
 - [x] Decide whether squash merge or rebase merge is the default.
 
 ### 0.4 Public workflow hygiene
+
 - [x] Add `.gitignore` for Node, Terraform, Firebase, IDE files, env files.
 - [x] Add `.editorconfig`.
 - [x] Add commit message convention note in `README.md` or `docs/README.md`.
@@ -79,6 +84,7 @@ Initialization is complete when all of the following are true:
 - [x] Add pull request template.
 
 ### 0.5 Public repo safety guardrails
+
 - [x] Keep `.gitignore` blocking env files, Terraform state, Terraform plans, `.tfvars`, Firebase debug logs, service-account keys, build artifacts, and IDE/system files.
 - [x] Add `.dockerignore` ahead of containerization work.
 - [x] Add optional `.gcloudignore` ahead of any future source-based gcloud deploy flow.
@@ -89,10 +95,12 @@ Initialization is complete when all of the following are true:
 ## 1. Local tooling and monorepo bootstrap
 
 Reference docs:
+
 - `docs/architecture/repo-skeleton.md`
 - `docs/specs/technical-spec-overall.md`
 
 ### 1.1 Toolchain
+
 - [x] Pin Node version with `.nvmrc` or `.tool-versions`.
 - [x] Decide package manager: `pnpm` recommended.
 - [x] Install Terraform locally.
@@ -101,6 +109,7 @@ Reference docs:
 - [x] Install GitHub CLI locally.
 
 ### 1.2 Root workspace setup
+
 - [x] Create root `package.json`.
 - [x] Create workspace config (`pnpm-workspace.yaml` if using pnpm).
 - [x] Create root `tsconfig.base.json`.
@@ -119,6 +128,7 @@ Reference docs:
   - [x] `terraform:plan:prod`
 
 ### 1.3 App and package scaffolding
+
 - [x] Scaffold `apps/web`.
 - [x] Scaffold `apps/api`.
 - [x] Create packages:
@@ -133,11 +143,13 @@ Reference docs:
 - [x] Ensure root `build`, `lint`, and `typecheck` run cleanly.
 
 ### 1.4 Initial commit
+
 - [x] Make first scaffold commit on `main`.
 - [x] Create `dev` from that commit.
 - [x] Continue active setup work on `dev`.
 
 ### Section 1 status notes
+
 - Repo verification was completed after following the required reading order listed above.
 - The public GitHub repo exists at `thinkquant/portfolio_tq`; the underscore name is intentional and now treated as canonical in repo-facing docs.
 - GitHub repo description and topics were set during this pass.
@@ -151,17 +163,21 @@ Reference docs:
 ## 2. GCP and Firebase bootstrap
 
 Reference docs:
+
 - `docs/architecture/iac-and-cicd.md`
 - `docs/specs/technical-spec-overall.md`
 
 ### 2.1 Cloud project strategy
+
 - [x] Create one GCP project for `dev`.
 - [x] Create one GCP project for `prod`.
 - [x] Decide naming convention and document it in `docs/architecture/adr-bootstrapping-notes.md`.
 - [x] Enable billing on both.
 
 ### 2.2 Required APIs
+
 For both projects:
+
 - [x] Enable Cloud Run API.
 - [x] Enable Artifact Registry API.
 - [x] Enable Firestore API.
@@ -176,6 +192,7 @@ For both projects:
 - [x] Enable Firebase Management / Hosting related setup as needed.
 
 ### 2.3 Firebase setup
+
 - [x] Attach Firebase to `dev` project.
 - [x] Attach Firebase to `prod` project.
 - [x] Initialize Hosting target structure for the web app.
@@ -183,11 +200,13 @@ For both projects:
 - [x] Document Firebase project aliases.
 
 ### 2.4 Firestore mode
+
 - [x] Create Firestore in Native mode for `dev`.
 - [x] Create Firestore in Native mode for `prod`.
 - [x] Document region choice.
 
 ### Section 2 status notes
+
 - GCP project names are `portfolio-tq-dev` and `portfolio-tq-prod`.
 - Firebase project names match the GCP project names exactly, with local aliases `dev` and `prod` configured in `.firebaserc`.
 - Billing is linked on both projects.
@@ -201,11 +220,13 @@ For both projects:
 ## 3. Terraform foundation
 
 Reference docs:
+
 - `docs/architecture/iac-and-cicd.md`
 - `docs/architecture/repo-skeleton.md`
 - `docs/architecture/observability-and-dashboards.md`
 
 ### 3.1 Terraform root setup
+
 - [x] Create provider configuration pattern.
 - [x] Create environment folders:
   - [x] `infra/terraform/environments/dev`
@@ -217,6 +238,7 @@ Reference docs:
 - [x] Add `terraform.tfvars.example` in each environment.
 
 ### 3.2 Remote state
+
 - [x] Decide remote state backend strategy.
 - [x] Create GCS bucket(s) for Terraform state.
 - [x] Enable versioning on state bucket(s).
@@ -227,7 +249,9 @@ Reference docs:
 - [x] Confirm state is not local-only after bootstrap.
 
 ### 3.3 Core modules
+
 Create first-pass Terraform modules for:
+
 - [x] `github_oidc`
 - [x] `iam_service_account`
 - [x] `artifact_registry`
@@ -239,12 +263,14 @@ Create first-pass Terraform modules for:
 - [x] `monitoring_dashboard`
 
 ### 3.4 Environment composition
+
 - [x] Compose `dev` environment using modules.
 - [x] Compose `prod` environment using modules.
 - [x] Keep variable names consistent across environments.
 - [x] Ensure plans are environment-isolated.
 
 ### 3.5 Terraform quality gates
+
 - [x] Add `terraform fmt -check` pass.
 - [x] Add `terraform validate` pass.
 - [x] Run `plan` cleanly for `dev`.
@@ -252,6 +278,7 @@ Create first-pass Terraform modules for:
 - [x] Record any unavoidable manual steps.
 
 ### Section 3 status notes
+
 - Terraform foundation files now exist under `infra/terraform/modules/*` and `infra/terraform/environments/{dev,prod}` with `versions.tf`, `providers.tf`, `variables.tf`, `main.tf`, `outputs.tf`, and `terraform.tfvars.example` in each environment.
 - Remote state uses one GCS bucket per environment: `gs://portfolio-tq-dev-tfstate` and `gs://portfolio-tq-prod-tfstate`.
 - Both state buckets were created in `US` with uniform bucket-level access, object versioning, and a lifecycle rule deleting noncurrent object versions after 30 days.
@@ -266,10 +293,12 @@ Create first-pass Terraform modules for:
 ## 4. Identity, auth, and secrets for CI/CD
 
 Reference docs:
+
 - `docs/architecture/iac-and-cicd.md`
 - `docs/specs/technical-spec-overall.md`
 
 ### 4.1 GitHub to GCP auth strategy
+
 - [x] Use GitHub Actions OIDC.
 - [x] Do not use long-lived service account keys for deployment.
 - [x] Create Workload Identity Pool.
@@ -278,6 +307,7 @@ Reference docs:
 - [x] Bind deploy service account(s) to workload identity principal.
 
 ### 4.2 Service accounts
+
 - [x] Create deploy service account for `dev`.
 - [x] Create deploy service account for `prod`.
 - [x] Grant minimum required roles for:
@@ -289,7 +319,9 @@ Reference docs:
 - [x] Avoid broad owner/editor roles.
 
 ### 4.3 GitHub secrets and variables
+
 Only store what is still necessary.
+
 - [x] Add GCP project IDs as repo/environment variables.
 - [x] Add Firebase project aliases or site IDs if needed.
 - [x] Add any non-secret config values as repo variables.
@@ -298,6 +330,7 @@ Only store what is still necessary.
 - [ ] Configure environment approvals for `prod` if desired.
 
 ### 4.4 Application secrets strategy
+
 - [x] Define initial Secret Manager secrets:
   - [x] Vertex AI related config if needed
   - [x] app-specific access keys if any
@@ -307,6 +340,7 @@ Only store what is still necessary.
 - [x] Ensure no secret values are committed.
 
 ### Section 4 status notes
+
 - Terraform-backed identity resources were applied for `dev` and `prod` with targeted applies limited to `module.github_oidc`, `module.deploy_service_account`, and `module.secrets` so section 4 could be completed without prematurely applying later deploy resources.
 - Active Workload Identity Pools now exist in both projects:
   - `projects/932345783663/locations/global/workloadIdentityPools/github-actions-dev`
@@ -336,16 +370,19 @@ Only store what is still necessary.
 ## 5. Web deployment path
 
 Reference docs:
+
 - `docs/specs/service-web.md`
 - `docs/architecture/iac-and-cicd.md`
 
 ### 5.1 Web build readiness
+
 - [x] Confirm `apps/web` builds locally.
 - [x] Confirm environment variable strategy for web app.
 - [x] Separate public frontend env values from backend secrets.
 - [x] Add hosting config files.
 
 ### 5.2 Firebase Hosting deploy path
+
 - [x] Decide if deploying single site per environment or channels.
 - [x] Configure Firebase Hosting for `dev`.
 - [x] Configure Firebase Hosting for `prod`.
@@ -353,12 +390,14 @@ Reference docs:
 - [x] Ensure SPA rewrite configuration exists if using client-side routing.
 
 ### 5.3 Web smoke checks
+
 - [x] Deployed homepage loads.
 - [x] Project index route loads.
 - [x] Example project page loads.
 - [x] No broken route rewrites.
 
 ### Section 5 status notes
+
 - `apps/web` now builds a source-controlled static route shell with generated pages for `/`, `/projects`, `/projects/payment-exception-review`, `/architecture`, `/observability`, and `/repo-workflow`.
 - Repeatable web deploy commands now exist at the repo root:
   - `pnpm deploy:web:dev`
@@ -399,11 +438,13 @@ Reference docs:
 ## 6. API deployment path
 
 Reference docs:
+
 - `docs/specs/service-api.md`
 - `docs/specs/technical-spec-overall.md`
 - `docs/architecture/observability-and-dashboards.md`
 
 ### 6.1 API build and containerization
+
 - [x] Confirm `apps/api` builds locally.
 - [x] Add Dockerfile.
 - [x] Add `.dockerignore`.
@@ -411,11 +452,13 @@ Reference docs:
 - [x] Make health endpoint available early.
 
 ### 6.2 Artifact Registry
+
 - [x] Provision Artifact Registry repo in `dev`.
 - [x] Provision Artifact Registry repo in `prod`.
 - [x] Ensure CI can push images.
 
 ### 6.3 Cloud Run setup
+
 - [x] Define Cloud Run service in Terraform.
 - [x] Set CPU/memory defaults.
 - [x] Set concurrency.
@@ -426,12 +469,14 @@ Reference docs:
 - [x] Decide public vs authenticated API access for demo phase.
 
 ### 6.4 API smoke checks
+
 - [x] `/health` returns success in `dev`.
 - [x] `/health` returns success in `prod`.
 - [x] Example demo endpoint deploys cleanly.
 - [x] Logs appear in Cloud Logging.
 
 ### Section 6 status notes
+
 - `apps/api` is now a real HTTP service instead of a console-only scaffold.
 - Live API routes now include:
   - `GET /health`
@@ -473,11 +518,13 @@ Reference docs:
 ## 7. Firestore, seed data, and indexes
 
 Reference docs:
+
 - `docs/specs/technical-spec-overall.md`
 - `docs/architecture/observability-and-dashboards.md`
 - `docs/specs/service-api.md`
 
 ### 7.1 Data model initialization
+
 - [x] Define initial collections:
   - [x] `projects`
   - [x] `runs`
@@ -493,6 +540,7 @@ Reference docs:
 - [x] Represent indexes in Terraform or exportable config.
 
 ### 7.2 Seed data path
+
 - [x] Create seed script location.
 - [x] Define seed command for `dev`.
 - [x] Keep `prod` seed strategy intentional and minimal.
@@ -501,11 +549,13 @@ Reference docs:
 - [x] Seed prompt versions.
 
 ### 7.3 Firestore smoke checks
+
 - [x] Seed script runs in `dev`.
 - [x] Web or API can read seeded `projects` collection.
 - [x] Dashboard query path works with seed data.
 
 ### Section 7 status notes
+
 - Shared Firestore collection names and record shapes now live in `packages/types`, covering `projects`, `runs`, `toolInvocations`, `evaluations`, `escalations`, `promptVersions`, `documents`, `cases`, `users`, and `accessCodes`.
 - Synthetic, public-safe seed payloads now live under `data/seed/**`. They are intentionally fake bootstrap records only; no secret values, real user data, or live access codes are stored in the repo.
 - A guarded dev-only seed path now exists:
@@ -558,11 +608,13 @@ Reference docs:
 ## 8. Observability foundation
 
 Reference docs:
+
 - `docs/architecture/observability-and-dashboards.md`
 - `docs/specs/service-api.md`
 - `docs/specs/service-web.md`
 
 ### 8.1 Logging standard
+
 - [x] Implement structured logging fields:
   - [x] `projectId`
   - [x] `runId`
@@ -575,6 +627,7 @@ Reference docs:
 - [x] Add error log helper.
 
 ### 8.2 Cloud metrics and dashboards
+
 - [x] Terraform module provisions at least one Cloud Monitoring dashboard.
 - [x] Add log-based metric for fallback count or run failures.
 - [x] Add latency chart widget.
@@ -582,16 +635,19 @@ Reference docs:
 - [x] Add request count widget.
 
 ### 8.3 In-app observability readiness
+
 - [x] Define API endpoint(s) for dashboard feed.
 - [x] Confirm `runs` and `evaluations` can feed the web app.
 - [x] Ensure at least one sample run can be rendered end to end.
 
 ### 8.4 Observability smoke checks
+
 - [x] API request creates logs.
 - [x] Cloud Run dashboard shows traffic.
 - [x] In-app observability page can load seeded metrics.
 
 ### Section 8 status notes
+
 - Structured API logging is now implemented through `apps/api/src/services/logs.ts` and is used by the live demo route in `apps/api/src/index.ts`.
 - Verified structured log fields now present in Cloud Logging for both environments:
   - required fields: `projectId`, `runId`, `environment`, `eventType`, `timestamp`
@@ -663,72 +719,148 @@ Reference docs:
 ## 9. GitHub Actions workflows
 
 Reference docs:
+
 - `docs/architecture/iac-and-cicd.md`
 - `docs/specs/service-web.md`
 - `docs/specs/service-api.md`
 
 ### 9.1 Workflow files
-- [ ] Create CI workflow for PRs.
-- [ ] Create deploy workflow for `dev` branch.
-- [ ] Create deploy workflow for `main` branch.
-- [ ] Optionally create Terraform plan workflow for PR comments/artifacts.
+
+- [x] Create CI workflow for PRs.
+- [x] Create deploy workflow for `dev` branch.
+- [x] Create deploy workflow for `main` branch.
+- [x] Optionally create Terraform plan workflow for PR comments/artifacts.
 
 ### 9.2 PR CI jobs
-- [ ] checkout
-- [ ] install dependencies
-- [ ] cache package manager deps
-- [ ] lint
-- [ ] typecheck
-- [ ] unit tests if present
-- [ ] web build
-- [ ] api build
-- [ ] terraform fmt check
-- [ ] terraform validate
+
+- [x] checkout
+- [x] install dependencies
+- [x] cache package manager deps
+- [x] lint
+- [x] typecheck
+- [x] unit tests if present
+- [x] web build
+- [x] api build
+- [x] terraform fmt check
+- [x] terraform validate
 
 ### 9.3 Dev deploy workflow
+
 Triggered from `dev` branch.
-- [ ] authenticate to GCP with OIDC
-- [ ] run Terraform plan/apply for `dev` as appropriate
-- [ ] build web
-- [ ] deploy web to Firebase `dev`
-- [ ] build container image
-- [ ] push to Artifact Registry `dev`
-- [ ] deploy API to Cloud Run `dev`
-- [ ] run smoke check(s)
+
+- [x] authenticate to GCP with OIDC
+- [x] run Terraform plan/apply for `dev` as appropriate
+- [x] build web
+- [x] deploy web to Firebase `dev`
+- [x] build container image
+- [x] push to Artifact Registry `dev`
+- [x] deploy API to Cloud Run `dev`
+- [x] run smoke check(s)
 
 ### 9.4 Prod deploy workflow
+
 Triggered from `main` branch.
-- [ ] authenticate to GCP with OIDC
-- [ ] run Terraform plan/apply for `prod`
-- [ ] build web
-- [ ] deploy web to Firebase `prod`
-- [ ] build container image
-- [ ] push to Artifact Registry `prod`
-- [ ] deploy API to Cloud Run `prod`
-- [ ] run smoke check(s)
+
+- [x] authenticate to GCP with OIDC
+- [x] run Terraform plan/apply for `prod`
+- [x] build web
+- [x] deploy web to Firebase `prod`
+- [x] build container image
+- [x] push to Artifact Registry `prod`
+- [x] deploy API to Cloud Run `prod`
+- [x] run smoke check(s)
 
 ### 9.5 Workflow quality
-- [ ] Use concurrency control to avoid overlapping deploys.
-- [ ] Use environment-scoped variables.
-- [ ] Publish useful artifacts for failures where appropriate.
-- [ ] Keep logs readable for public-review value.
+
+- [x] Use concurrency control to avoid overlapping deploys.
+- [x] Use environment-scoped variables.
+- [x] Publish useful artifacts for failures where appropriate.
+- [x] Keep logs readable for public-review value.
+
+### Section 9 status notes
+
+- Workflow files now exist under `.github/workflows/`:
+  - `ci.yml`
+  - `terraform-plan.yml`
+  - `deploy-dev.yml`
+  - `deploy-prod.yml`
+- PR CI now runs on `pull_request` and includes:
+  - checkout
+  - Node + pnpm setup with cache
+  - install
+  - lint
+  - typecheck
+  - test
+  - web build
+  - API build
+  - Terraform fmt
+  - Terraform init + validate for `dev` and `prod`
+- Optional Terraform plan workflow now runs on PRs that touch `.github/workflows/**` or `infra/terraform/**`.
+- The Terraform plan workflow is intentionally limited to same-repository PRs so the repo does not attempt cloud-authenticated plan jobs for untrusted fork PRs.
+- Branch deploy workflows now exist for both environments:
+  - `dev` branch -> `deploy-dev.yml`
+  - `main` branch -> `deploy-prod.yml`
+- Both deploy workflows use GitHub OIDC through `google-github-actions/auth` and the existing environment-scoped variables:
+  - `GCP_PROJECT_ID`
+  - `GCP_PROJECT_NUMBER`
+  - `FIREBASE_PROJECT_ALIAS`
+  - `FIREBASE_SITE_ID`
+  - `FIRESTORE_DATABASE_ID`
+  - `GCP_WORKLOAD_IDENTITY_PROVIDER`
+  - `GCP_DEPLOY_SERVICE_ACCOUNT`
+  - shared repo vars `GCP_REGION` and `FIRESTORE_LOCATION`
+- The deploy workflows now:
+  - build and push the API image directly from the GitHub runner to Artifact Registry using OIDC-backed Google auth
+  - run Terraform plan/apply with `cloud_run_container_image` overridden to the commit-specific image URI
+  - deploy the web app to the environment-specific Firebase Hosting site
+  - run public smoke checks after deployment
+- `dev` deploy smoke coverage currently includes:
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:observability:web:dev`
+  - `pnpm smoke:api:dev`
+  - `pnpm smoke:firestore:dev`
+- `prod` deploy smoke coverage currently includes:
+  - `pnpm smoke:web:prod`
+  - `pnpm smoke:observability:web:prod`
+  - `pnpm smoke:api:prod`
+- Workflow quality measures now in place:
+  - concurrency groups prevent overlapping `dev` and `prod` deploys
+  - environment-scoped variables are used for cloud project, Firebase alias/site, Firestore DB, workload identity provider, and deploy service account
+  - Terraform plan text is uploaded as an artifact in both PR plan and branch deploy workflows
+  - step summaries are written to keep public logs readable
+- Local verification completed successfully on April 12, 2026 with:
+  - `npx prettier --check .github/workflows/*.yml`
+  - repository/environment variable inspection via `gh variable list`
+  - Actions availability verification via `gh api repos/thinkquant/portfolio_tq/actions/permissions`
+  - environment existence verification via `gh api repos/thinkquant/portfolio_tq/environments`
+- Important limitation:
+  - I could not execute these workflows end to end from this local-only state because GitHub cannot run uncommitted workflow files. A commit pushed to `dev` or `main`, or a manual dispatch after commit, is required to fully verify live GitHub Actions execution.
+- Manual follow-up recommended after the first successful CI run:
+  - update branch protection / rulesets so the real CI check name is required on `main` and `dev`
+- Current branch-rule observation from GitHub on April 12, 2026:
+  - GitHub Actions is enabled for the repo
+  - `dev` and `prod` environments exist
+  - only one active repository ruleset is currently visible via API: `protect_main`
 
 ---
 
 ## 10. Repository standards for public showcase value
 
 Reference docs:
+
 - `docs/specs/technical-spec-overall.md`
 - `docs/specs/service-web.md`
 - `docs/checklists/master-checklist.md`
 
 ### 10.1 Public development visibility
+
 - [ ] Keep commits small enough to tell the build story.
 - [ ] Write meaningful commit messages.
 - [ ] Use issues or milestone notes for major setup phases.
 - [ ] Keep docs updated when infra decisions change.
 
 ### 10.2 Setup visibility pages
+
 - [ ] Add `/repo-workflow` page in the web app later.
 - [ ] Add architecture diagram placeholders early.
 - [ ] Add README section describing branch strategy and environments.
@@ -738,6 +870,7 @@ Reference docs:
 ## 11. Final initialization verification
 
 ### 11.1 Local verification
+
 - [ ] `pnpm install` works from clean clone.
 - [ ] `pnpm lint` passes.
 - [ ] `pnpm typecheck` passes.
@@ -745,6 +878,7 @@ Reference docs:
 - [ ] Terraform fmt/validate pass.
 
 ### 11.2 Dev environment verification
+
 - [ ] Terraform plan/apply succeeds for `dev`.
 - [ ] Web deploy succeeds for `dev`.
 - [ ] API deploy succeeds for `dev`.
@@ -753,6 +887,7 @@ Reference docs:
 - [ ] One smoke request completes and is logged.
 
 ### 11.3 Prod environment verification
+
 - [ ] Terraform plan/apply succeeds for `prod`.
 - [ ] Web deploy succeeds for `prod`.
 - [ ] API deploy succeeds for `prod`.
@@ -761,6 +896,7 @@ Reference docs:
 - [ ] One smoke request completes and is logged.
 
 ### 11.4 GitHub verification
+
 - [ ] PR CI runs successfully.
 - [ ] Push to `dev` triggers `dev` deploy.
 - [ ] Merge to `main` triggers `prod` deploy.
@@ -771,18 +907,21 @@ Reference docs:
 ## 12. CI/CD implementation and activation
 
 Reference docs:
+
 - `docs/architecture/iac-and-cicd.md`
 - `docs/checklists/build-checklist-definition-of-done.md`
 - `docs/specs/technical-spec-overall.md`
 - `README.md`
 
 Goal:
+
 - complete CI/CD setup before real feature development
 - enforce automated verification on every push to `dev`
 - enforce clean milestone promotion from `dev` to `main`
 - separate CI from deploy until deploy credentials and environments are fully wired
 
 ### 12.1 CI/CD design decisions
+
 - [ ] Confirm GitHub Actions is the CI/CD platform for this repository.
 - [ ] Confirm `.github/workflows/` will hold all workflow YAML files.
 - [ ] Confirm branch strategy:
@@ -801,6 +940,7 @@ Goal:
   - [ ] `main` should never be used as a daily working branch
 
 ### 12.2 Required GitHub repository settings
+
 - [ ] Confirm Actions are enabled for the repository.
 - [ ] Confirm GitHub Pages is not being used for this project.
 - [ ] Confirm repository visibility is public.
@@ -824,6 +964,7 @@ Goal:
   - [ ] PRs optional for solo work, but CI must stay green
 
 ### 12.3 Workflow files to create
+
 Create these files under `.github/workflows/`:
 
 - [ ] `ci.yml`
@@ -832,20 +973,25 @@ Create these files under `.github/workflows/`:
 - [ ] `deploy-prod.yml` placeholder or real workflow
 
 Notes:
+
 - `ci.yml` is mandatory now.
 - `infra-plan.yml` is mandatory now.
 - deploy workflows may begin as placeholders if OIDC / secrets / environment gating are not finished yet.
 
 ### 12.4 Implement `ci.yml`
+
 Purpose:
+
 - run automated verification on every push to `dev`
 - run automated verification on every PR to `main`
 
 Trigger rules:
+
 - [ ] trigger on push to `dev`
 - [ ] trigger on pull request to `main`
 
 Jobs to include:
+
 - [ ] checkout repository
 - [ ] setup Node using repo-pinned version
 - [ ] setup pnpm
@@ -857,20 +1003,25 @@ Jobs to include:
 - [ ] run `pnpm build`
 
 Success criteria:
+
 - [ ] workflow passes on current repo state
 - [ ] workflow appears in GitHub Actions tab
 - [ ] workflow status is visible on commits/PRs
 - [ ] workflow name is stable and readable, e.g. `ci`
 
 ### 12.5 Implement `infra-plan.yml`
+
 Purpose:
+
 - validate Terraform changes continuously before any apply step is introduced
 
 Trigger rules:
+
 - [ ] trigger on push to `dev` when files under `infra/**` change
 - [ ] trigger on pull request to `main` when files under `infra/**` change
 
 Jobs to include:
+
 - [ ] checkout repository
 - [ ] setup Terraform
 - [ ] run `terraform fmt -check -recursive infra/terraform`
@@ -881,21 +1032,26 @@ Jobs to include:
 - [ ] artifact or log output should make failures understandable
 
 Rules:
+
 - [ ] do not auto-apply in this workflow yet
 - [ ] do not target prod apply from initialization-phase CI
 - [ ] keep planning safe, readable, and deterministic
 
 Success criteria:
+
 - [ ] workflow passes against current Terraform scaffold
 - [ ] Terraform formatting issues fail the workflow
 - [ ] invalid Terraform fails the workflow
 - [ ] plan runs successfully for dev
 
 ### 12.6 Implement deployment workflow placeholders
+
 Purpose:
+
 - make the intended CD path explicit before live deployment is activated
 
 For `deploy-dev.yml`:
+
 - [ ] create file
 - [ ] add trigger comments or disabled trigger
 - [ ] document intended future flow:
@@ -905,6 +1061,7 @@ For `deploy-dev.yml`:
   - [ ] deploy API to Cloud Run dev project
 
 For `deploy-prod.yml`:
+
 - [ ] create file
 - [ ] add trigger comments or disabled trigger
 - [ ] document intended future flow:
@@ -917,6 +1074,7 @@ For `deploy-prod.yml`:
 - even if CD is not active yet, the structure should already exist.
 
 ### 12.7 Local developer workflow requirements
+
 Before every push to `dev`, run locally:
 
 - [ ] `pnpm lint`
@@ -925,11 +1083,13 @@ Before every push to `dev`, run locally:
 - [ ] `pnpm build`
 
 Rules:
+
 - [ ] local checks do not replace GitHub CI
 - [ ] GitHub CI is the public source of truth
 - [ ] do not push knowingly broken builds to `dev`
 
 ### 12.8 GitHub Actions quality standards
+
 - [ ] workflow names are readable
 - [ ] step names are readable
 - [ ] no hard-coded secrets in YAML
@@ -940,6 +1100,7 @@ Rules:
 - [ ] CI remains fast enough for active development
 
 ### 12.9 Status checks and enforcement
+
 After `ci.yml` is passing:
 
 - [ ] add `ci` as a required status check on `main`
@@ -948,12 +1109,14 @@ After `ci.yml` is passing:
 - [ ] verify PR to `main` is blocked when CI fails
 
 ### 12.10 Visibility and public proof-of-work
+
 - [ ] confirm Actions tab is publicly visible on the repo
 - [ ] confirm workflow run history is visible
 - [ ] confirm commit history shows CI activity
 - [ ] confirm repo demonstrates real engineering discipline, not just code volume
 
 ### 12.11 Definition of done for CI/CD initialization
+
 CI/CD initialization is complete when:
 
 - [ ] `.github/workflows/ci.yml` exists and passes
@@ -967,7 +1130,9 @@ CI/CD initialization is complete when:
 - [ ] the repo is ready to begin real feature development under enforced automated verification
 
 ### 12.12 Post-initialization next step
+
 After this section is complete:
+
 - begin real development work on `dev`
 - keep CI green throughout implementation
 - introduce OIDC auth and real deployment workflows next, before first live dev deployment
@@ -992,6 +1157,7 @@ After this section is complete:
 ## Notes on branch strategy
 
 Recommended for this project:
+
 - `main` stays clean and milestone-based.
 - `dev` is your integration branch for rapid visible progress.
 - Use feature branches off `dev` only when a change is large enough that you do not want to destabilize `dev`.

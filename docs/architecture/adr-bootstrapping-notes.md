@@ -1,15 +1,18 @@
 # Bootstrap Notes
 
 ## Scope
+
 This note records the manual and semi-manual bootstrap decisions that were necessary before Terraform and CI/CD can manage the rest of the stack.
 
 ## Repository identity
+
 - GitHub repository: `thinkquant/portfolio_tq`
 - Repo name uses an underscore: `portfolio_tq`
 - Product-facing naming in docs may still use `portfolio-tq`, but repo-facing automation should treat `portfolio_tq` as canonical.
 - Public repo rule: do not record secrets, sensitive operational values, or local-only credentials in docs, code comments, examples, or commit history.
 
 ## Environment and project mapping
+
 - `dev`
   GCP project: `portfolio-tq-dev`
   Firebase project: `portfolio-tq-dev`
@@ -20,15 +23,18 @@ This note records the manual and semi-manual bootstrap decisions that were neces
   Firebase alias: `prod`
 
 ## Hosting and release strategy
+
 - This project does not use Firebase preview channels.
 - Active development, testing, and preview-style validation happen by deploying to `portfolio-tq-dev`.
 - Milestone releases are promoted to `portfolio-tq-prod`.
 - This strategy matches the long-lived branch model: `dev` for integration and `main` for milestone-grade releases.
 
 ## Billing
+
 - Billing is linked for both `portfolio-tq-dev` and `portfolio-tq-prod`.
 
 ## API bootstrap command
+
 The initial API enablement command used for both projects was:
 
 ```powershell
@@ -49,6 +55,7 @@ gcloud services enable `
 ```
 
 ## API verification snapshot
+
 Verified on April 12, 2026:
 
 - Both projects have `run.googleapis.com`, `artifactregistry.googleapis.com`, `secretmanager.googleapis.com`, `firestore.googleapis.com`, `firebase.googleapis.com`, `firebasehosting.googleapis.com`, `iamcredentials.googleapis.com`, `serviceusage.googleapis.com`, `cloudresourcemanager.googleapis.com`, `logging.googleapis.com`, `monitoring.googleapis.com`, and `aiplatform.googleapis.com` enabled.
@@ -56,6 +63,7 @@ Verified on April 12, 2026:
 - The current planned deploy flow does not require Cloud Build in `dev`, because deploys are intended to run directly from GitHub Actions rather than through Cloud Build.
 
 ## Firestore bootstrap
+
 - Firestore mode: Native
 - Region: `nam5`
 - Database IDs are environment-specific and match the project IDs:
@@ -63,10 +71,12 @@ Verified on April 12, 2026:
   - `portfolio-tq-prod`
 
 ## Firebase CLI availability
+
 - Firebase tooling was installed through npm in the repo workspace.
 - Agents and local automation should use `pnpm exec firebase` unless a global installation is intentionally preferred.
 
 ## Terraform remote state bootstrap
+
 - Remote state backend strategy: one GCS bucket per environment, colocated with that environment's project.
 - Dev backend bucket: `gs://portfolio-tq-dev-tfstate`
 - Prod backend bucket: `gs://portfolio-tq-prod-tfstate`
@@ -77,6 +87,7 @@ Verified on April 12, 2026:
 - Terraform environments are configured to use the `gcs` backend with prefix `terraform/state`.
 
 ## Identity and CI/CD auth bootstrap
+
 - GitHub Actions auth strategy: OIDC through Google Workload Identity Federation.
 - Dev workload identity provider:
   - Pool: `projects/932345783663/locations/global/workloadIdentityPools/github-actions-dev`
@@ -98,6 +109,7 @@ Verified on April 12, 2026:
 - No user-managed service account keys were created for these deploy service accounts.
 
 ## GitHub environments and variables bootstrap
+
 - GitHub Environments created:
   - `dev`
   - `prod`
@@ -116,6 +128,7 @@ Verified on April 12, 2026:
 - `prod` environment approvals were not configured yet.
 
 ## Secret Manager bootstrap
+
 - Secret containers created in both projects:
   - `vertex-ai-location`
   - `demo-access-gate`
@@ -123,6 +136,7 @@ Verified on April 12, 2026:
 - Secret values must be populated manually later in Secret Manager and must never be committed to the public repository or copied into docs.
 
 ## Web Hosting bootstrap
+
 - Firebase Hosting serves the static output from `apps/web/dist`.
 - The web deployment path currently uses one live site per environment rather than preview channels.
 - Deploy command pattern:
@@ -139,6 +153,7 @@ Verified on April 12, 2026:
 - Direct `/index.html` receives `Cache-Control: public, max-age=0, must-revalidate`, while rewritten `web.app` routes currently return `Cache-Control: max-age=3600`. If stricter HTML caching is needed later, re-check Firebase Hosting CDN behavior before assuming rewritten routes inherit the exact same header policy.
 
 ## API deployment bootstrap
+
 - Artifact Registry repositories created:
   - `us-central1-docker.pkg.dev/portfolio-tq-dev/portfolio-tq-api`
   - `us-central1-docker.pkg.dev/portfolio-tq-prod/portfolio-tq-api`
@@ -163,6 +178,7 @@ Verified on April 12, 2026:
 - This works, but it should be revisited later in favor of a more deliberate builder identity or a direct GitHub OIDC image-push path.
 
 ## Firestore seed and index bootstrap
+
 - Shared Firestore collection shapes are now defined in `packages/types` for:
   - `projects`
   - `runs`
@@ -195,6 +211,7 @@ Verified on April 12, 2026:
   - `GET /api/projects/:projectId/metrics`
 
 ## Observability bootstrap
+
 - Structured API logging now flows through `apps/api/src/services/logs.ts`.
 - Verified structured log fields now present in Cloud Logging:
   - `projectId`
@@ -236,7 +253,41 @@ Verified on April 12, 2026:
 - The observability smoke script was adjusted to verify the public page shell and live API response without depending on browser-only module-script execution in `jsdom`.
 - During section 8 verification, the `dev` Hosting site briefly served an older `404` release. Rerunning `pnpm deploy:web:dev` corrected it.
 
+## GitHub Actions workflow bootstrap
+
+- Workflow files added:
+  - `.github/workflows/ci.yml`
+  - `.github/workflows/terraform-plan.yml`
+  - `.github/workflows/deploy-dev.yml`
+  - `.github/workflows/deploy-prod.yml`
+- GitHub Actions is enabled for the repository.
+- GitHub environments already in use by workflows:
+  - `dev`
+  - `prod`
+- Shared repo vars already in use by workflows:
+  - `GCP_REGION`
+  - `FIRESTORE_LOCATION`
+- Environment vars already in use by workflows:
+  - `GCP_PROJECT_ID`
+  - `GCP_PROJECT_NUMBER`
+  - `FIREBASE_PROJECT_ALIAS`
+  - `FIREBASE_SITE_ID`
+  - `FIRESTORE_DATABASE_ID`
+  - `GCP_WORKLOAD_IDENTITY_PROVIDER`
+  - `GCP_DEPLOY_SERVICE_ACCOUNT`
+- The branch deploy workflows now use GitHub OIDC and direct GitHub-runner Docker builds to push API images to Artifact Registry, then apply Terraform with the commit-specific image URI.
+- The optional Terraform plan workflow uploads plan artifacts for infra-related PRs and intentionally skips fork PRs for cloud-authenticated execution.
+- Local workflow verification on April 12, 2026 covered:
+  - YAML formatting via `npx prettier --check .github/workflows/*.yml`
+  - GitHub Actions repo-permission check
+  - GitHub environment and variable presence checks
+- End-to-end workflow execution is still pending a real push or manual dispatch after these files are committed.
+- Repository ruleset follow-up still remains after the first real CI run:
+  - only the `protect_main` ruleset is currently visible via the GitHub API
+  - the actual CI check name should be added to required status checks on `main` and `dev` after the first successful run
+
 ## Follow-up note for future infra work
+
 - Current `firebase.json` still references the default Firestore database ID.
 - When Firestore rules and indexes are automated, the Firebase/Terraform configuration should be revisited so it explicitly targets the named environment databases created during bootstrap.
 - Firebase default hosting sites already exist outside Terraform. In this first-pass Terraform scaffold, the environment configs reference those existing site IDs without creating or importing them.
