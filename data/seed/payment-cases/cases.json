@@ -1,0 +1,24 @@
+[
+  {
+    "id": "case-payment-bootstrap-001",
+    "projectId": "payment-exception-review",
+    "title": "Duplicate beneficiary warning on outbound payment",
+    "queue": "payment-exceptions",
+    "priority": "high",
+    "status": "reviewed",
+    "createdAt": "2026-04-12T17:40:00.000Z",
+    "updatedAt": "2026-04-12T17:52:00.000Z",
+    "summary": "Synthetic payment exception case used for bootstrap seeding and smoke checks."
+  },
+  {
+    "id": "case-payment-bootstrap-002",
+    "projectId": "payment-exception-review",
+    "title": "High-value transfer with mismatched memo text",
+    "queue": "payment-exceptions",
+    "priority": "medium",
+    "status": "open",
+    "createdAt": "2026-04-12T17:20:00.000Z",
+    "updatedAt": "2026-04-12T17:44:00.000Z",
+    "summary": "Synthetic payment exception case that intentionally drives an escalation scenario."
+  }
+]

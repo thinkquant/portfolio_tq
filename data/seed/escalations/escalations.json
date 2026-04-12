@@ -1,0 +1,11 @@
+[
+  {
+    "id": "esc-payment-20260412-001",
+    "projectId": "payment-exception-review",
+    "runId": "run-payment-20260412-002",
+    "status": "open",
+    "createdAt": "2026-04-12T17:45:34.000Z",
+    "reason": "Synthetic reviewer escalation due to conflicting account notes.",
+    "owner": "user-reviewer-dev"
+  }
+]

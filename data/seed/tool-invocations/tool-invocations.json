@@ -1,0 +1,57 @@
+[
+  {
+    "id": "tool-payment-20260412-001-a",
+    "projectId": "payment-exception-review",
+    "runId": "run-payment-20260412-001",
+    "toolName": "case-loader",
+    "status": "completed",
+    "startedAt": "2026-04-12T17:51:01.000Z",
+    "completedAt": "2026-04-12T17:51:19.000Z",
+    "latencyMs": 180,
+    "summary": "Loaded synthetic payment exception case metadata."
+  },
+  {
+    "id": "tool-payment-20260412-001-b",
+    "projectId": "payment-exception-review",
+    "runId": "run-payment-20260412-001",
+    "toolName": "policy-search",
+    "status": "completed",
+    "startedAt": "2026-04-12T17:51:28.000Z",
+    "completedAt": "2026-04-12T17:51:55.000Z",
+    "latencyMs": 270,
+    "summary": "Returned synthetic review policy guidance."
+  },
+  {
+    "id": "tool-payment-20260412-002-a",
+    "projectId": "payment-exception-review",
+    "runId": "run-payment-20260412-002",
+    "toolName": "case-loader",
+    "status": "completed",
+    "startedAt": "2026-04-12T17:44:02.000Z",
+    "completedAt": "2026-04-12T17:44:24.000Z",
+    "latencyMs": 220,
+    "summary": "Loaded conflicting payment case notes for escalation."
+  },
+  {
+    "id": "tool-investing-20260412-001-a",
+    "projectId": "investing-ops-copilot",
+    "runId": "run-investing-20260412-001",
+    "toolName": "policy-search",
+    "status": "completed",
+    "startedAt": "2026-04-12T16:58:06.000Z",
+    "completedAt": "2026-04-12T16:58:33.000Z",
+    "latencyMs": 270,
+    "summary": "Retrieved synthetic policy snippets for the operations copilot."
+  },
+  {
+    "id": "tool-evals-20260412-001-a",
+    "projectId": "eval-console",
+    "runId": "run-evals-20260412-001",
+    "toolName": "metrics-aggregator",
+    "status": "completed",
+    "startedAt": "2026-04-12T15:45:10.000Z",
+    "completedAt": "2026-04-12T15:45:46.000Z",
+    "latencyMs": 360,
+    "summary": "Aggregated synthetic run and evaluation metrics for the console."
+  }
+]

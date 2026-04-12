@@ -62,6 +62,16 @@ All cloud resources are provisioned through Terraform from the beginning.
 - log-based metrics
 - GitHub OIDC workload identity integration
 
+## Firestore bootstrap strategy
+- Keep the named Firestore databases environment-specific:
+  - `portfolio-tq-dev`
+  - `portfolio-tq-prod`
+- Keep collection definitions and shared record shapes in code so the API, seed path, and dashboards stay aligned.
+- Keep synthetic bootstrap seed data in `data/seed/**` only. Never add real production-like personal data, secret values, or usable access codes to repo-tracked seed files.
+- Use `pnpm seed:firestore:dev` for local/bootstrap seeding and keep that command guarded to `dev` only.
+- Keep `prod` seeding intentional and minimal; do not introduce an automatic production seed path unless there is a clear release reason and the content is explicitly curated.
+- Keep Firestore composite indexes represented in Terraform for the named databases. `firestore.indexes.json` may mirror the current index set for review, but Terraform is the source of truth for apply operations.
+
 ## API deploy strategy
 - Build and publish the API container to Artifact Registry in `us-central1`.
 - Deploy `apps/api` to Cloud Run in each environment with Terraform-managed service settings.

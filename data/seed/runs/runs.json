@@ -1,0 +1,72 @@
+[
+  {
+    "id": "run-payment-20260412-001",
+    "projectId": "payment-exception-review",
+    "status": "completed",
+    "createdAt": "2026-04-12T17:51:00.000Z",
+    "updatedAt": "2026-04-12T17:52:22.000Z",
+    "environment": "dev",
+    "durationMs": 1420,
+    "summary": "Synthetic payment exception review completed without escalation.",
+    "promptVersionId": "prompt-payment-v1",
+    "evaluationStatus": "passed",
+    "escalated": false,
+    "toolInvocationCount": 2
+  },
+  {
+    "id": "run-payment-20260412-002",
+    "projectId": "payment-exception-review",
+    "status": "escalated",
+    "createdAt": "2026-04-12T17:44:00.000Z",
+    "updatedAt": "2026-04-12T17:45:33.000Z",
+    "environment": "dev",
+    "durationMs": 2210,
+    "summary": "Synthetic payment exception review escalated due to conflicting notes.",
+    "promptVersionId": "prompt-payment-v1",
+    "evaluationStatus": "warning",
+    "escalated": true,
+    "toolInvocationCount": 3
+  },
+  {
+    "id": "run-investing-20260412-001",
+    "projectId": "investing-ops-copilot",
+    "status": "completed",
+    "createdAt": "2026-04-12T16:58:00.000Z",
+    "updatedAt": "2026-04-12T16:59:17.000Z",
+    "environment": "dev",
+    "durationMs": 1680,
+    "summary": "Synthetic investing operations guidance completed with grounded policy retrieval.",
+    "promptVersionId": "prompt-investing-v1",
+    "evaluationStatus": "passed",
+    "escalated": false,
+    "toolInvocationCount": 2
+  },
+  {
+    "id": "run-legacy-20260412-001",
+    "projectId": "legacy-ai-adapter",
+    "status": "completed",
+    "createdAt": "2026-04-12T16:20:00.000Z",
+    "updatedAt": "2026-04-12T16:21:41.000Z",
+    "environment": "dev",
+    "durationMs": 1945,
+    "summary": "Synthetic adapter run transformed a deterministic handoff into a typed response.",
+    "promptVersionId": "prompt-legacy-v1",
+    "evaluationStatus": "passed",
+    "escalated": false,
+    "toolInvocationCount": 1
+  },
+  {
+    "id": "run-evals-20260412-001",
+    "projectId": "eval-console",
+    "status": "completed",
+    "createdAt": "2026-04-12T15:45:00.000Z",
+    "updatedAt": "2026-04-12T15:46:08.000Z",
+    "environment": "dev",
+    "durationMs": 980,
+    "summary": "Synthetic evaluation aggregation run refreshed the observability view.",
+    "promptVersionId": "prompt-evals-v1",
+    "evaluationStatus": "passed",
+    "escalated": false,
+    "toolInvocationCount": 1
+  }
+]

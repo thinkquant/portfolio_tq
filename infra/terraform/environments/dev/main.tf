@@ -10,6 +10,7 @@ locals {
 
   deploy_roles = toset([
     "roles/artifactregistry.writer",
+    "roles/datastore.indexAdmin",
     "roles/firebasehosting.admin",
     "roles/run.admin",
     "roles/iam.serviceAccountUser",
@@ -17,8 +18,75 @@ locals {
   ])
 
   runtime_roles = toset([
+    "roles/datastore.user",
     "roles/secretmanager.secretAccessor",
   ])
+
+  firestore_indexes = [
+    {
+      name        = "runs-project-createdAt-desc"
+      collection  = "runs"
+      query_scope = "COLLECTION"
+      fields = [
+        { field_path = "projectId", order = "ASCENDING" },
+        { field_path = "createdAt", order = "DESCENDING" },
+      ]
+    },
+    {
+      name        = "runs-status-createdAt-desc"
+      collection  = "runs"
+      query_scope = "COLLECTION"
+      fields = [
+        { field_path = "status", order = "ASCENDING" },
+        { field_path = "createdAt", order = "DESCENDING" },
+      ]
+    },
+    {
+      name        = "tool-invocations-project-startedAt-desc"
+      collection  = "toolInvocations"
+      query_scope = "COLLECTION"
+      fields = [
+        { field_path = "projectId", order = "ASCENDING" },
+        { field_path = "startedAt", order = "DESCENDING" },
+      ]
+    },
+    {
+      name        = "evaluations-project-createdAt-desc"
+      collection  = "evaluations"
+      query_scope = "COLLECTION"
+      fields = [
+        { field_path = "projectId", order = "ASCENDING" },
+        { field_path = "createdAt", order = "DESCENDING" },
+      ]
+    },
+    {
+      name        = "escalations-project-createdAt-desc"
+      collection  = "escalations"
+      query_scope = "COLLECTION"
+      fields = [
+        { field_path = "projectId", order = "ASCENDING" },
+        { field_path = "createdAt", order = "DESCENDING" },
+      ]
+    },
+    {
+      name        = "prompt-versions-project-createdAt-desc"
+      collection  = "promptVersions"
+      query_scope = "COLLECTION"
+      fields = [
+        { field_path = "projectId", order = "ASCENDING" },
+        { field_path = "createdAt", order = "DESCENDING" },
+      ]
+    },
+    {
+      name        = "cases-project-updatedAt-desc"
+      collection  = "cases"
+      query_scope = "COLLECTION"
+      fields = [
+        { field_path = "projectId", order = "ASCENDING" },
+        { field_path = "updatedAt", order = "DESCENDING" },
+      ]
+    },
+  ]
 
   secret_names = toset([
     "vertex-ai-location",
@@ -144,7 +212,7 @@ module "firestore_indexes" {
 
   project_id  = var.project_id
   database_id = var.firestore_database_id
-  indexes     = []
+  indexes     = local.firestore_indexes
 }
 
 module "logging_metrics" {

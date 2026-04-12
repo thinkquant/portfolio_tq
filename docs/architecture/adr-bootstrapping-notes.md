@@ -91,6 +91,7 @@ Verified on April 12, 2026:
 - Deploy role set currently granted to each environment-specific service account:
   - `roles/run.admin`
   - `roles/artifactregistry.writer`
+  - `roles/datastore.indexAdmin`
   - `roles/firebasehosting.admin`
   - `roles/secretmanager.secretAccessor`
   - `roles/iam.serviceAccountUser`
@@ -153,12 +154,45 @@ Verified on April 12, 2026:
   - `portfolio-api-runtime-prod@portfolio-tq-prod.iam.gserviceaccount.com`
 - The runtime service currently reads the non-sensitive `vertex-ai-location` secret from Secret Manager. An initial version was added in both projects so secret-backed env injection could be verified.
 - `demo-access-gate` still has no secret version and is intentionally not wired into the Cloud Run service yet.
-- API image build path currently uses `cloudbuild.api.yaml` and Cloud Build remote builds, publishing `portfolio-tq-api:bootstrap-v1` into each environment repository.
+- API image build path currently uses `cloudbuild.api.yaml` and Cloud Build remote builds, publishing environment-specific images into each project's Artifact Registry repository.
+- The current API image tag deployed to both environments is `portfolio-tq-api:firestore-v1`.
 - Cloud Build in both projects currently runs as the default compute service account. To make remote image builds succeed, the bootstrap pass added:
   - bucket-level `roles/storage.objectViewer` on `gs://portfolio-tq-dev_cloudbuild` and `gs://portfolio-tq-prod_cloudbuild`
   - project-level `roles/artifactregistry.writer`
   - project-level `roles/logging.logWriter`
 - This works, but it should be revisited later in favor of a more deliberate builder identity or a direct GitHub OIDC image-push path.
+
+## Firestore seed and index bootstrap
+- Shared Firestore collection shapes are now defined in `packages/types` for:
+  - `projects`
+  - `runs`
+  - `toolInvocations`
+  - `evaluations`
+  - `escalations`
+  - `promptVersions`
+  - `documents`
+  - `cases`
+  - `users`
+  - `accessCodes`
+- Synthetic, non-sensitive bootstrap seed payloads now live under `data/seed/**`.
+- Dev-only seed command:
+  - `pnpm seed:firestore:dev`
+- The dev seed script refuses to run unless both the project ID and Firestore database ID end with `-dev`.
+- `portfolio-tq-dev` was seeded successfully on April 12, 2026 with synthetic project metadata, cases, prompt versions, run history, evaluations, tool invocations, escalations, users, documents, and a synthetic access-code metadata record.
+- `portfolio-tq-prod` was intentionally left unseeded; this keeps production/demo-release data curation deliberate instead of automatic.
+- Initial composite indexes were applied through Terraform in both projects for dashboard-style queries on:
+  - `runs`
+  - `toolInvocations`
+  - `evaluations`
+  - `escalations`
+  - `promptVersions`
+  - `cases`
+- Runtime service accounts in both projects now also have `roles/datastore.user` so the API can read Firestore directly.
+- Firestore-backed API read routes now exist at:
+  - `GET /api/projects`
+  - `GET /api/runs`
+  - `GET /api/evaluations`
+  - `GET /api/projects/:projectId/metrics`
 
 ## Follow-up note for future infra work
 - Current `firebase.json` still references the default Firestore database ID.

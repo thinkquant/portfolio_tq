@@ -90,5 +90,5 @@ variable "cloud_run_memory" {
 
 variable "cloud_run_container_image" {
   type    = string
-  default = "us-central1-docker.pkg.dev/portfolio-tq-dev/portfolio-tq-api/portfolio-tq-api:bootstrap-v1"
+  default = "us-central1-docker.pkg.dev/portfolio-tq-dev/portfolio-tq-api/portfolio-tq-api:firestore-v1"
 }
