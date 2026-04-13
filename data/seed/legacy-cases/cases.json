@@ -1,0 +1,13 @@
+[
+  {
+    "id": "case-legacy-bootstrap-001",
+    "projectId": "legacy-ai-adapter",
+    "title": "Manual batch intake converted to typed adapter payload",
+    "queue": "legacy-handoffs",
+    "priority": "low",
+    "status": "closed",
+    "createdAt": "2026-04-12T16:00:00.000Z",
+    "updatedAt": "2026-04-12T16:21:00.000Z",
+    "summary": "Synthetic legacy conversion case showing deterministic-to-AI adaptation."
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "case-investing-bootstrap-001",
+    "projectId": "investing-ops-copilot",
+    "title": "Dividend reinvestment instruction clarification",
+    "queue": "investing-ops",
+    "priority": "medium",
+    "status": "reviewed",
+    "createdAt": "2026-04-12T16:40:00.000Z",
+    "updatedAt": "2026-04-12T16:58:00.000Z",
+    "summary": "Synthetic investing operations case used to validate grounded guidance flows."
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "eval-payment-20260412-001",
+    "projectId": "payment-exception-review",
+    "runId": "run-payment-20260412-001",
+    "status": "passed",
+    "createdAt": "2026-04-12T17:52:20.000Z",
+    "score": 0.98,
+    "schemaValid": true,
+    "fallbackTriggered": false,
+    "summary": "Synthetic review output matched the expected schema and decision band."
+  },
+  {
+    "id": "eval-payment-20260412-002",
+    "projectId": "payment-exception-review",
+    "runId": "run-payment-20260412-002",
+    "status": "warning",
+    "createdAt": "2026-04-12T17:45:31.000Z",
+    "score": 0.74,
+    "schemaValid": true,
+    "fallbackTriggered": true,
+    "summary": "Synthetic escalation case triggered fallback handling due to conflicting evidence."
+  },
+  {
+    "id": "eval-investing-20260412-001",
+    "projectId": "investing-ops-copilot",
+    "runId": "run-investing-20260412-001",
+    "status": "passed",
+    "createdAt": "2026-04-12T16:59:15.000Z",
+    "score": 0.95,
+    "schemaValid": true,
+    "fallbackTriggered": false,
+    "summary": "Synthetic investing guidance remained grounded and concise."
+  },
+  {
+    "id": "eval-legacy-20260412-001",
+    "projectId": "legacy-ai-adapter",
+    "runId": "run-legacy-20260412-001",
+    "status": "passed",
+    "createdAt": "2026-04-12T16:21:39.000Z",
+    "score": 0.93,
+    "schemaValid": true,
+    "fallbackTriggered": false,
+    "summary": "Synthetic adapter output preserved deterministic controls."
+  }
+]

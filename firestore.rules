@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Locked-down baseline for public-repo development.
+    // Add narrow collection/path rules only when a real client-side use case
+    // requires them. Keep sensitive access on the backend through Cloud Run
+    // and service-account-backed server code whenever possible.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

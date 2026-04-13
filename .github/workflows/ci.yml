@@ -1,0 +1,89 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.27.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint workspace
+        run: pnpm lint
+
+      - name: Typecheck workspace
+        run: pnpm typecheck
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build web app
+        run: pnpm --filter @portfolio-tq/web... build
+
+      - name: Build API app
+        run: pnpm --filter @portfolio-tq/api... build
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive infra/terraform
+
+      - name: Terraform init and validate (dev)
+        run: |
+          terraform -chdir=infra/terraform/environments/dev init -backend=false -input=false
+          terraform -chdir=infra/terraform/environments/dev validate -no-color
+
+      - name: Terraform init and validate (prod)
+        run: |
+          terraform -chdir=infra/terraform/environments/prod init -backend=false -input=false
+          terraform -chdir=infra/terraform/environments/prod validate -no-color
+
+      - name: Publish workflow summary
+        run: |
+          {
+            echo "## CI summary"
+            echo "- Lint, typecheck, and test steps completed."
+            echo "- Web and API build steps completed."
+            echo "- Terraform fmt and validate completed for dev and prod."
+          } >> "$GITHUB_STEP_SUMMARY"

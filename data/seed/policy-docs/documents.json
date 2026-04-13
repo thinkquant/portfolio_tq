@@ -1,0 +1,32 @@
+[
+  {
+    "id": "doc-payment-review-policy",
+    "projectId": "payment-exception-review",
+    "title": "Payment Review Policy Summary",
+    "kind": "policy",
+    "createdAt": "2026-04-12T14:00:00.000Z",
+    "updatedAt": "2026-04-12T14:30:00.000Z",
+    "status": "active",
+    "summary": "Synthetic policy summary covering review thresholds and escalation cues."
+  },
+  {
+    "id": "doc-investing-ops-policy",
+    "projectId": "investing-ops-copilot",
+    "title": "Investing Ops Guidance Brief",
+    "kind": "brief",
+    "createdAt": "2026-04-12T14:05:00.000Z",
+    "updatedAt": "2026-04-12T14:35:00.000Z",
+    "status": "active",
+    "summary": "Synthetic brief describing escalation and documentation expectations."
+  },
+  {
+    "id": "doc-legacy-adapter-reference",
+    "projectId": "legacy-ai-adapter",
+    "title": "Legacy Adapter Reference Notes",
+    "kind": "reference",
+    "createdAt": "2026-04-12T14:10:00.000Z",
+    "updatedAt": "2026-04-12T14:40:00.000Z",
+    "status": "active",
+    "summary": "Synthetic reference material for deterministic handoff mapping."
+  }
+]

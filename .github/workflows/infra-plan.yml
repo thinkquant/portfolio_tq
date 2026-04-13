@@ -1,0 +1,138 @@
+name: infra-plan
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - infra/**
+      - .github/workflows/infra-plan.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - infra/**
+      - .github/workflows/infra-plan.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: infra-plan-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  plan-dev:
+    name: plan-dev
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: https://${{ vars.FIREBASE_SITE_ID }}.web.app
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive infra/terraform
+
+      - name: Terraform init
+        run: terraform -chdir=infra/terraform/environments/dev init -input=false
+
+      - name: Terraform validate
+        run: terraform -chdir=infra/terraform/environments/dev validate -no-color
+
+      - name: Terraform plan
+        run: terraform -chdir=infra/terraform/environments/dev plan -input=false -no-color -out=tfplan
+
+      - name: Render Terraform plan
+        run: terraform -chdir=infra/terraform/environments/dev show -no-color tfplan > terraform-plan-dev.txt
+
+      - name: Upload Terraform plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-dev
+          path: terraform-plan-dev.txt
+
+      - name: Publish workflow summary
+        run: |
+          {
+            echo "## Terraform plan summary"
+            echo "- Environment: dev"
+            echo "- Artifact: \`terraform-plan-dev\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  plan-prod:
+    name: plan-prod
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+      url: https://${{ vars.FIREBASE_SITE_ID }}.web.app
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive infra/terraform
+
+      - name: Terraform init
+        run: terraform -chdir=infra/terraform/environments/prod init -input=false
+
+      - name: Terraform validate
+        run: terraform -chdir=infra/terraform/environments/prod validate -no-color
+
+      - name: Terraform plan
+        run: terraform -chdir=infra/terraform/environments/prod plan -input=false -no-color -out=tfplan
+
+      - name: Render Terraform plan
+        run: terraform -chdir=infra/terraform/environments/prod show -no-color tfplan > terraform-plan-prod.txt
+
+      - name: Upload Terraform plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-prod
+          path: terraform-plan-prod.txt
+
+      - name: Publish workflow summary
+        run: |
+          {
+            echo "## Terraform plan summary"
+            echo "- Environment: prod"
+            echo "- Artifact: \`terraform-plan-prod\`"
+          } >> "$GITHUB_STEP_SUMMARY"

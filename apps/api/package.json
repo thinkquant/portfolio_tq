@@ -1,0 +1,24 @@
+{
+  "name": "@portfolio-tq/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -b tsconfig.json",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext .ts",
+    "seed:firestore:dev": "tsx scripts/seed-firestore-dev.ts",
+    "typecheck": "tsc -b tsconfig.json",
+    "smoke": "tsx scripts/smoke-check.ts",
+    "smoke:firestore": "tsx scripts/smoke-firestore.ts",
+    "test": "node -e \"console.log('No tests yet for @portfolio-tq/api')\""
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^8.0.0",
+    "@portfolio-tq/agents": "workspace:*",
+    "@portfolio-tq/evals": "workspace:*",
+    "@portfolio-tq/schemas": "workspace:*",
+    "@portfolio-tq/types": "workspace:*"
+  }
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "payment-exception-review",
+    "title": "Payment Exception Review Agent",
+    "slug": "payment-exception-review",
+    "tagline": "Confidence-aware exception handling for payment operations.",
+    "summary": "Synthetic bootstrap metadata for the payment exception review workflow demo.",
+    "status": "live",
+    "surfacePath": "/projects/payment-exception-review",
+    "environment": "all",
+    "updatedAt": "2026-04-12T18:00:00.000Z"
+  },
+  {
+    "id": "investing-ops-copilot",
+    "title": "Intelligent Investing Operations Copilot",
+    "slug": "investing-ops-copilot",
+    "tagline": "Grounded guidance for operational investing workflows.",
+    "summary": "Synthetic bootstrap metadata for the investing operations copilot demo.",
+    "status": "active",
+    "surfacePath": "/projects/investing-ops-copilot",
+    "environment": "all",
+    "updatedAt": "2026-04-12T18:00:00.000Z"
+  },
+  {
+    "id": "legacy-ai-adapter",
+    "title": "Legacy Workflow to AI-Native Adapter",
+    "slug": "legacy-ai-adapter",
+    "tagline": "Wrap deterministic systems with structured AI orchestration.",
+    "summary": "Synthetic bootstrap metadata for the legacy adapter showcase.",
+    "status": "active",
+    "surfacePath": "/projects/legacy-ai-adapter",
+    "environment": "all",
+    "updatedAt": "2026-04-12T18:00:00.000Z"
+  },
+  {
+    "id": "eval-console",
+    "title": "Evaluation and Reliability Console",
+    "slug": "eval-console",
+    "tagline": "Operational visibility for runs, prompts, and fallbacks.",
+    "summary": "Synthetic bootstrap metadata for the evaluation console showcase.",
+    "status": "active",
+    "surfacePath": "/projects/eval-console",
+    "environment": "all",
+    "updatedAt": "2026-04-12T18:00:00.000Z"
+  }
+]
