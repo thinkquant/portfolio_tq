@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsx scripts/build-site.ts",
-    "lint": "eslint src --ext .ts",
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "lint": "eslint src --ext .ts,.tsx",
     "smoke:observability": "tsx scripts/smoke-observability.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "smoke": "tsx scripts/smoke-check.ts",
@@ -15,9 +15,17 @@
   "dependencies": {
     "@portfolio-tq/config": "workspace:*",
     "@portfolio-tq/types": "workspace:*",
-    "@portfolio-tq/ui": "workspace:*"
+    "@portfolio-tq/ui": "workspace:*",
+    "@tailwindcss/vite": "^4.2.2",
+    "@vitejs/plugin-react": "^6.0.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.14.0",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.8"
   },
   "devDependencies": {
-    "jsdom": "^26.1.0"
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
   }
 }

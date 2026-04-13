@@ -13,12 +13,16 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.json",
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "tsc -b tsconfig.json",
     "test": "node -e \"console.log('No tests yet for @portfolio-tq/ui')\""
   },
   "dependencies": {
     "@portfolio-tq/config": "workspace:*",
-    "@portfolio-tq/types": "workspace:*"
+    "@portfolio-tq/types": "workspace:*",
+    "react": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14"
   }
 }
