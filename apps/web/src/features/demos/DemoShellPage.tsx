@@ -2,12 +2,12 @@ import {
   Callout,
   Card,
   EmptyState,
-  MetricTile,
   PageHeading,
-  ProofTag,
   SectionHeading,
 } from '@portfolio-tq/ui';
 import { Link, useLoaderData } from 'react-router-dom';
+
+import { siteCopy } from '@/content/textCopy';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
 import type { DemoShellPageData } from './demoLoaders';
@@ -26,7 +26,7 @@ function PanelList({ items }: { items: string[] }) {
     <ul className="mt-5 grid gap-3">
       {items.map((item) => (
         <li
-          className="rounded-lg border border-white/10 bg-white/[0.03] p-4 leading-7 text-stone-300"
+          className="rounded-[var(--radius)] border border-border bg-background/70 p-4 leading-7 text-muted-foreground"
           key={item}
         >
           {item}
@@ -40,44 +40,40 @@ function DemoShellPageContent({
   content,
   project,
 }: DemoShellPageContentProps) {
-
   return (
     <div className="grid gap-8">
       <PageHeading
-        actions={
-          <>
-            <ProofTag tone="accent">Route shell</ProofTag>
-            <ProofTag>Backend-ready</ProofTag>
-            <ProofTag tone="warning">No live run yet</ProofTag>
-          </>
-        }
         eyebrow="Demo"
-        lead={project.summary}
-        title={`${project.title} Demo`}
+        lead={content.subhead}
+        title={content.title}
       />
 
       <section className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
         <Card>
           <SectionHeading
-            eyebrow="Input panel area"
-            lead="This area will become the reviewer-facing intake form once the demo runtime is connected."
             title={content.inputTitle}
           />
           <PanelList items={content.inputFields} />
-          <label className="mt-5 grid gap-2 text-sm font-bold text-stone-300">
-            Reviewer input placeholder
+          <label className="mt-5 grid gap-2 text-sm font-bold text-foreground">
+            Input
             <textarea
-              className="min-h-32 resize-y rounded-lg border border-white/10 bg-stone-950/70 p-4 text-sm leading-6 text-stone-300"
+              className="min-h-32 resize-y rounded-[var(--radius)] border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground"
               disabled
-              placeholder="Synthetic demo input will land here."
+              placeholder={content.inputFields[0]}
             />
           </label>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button className="min-h-11 rounded-[var(--radius)] bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground opacity-75" disabled type="button">
+              {content.primaryAction}
+            </button>
+            <button className="min-h-11 rounded-[var(--radius)] border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground opacity-75" disabled type="button">
+              {content.secondaryAction}
+            </button>
+          </div>
         </Card>
 
         <Card>
           <SectionHeading
-            eyebrow="Output panel area"
-            lead="This panel reserves the structured output shape that the API response will hydrate later."
             title={content.outputTitle}
           />
           <PanelList items={content.outputFields} />
@@ -87,85 +83,86 @@ function DemoShellPageContent({
       <section className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
         <Card>
           <SectionHeading
-            eyebrow="Trace / timeline area"
-            lead="The timeline follows the shared observability event vocabulary and the project-specific tool/retrieval flow."
-            title="Execution trace placeholder."
+            title={content.detailPanelTitle ?? siteCopy.shell.states.noDataTitle}
           />
-          <ol className="mt-5 grid gap-3">
-            {content.traceEvents.map((event, index) => (
-              <li
-                className="grid gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-4"
-                key={event}
-              >
-                <span className="font-mono text-xs text-amber-200">
-                  T+{String(index).padStart(2, '0')}
-                </span>
-                <p className="leading-7 text-stone-300">{event}</p>
-              </li>
-            ))}
-          </ol>
+          {content.detailLabels?.length ? (
+            <PanelList items={content.detailLabels} />
+          ) : (
+            <EmptyState
+              message={content.emptyState ?? siteCopy.shell.states.noDataBody}
+              title={siteCopy.shell.states.noDataTitle}
+            />
+          )}
         </Card>
 
         <section className="grid content-start gap-5">
           <SectionHeading
-            eyebrow="Evaluation / metrics area"
-            lead="These are the quality signals the demo page will expose after the backend produces run and evaluation records."
-            title="Run quality placeholder."
+            title={content.evaluationTitle}
           />
           <div className="grid gap-3">
-            {content.evaluationSignals.map((signal) => (
-              <MetricTile
-                detail="Pending live run data"
-                key={signal}
-                label={signal}
-                tone="neutral"
-                value="--"
-              />
+            {content.evaluationMetrics.map((signal) => (
+              <Card className="grid gap-2" key={signal}>
+                <p className="text-xs font-black uppercase tracking-[0.12em] text-primary">
+                  {signal}
+                </p>
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {siteCopy.shell.states.noDataBody}
+                </p>
+              </Card>
             ))}
           </div>
         </section>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-        <Callout title="Backend integration landing zone" tone="warning">
-          {content.backendNote}
-        </Callout>
+        {content.noteTitle && content.noteBody ? (
+          <Callout title={content.noteTitle} tone="accent">
+            {content.noteBody}
+          </Callout>
+        ) : (
+          <Callout title={siteCopy.shell.states.comingSoonTitle} tone="warning">
+            {siteCopy.shell.states.comingSoonBody}
+          </Callout>
+        )}
 
         <section className="grid content-start gap-5">
           <SectionHeading
-            eyebrow="State model"
-            lead="The shell reserves the state language that later data-fetching work can use consistently."
-            title="Empty, loading, and error states."
+            title="State model"
           />
           <div className="grid gap-3">
             <EmptyState
-              message="No run has been started for this demo route yet."
-              title="Empty state"
+              message={content.emptyState ?? siteCopy.shell.states.noDataBody}
+              title={siteCopy.shell.states.noDataTitle}
             />
-            <div className="rounded-lg border border-amber-300/40 bg-amber-300/10 p-4 leading-7 text-amber-100">
-              Loading state: run queued or executing, with trace events streaming
-              into the timeline.
+            <div className="rounded-[var(--radius)] border border-border bg-muted p-4 leading-7 text-muted-foreground">
+              {siteCopy.shell.states.loadingLabel}
             </div>
-            <div className="rounded-lg border border-rose-300/40 bg-rose-300/10 p-4 leading-7 text-rose-100">
-              Error state: API failure, schema validation issue, or policy guard
-              fallback requiring reviewer attention.
-            </div>
+            {content.stateTitle && content.stateBody ? (
+              <Callout title={content.stateTitle} tone="warning">
+                {content.stateBody}
+              </Callout>
+            ) : null}
+            {content.successTitle && content.successBody ? (
+              <Callout title={content.successTitle} tone="success">
+                {content.successBody}
+              </Callout>
+            ) : null}
           </div>
         </section>
       </section>
 
       <section className="flex flex-wrap gap-3">
         <Link
-          className="inline-flex min-h-11 items-center rounded-lg bg-amber-300 px-5 py-2 text-sm font-black text-stone-950 shadow-lg shadow-amber-950/30 transition hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-950"
+          className="inline-flex min-h-11 items-center rounded-[var(--radius)] bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-chart-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
           to="/demo"
         >
-          Back to demo index
+          Back to Demos
         </Link>
         <Link
-          className="inline-flex min-h-11 items-center rounded-lg border border-white/15 bg-white/[0.04] px-5 py-2 text-sm font-black text-stone-100 transition hover:border-amber-300/60 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-950"
+          className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-border bg-card px-5 py-2 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
           to={project.href}
         >
-          Read project page
+          Open Module
         </Link>
       </section>
     </div>

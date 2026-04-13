@@ -1,6 +1,6 @@
-import { repositoryMetadata } from '@portfolio-tq/config';
-import { appHeaderTitle, primaryNavigation } from '@portfolio-tq/ui';
 import { Link, Outlet, useLocation, useNavigation } from 'react-router-dom';
+
+import { siteCopy } from '@/content/textCopy';
 
 function isNavigationActive(href: string, pathname: string): boolean {
   if (href === '/') {
@@ -22,6 +22,10 @@ export function RootLayout() {
   const { pathname } = useLocation();
   const navigation = useNavigation();
   const isNavigating = navigation.state !== 'idle';
+  const shellNavigation = siteCopy.shell.navigation;
+  const repoLink = siteCopy.shell.footer.navigation.find(
+    (item) => item.label === 'Repo',
+  );
 
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -33,48 +37,69 @@ export function RootLayout() {
       </a>
 
       <div className="mx-auto flex min-h-screen w-full max-w-[82rem] flex-col px-5 py-5 sm:px-7 sm:py-6 lg:px-10 lg:py-7">
-        <header className="sticky top-0 z-40 bg-[linear-gradient(180deg,rgba(23,23,23,0.95),rgba(23,23,23,0.88)_72%,rgba(23,23,23,0))] pb-5 pt-1 backdrop-blur-xl">
-          <div className="grid gap-5 border-b border-border/80 pb-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-            <Link
-              aria-label="Go to portfolio home"
-              className="group grid max-w-3xl gap-2 text-left no-underline"
-              to="/"
-            >
-              <span className="text-[0.7rem] font-black uppercase tracking-[0.14em] text-primary/80">
-                thinkquant
-              </span>
-              <span className="font-serif text-[2rem] leading-none tracking-normal text-foreground transition group-hover:text-primary sm:text-[2.35rem]">
-                {appHeaderTitle}
-              </span>
-              <span className="max-w-[56ch] text-sm leading-6 text-muted-foreground">
-                Capture ambiguity. Process chaos. Produce ordered action.
-              </span>
-            </Link>
+        <header className="sticky top-0 z-40 bg-background/92 pb-5 pt-1 backdrop-blur-xl">
+          <div className="grid gap-3 border-b border-border/80 pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] border border-border/70 bg-muted/55 px-4 py-3 text-sm text-muted-foreground">
+              <p className="max-w-[72ch] leading-6">
+                {siteCopy.shell.announcement}
+              </p>
+              {repoLink ? (
+                <a
+                  className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+                  href={repoLink.href}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {siteCopy.shell.repoLinkLabel}
+                </a>
+              ) : null}
+            </div>
 
-            <nav
-              aria-label="Primary navigation"
-              className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 text-sm [scrollbar-width:none] sm:flex-wrap sm:overflow-visible lg:justify-end"
-            >
-              {primaryNavigation.map((item) => {
-                const active = isNavigationActive(item.href, pathname);
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+              <Link
+                aria-label="Go to portfolio home"
+                className="group grid max-w-3xl gap-2 text-left no-underline"
+                to="/"
+              >
+                <span className="text-[0.7rem] font-black uppercase tracking-[0.14em] text-primary/80">
+                  {siteCopy.shell.brand}
+                </span>
+                <span className="font-serif text-[2rem] leading-none tracking-normal text-foreground transition group-hover:text-primary sm:text-[2.35rem]">
+                  {siteCopy.shell.primaryLockup}
+                </span>
+                <span className="max-w-[56ch] text-sm leading-6 text-muted-foreground">
+                  {siteCopy.shell.secondaryLine}
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  {siteCopy.shell.utilityLine}
+                </span>
+              </Link>
 
-                return (
-                  <Link
-                    aria-current={active ? 'page' : undefined}
-                    className={[
-                      'min-h-11 shrink-0 rounded-[var(--radius)] border px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
-                      active
-                        ? 'border-primary/80 bg-primary text-primary-foreground'
-                        : 'border-transparent bg-transparent text-muted-foreground hover:border-border/80 hover:bg-card/75 hover:text-foreground',
-                    ].join(' ')}
-                    key={item.href}
-                    to={item.href}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+              <nav
+                aria-label="Primary navigation"
+                className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 text-sm [scrollbar-width:none] sm:flex-wrap sm:overflow-visible lg:justify-end"
+              >
+                {shellNavigation.map((item) => {
+                  const active = isNavigationActive(item.href, pathname);
+
+                  return (
+                    <Link
+                      aria-current={active ? 'page' : undefined}
+                      className={[
+                        'min-h-11 shrink-0 rounded-[var(--radius)] border px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
+                        active
+                          ? 'border-primary/80 bg-primary text-primary-foreground'
+                          : 'border-transparent bg-transparent text-muted-foreground hover:border-border/80 hover:bg-card/75 hover:text-foreground',
+                      ].join(' ')}
+                      key={item.href}
+                      to={item.href}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
           </div>
         </header>
 
@@ -90,7 +115,7 @@ export function RootLayout() {
                 className="rounded-[var(--radius)] border border-primary/20 bg-accent px-4 py-3 text-sm text-accent-foreground"
                 role="status"
               >
-                Loading route data...
+                {siteCopy.shell.states.loadingLabel}...
               </div>
             ) : null}
             <Outlet />
@@ -98,22 +123,61 @@ export function RootLayout() {
         </main>
 
         <footer className="mt-auto border-t border-border/80 py-6 text-sm text-muted-foreground">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <p className="max-w-[60ch] leading-6">
-              {repositoryMetadata.productName} is a public-safe portfolio shell
-              for AI-native workflow demos; backend secrets stay out of the
-              frontend bundle.
-            </p>
-            <div className="flex flex-wrap gap-2" aria-label="Footer links">
-              {primaryNavigation.map((item) => (
-                <Link
-                  className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-transparent px-3 py-2 text-muted-foreground transition hover:border-border/80 hover:bg-card hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-                  key={item.href}
-                  to={item.href}
-                >
-                  {item.label}
-                </Link>
-              ))}
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+            <div className="grid gap-3">
+              <p className="font-semibold text-foreground">
+                {siteCopy.shell.footer.line1}
+              </p>
+              <p className="max-w-[60ch] leading-6">
+                {siteCopy.shell.footer.line2}
+              </p>
+              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                {siteCopy.shell.footer.note}
+              </p>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-[auto_auto]">
+              <div className="flex flex-wrap gap-2" aria-label="Footer links">
+                {siteCopy.shell.footer.navigation.map((item) =>
+                  item.href.startsWith('http') ? (
+                    <a
+                      className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-transparent px-3 py-2 text-muted-foreground transition hover:border-border/80 hover:bg-card hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+                      href={item.href}
+                      key={item.label}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link
+                      className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-transparent px-3 py-2 text-muted-foreground transition hover:border-border/80 hover:bg-card hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+                      key={item.label}
+                      to={item.href}
+                    >
+                      {item.label}
+                    </Link>
+                  ),
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                {siteCopy.shell.footer.contacts.map((contact) =>
+                  contact.href ? (
+                    <a
+                      className="text-muted-foreground transition hover:text-foreground"
+                      href={contact.href}
+                      key={contact.label}
+                      rel={contact.href.startsWith('http') ? 'noreferrer' : undefined}
+                      target={contact.href.startsWith('http') ? '_blank' : undefined}
+                    >
+                      {contact.label}
+                    </a>
+                  ) : (
+                    <span key={contact.label}>{contact.label}</span>
+                  ),
+                )}
+              </div>
             </div>
           </div>
         </footer>

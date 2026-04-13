@@ -3,9 +3,16 @@ import { ArrowDown, Briefcase, GitBranch, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { buttonVariants } from '@/components/ui/button';
+import { siteCopy } from '@/content/textCopy';
 import { cn } from '@/lib/utils';
 
 export function HeroBlock() {
+  const iconLinks = [
+    { icon: Briefcase, label: 'Work', to: '/work' },
+    { icon: GitBranch, label: siteCopy.shell.repoLinkLabel, to: '/repo-workflow' },
+    { icon: User, label: 'About', to: '/about' },
+  ];
+
   return (
     <section className="relative flex min-h-[calc(100svh-6rem)] w-full items-center justify-center overflow-hidden border-y border-border/80 bg-background">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800f_1px,transparent_1px),linear-gradient(to_bottom,#8080800f_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -22,7 +29,7 @@ export function HeroBlock() {
             initial={{ opacity: 0, y: 16 }}
             transition={{ delay: 0.1, duration: 0.5 }}
           >
-            {['Measured', 'Rigorous', 'Sovereign'].map((label) => (
+            {siteCopy.home.heroProofStrip.map((label) => (
               <span
                 className="inline-flex items-center rounded-[var(--radius)] border border-border bg-card px-2.5 py-1 text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted-foreground"
                 key={label}
@@ -47,11 +54,11 @@ export function HeroBlock() {
 
           <motion.h1
             animate={{ opacity: 1, y: 0 }}
-            className="mx-auto mb-6 max-w-[10ch] font-serif text-5xl leading-[0.95] text-foreground md:text-7xl"
+            className="mx-auto mb-6 max-w-[12ch] font-serif text-5xl leading-[0.95] text-foreground md:text-7xl"
             initial={{ opacity: 0, y: 20 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Portfolio as Proof
+            {siteCopy.home.hero.headline}
           </motion.h1>
 
           <motion.p
@@ -60,9 +67,7 @@ export function HeroBlock() {
             initial={{ opacity: 0, y: 20 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
-            Built for technical hiring managers, founders, and engineering
-            leads evaluating whether ambiguity can be turned into structured,
-            working products, systems, and pipelines.
+            {siteCopy.home.hero.subhead}
           </motion.p>
 
           <motion.div
@@ -76,7 +81,7 @@ export function HeroBlock() {
               to="/work"
             >
               <Briefcase className="h-4 w-4" />
-              Explore the work
+              {siteCopy.home.hero.primaryCta}
             </Link>
             <Link
               className={cn(
@@ -85,7 +90,7 @@ export function HeroBlock() {
               )}
               to="/architecture"
             >
-              Read architecture
+              {siteCopy.home.hero.secondaryCta}
               <ArrowDown className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -96,11 +101,7 @@ export function HeroBlock() {
             initial={{ opacity: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
           >
-            {[
-              { icon: Briefcase, label: 'Work', to: '/work' },
-              { icon: GitBranch, label: 'Repo workflow', to: '/repo-workflow' },
-              { icon: User, label: 'About', to: '/about' },
-            ].map((item) => (
+            {iconLinks.map((item) => (
               <motion.div
                 key={item.label}
                 whileHover={{ scale: 1.1, y: -2 }}

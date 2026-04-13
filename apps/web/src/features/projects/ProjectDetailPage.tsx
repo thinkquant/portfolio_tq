@@ -1,14 +1,14 @@
 import {
-  ArchitecturePanelFrame,
   Callout,
   Card,
-  DemoLauncherPanel,
-  MetricTile,
   PageHeading,
   ProofTag,
   SectionHeading,
 } from '@portfolio-tq/ui';
+import { Link } from 'react-router-dom';
 import { useLoaderData } from 'react-router-dom';
+
+import { siteCopy } from '@/content/textCopy';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
 import type { ProjectDetailPageData } from './projectLoaders';
@@ -19,118 +19,110 @@ type ProjectDetailPageContentProps = {
 };
 
 function ProjectDetailPageContent({ project }: ProjectDetailPageContentProps) {
+  const content = siteCopy.projects[project.id];
+
   return (
     <div className="grid gap-8">
       <PageHeading
         actions={
           <>
-            <ProofTag tone="accent">{project.status}</ProofTag>
-            {project.proofTags.slice(0, 2).map((tag) => (
+            {project.filterTags.map((tag) => (
               <ProofTag key={tag}>{tag}</ProofTag>
             ))}
           </>
         }
-        eyebrow="Project"
-        lead={project.summary}
-        title={project.title}
+        eyebrow={content.detailEyebrow}
+        lead={content.summary}
+        title={content.title}
       />
 
       <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
         <Card>
           <SectionHeading
-            eyebrow="Problem"
+            eyebrow={content.problemTitle}
             lead={project.problem}
-            title="The workflow friction."
+            title={content.problemTitle}
           />
         </Card>
 
-        <Callout title="Why it matters for Orion / fintech operations">
+        <Callout title={content.whyItMattersTitle}>
           {project.whyItMatters}
         </Callout>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-        <ArchitecturePanelFrame
-          kicker="Architecture overview"
-          title="Planned system shape"
-        >
-          <p className="leading-7 text-stone-300">{project.architecture}</p>
-        </ArchitecturePanelFrame>
-
         <Card>
           <SectionHeading
-            eyebrow="Workflow"
-            title="Intended execution path."
+            eyebrow={content.howItWorksTitle}
+            title={content.howItWorksTitle}
           />
           <ol className="mt-5 grid gap-3">
-            {project.workflowSteps.map((step, index) => (
+            {project.workflowSteps.map((step) => (
               <li
-                className="grid gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-4"
+                className="grid gap-2 rounded-[var(--radius)] border border-border bg-background/70 p-4"
                 key={step}
               >
-                <span className="font-mono text-xs text-amber-200">
-                  STEP {index + 1}
-                </span>
-                <p className="leading-7 text-stone-300">{step}</p>
+                <p className="leading-7 text-muted-foreground">{step}</p>
               </li>
             ))}
           </ol>
         </Card>
-      </section>
-
-      <section className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-        <DemoLauncherPanel
-          body="The route is available now as a structured shell. Later checklist sections will attach the interactive input, output, trace, and evaluation panels without changing this public project route."
-          ctaLabel="Open demo shell"
-          href={project.demoHref}
-          meta="Backend integration lands in later sections"
-          title="Demo entry"
-        />
 
         <Card>
           <SectionHeading
-            eyebrow="Fallback / safety / evaluation"
-            lead={project.safetyAndEvaluation}
-            title="The guardrails are part of the design."
+            eyebrow={content.controlsTitle}
+            title={content.controlsTitle}
           />
+          <ul className="mt-5 grid gap-3">
+            {project.controls.map((control) => (
+              <li
+                className="rounded-[var(--radius)] border border-border bg-background/70 p-4 leading-7 text-muted-foreground"
+                key={control}
+              >
+                {control}
+              </li>
+            ))}
+          </ul>
         </Card>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
         <Card>
-          <SectionHeading eyebrow="Stack / proof tags" title="What is visible." />
+          <SectionHeading
+            eyebrow={content.demoTitle}
+            lead={content.demoBody}
+            title={content.demoTitle}
+          />
+          <div className="mt-5">
+            <Link className="inline-flex min-h-11 items-center rounded-[var(--radius)] bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-chart-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background" to={project.demoHref}>
+              Open Demo
+            </Link>
+          </div>
+        </Card>
+
+        <Card>
+          <SectionHeading
+            eyebrow={content.whatThisProvesTitle}
+            lead={content.summary}
+            title={content.whatThisProvesTitle}
+          />
           <div className="mt-5 flex flex-wrap gap-2">
-            {[...project.stackTags, ...project.proofTags].map((tag) => (
+            {project.proves.map((tag) => (
               <ProofTag key={tag}>{tag}</ProofTag>
             ))}
           </div>
         </Card>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <MetricTile
-            detail="Each project page now carries real problem, architecture, workflow, and safety framing."
-            label="Project page"
-            tone="success"
-            value="Substantive"
-          />
-          <MetricTile
-            detail="Live demo behavior is intentionally deferred to the demo-shell and backend integration sections."
-            label="Demo status"
-            tone="warning"
-            value="Shell"
-          />
-        </div>
       </section>
 
       <section className="grid gap-5">
         <SectionHeading
-          eyebrow="What this proves"
-          lead={project.focus}
-          title="Why this belongs in the portfolio."
+          eyebrow={content.whatThisProvesTitle}
+          lead={content.summary}
+          title={content.whatThisProvesTitle}
         />
         <div className="grid gap-5 md:grid-cols-3">
           {project.proves.map((proof) => (
-            <Card className="leading-7 text-stone-300" key={proof}>
+            <Card className="leading-7 text-muted-foreground" key={proof}>
               {proof}
             </Card>
           ))}

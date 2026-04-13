@@ -29,6 +29,7 @@ import {
   loadWorkPageData,
 } from '../features/projects/projectLoaders';
 import { WorkPage } from '../features/projects/WorkPage';
+import { RepoWorkflowPage } from '../features/repo/RepoWorkflowPage';
 import { RootLayout } from './RootLayout';
 
 type ShellPageProps = {
@@ -117,13 +118,7 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'repo-workflow',
-        element: (
-          <ShellPage
-            body="This support route explains the public build process, CI/CD, branch model, and reviewable repo workflow."
-            eyebrow="Repo workflow"
-            title="The repository is part of the product story."
-          />
-        ),
+        element: <RepoWorkflowPage />,
       },
       {
         path: 'projects/payment-exception-review',

@@ -1,119 +1,72 @@
 import {
-  Callout,
   Card,
-  DemoLauncherPanel,
   designTokens,
-  MetricTile,
   PageHeading,
-  ProofTag,
   SectionHeading,
 } from '@portfolio-tq/ui';
+import { Link } from 'react-router-dom';
 
-const skillDomains = [
-  {
-    title: 'AI-native workflow design',
-    body: 'Structured-output-first flows, tool boundaries, retrieval patterns, fallback design, and evaluation loops.',
-  },
-  {
-    title: 'Full-stack systems',
-    body: 'React, TypeScript, API surfaces, shared packages, typed contracts, and product-facing data flows.',
-  },
-  {
-    title: 'Operational discipline',
-    body: 'Checklist-driven execution, CI/CD, Terraform-managed environments, observability, and public repo hygiene.',
-  },
-  {
-    title: 'Finance and analytics framing',
-    body: 'Work shaped for fintech-style review, risk boundaries, quantitative reasoning, dashboards, and decision support.',
-  },
-];
-
-const operatingPrinciples = [
-  'Start by making the ambiguous thing observable.',
-  'Separate deterministic control from probabilistic assistance.',
-  'Treat traces, fallbacks, and evaluation as product surfaces.',
-  'Build in public without leaking secrets, private data, or false polish.',
-];
+import { siteCopy } from '@/content/textCopy';
 
 export function AboutPage() {
   return (
     <div className={designTokens.pageSection}>
       <PageHeading
-        actions={
-          <>
-            <ProofTag tone="accent">Builder profile</ProofTag>
-            <ProofTag>Systems thinking</ProofTag>
-            <ProofTag tone="success">Delivery focused</ProofTag>
-          </>
-        }
-        eyebrow="About"
-        lead="Daniel J.G. Oosthuyzen works across systems architecture, AI-assisted execution, quantitative reasoning, product framing, and practical software delivery."
-        title="The human context behind the system."
+        eyebrow={siteCopy.about.eyebrow}
+        lead={siteCopy.about.body}
+        title={siteCopy.about.title}
       />
 
       <section className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
         <Card>
           <SectionHeading
-            eyebrow="Positioning"
-            lead="My path is non-traditional, but the work is grounded in applied system-building: take incomplete requirements, find the structure, and turn the result into something a reviewer or operator can actually use."
-            title="Strongest where ambiguity has to become a working system."
+            eyebrow={siteCopy.about.positioning.title}
+            lead={siteCopy.about.positioning.body}
+            title={siteCopy.about.positioning.title}
           />
           <p className={`mt-5 ${designTokens.bodyText}`}>
-            This portfolio is built for technical review. It connects the
-            finished surfaces to the underlying specs, route map, shared
-            packages, infrastructure, and verification habits behind them.
+            {siteCopy.about.background.body}
           </p>
         </Card>
 
-        <Callout title="Operating philosophy">
-          Capture ambiguity. Process chaos. Produce ordered action. The phrase
-          is not a slogan here; it is the pattern behind the project choices,
-          the build order, and the way each demo is framed.
-        </Callout>
+        <Card>
+          <SectionHeading
+            eyebrow={siteCopy.about.background.title}
+            lead={siteCopy.about.background.body}
+            title={siteCopy.about.background.title}
+          />
+        </Card>
       </section>
 
       <section className="grid gap-5">
         <SectionHeading
-          eyebrow="Skill domains"
-          lead="The public portfolio is intended to make these capabilities concrete through working routes, code, docs, and later live demo behavior."
-          title="The capability map."
+          eyebrow={siteCopy.about.strengths.title}
+          lead={siteCopy.about.body}
+          title={siteCopy.about.strengths.title}
         />
 
         <div className="grid gap-5 md:grid-cols-2">
-          {skillDomains.map((domain) => (
-            <Card className="grid gap-3" key={domain.title}>
+          {siteCopy.about.strengths.bullets.map((strength) => (
+            <Card className="grid gap-3" key={strength}>
               <h3 className="max-w-[18ch] font-serif text-[1.45rem] leading-tight text-foreground">
-                {domain.title}
+                {strength}
               </h3>
-              <p className={designTokens.bodyTextTight}>{domain.body}</p>
+              <p className={designTokens.bodyTextTight}>
+                {siteCopy.about.positioning.body}
+              </p>
             </Card>
           ))}
         </div>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <MetricTile
-            detail="AI-native workflow demos are the first project family."
-            label="Focus"
-            tone="success"
-            value="AI ops"
-          />
-          <MetricTile
-            detail="The repo and product are designed to be reviewed together."
-            label="Proof"
-            tone="accent"
-            value="Public"
-          />
-        </div>
-
         <Card>
           <SectionHeading
-            eyebrow="Working principles"
-            title="How the build is supposed to feel under review."
+            eyebrow={siteCopy.about.domains.title}
+            title={siteCopy.about.domains.title}
           />
           <ul className="mt-5 grid gap-3">
-            {operatingPrinciples.map((principle) => (
+            {siteCopy.about.domains.bullets.map((principle) => (
               <li
                 className="rounded-[var(--radius)] border border-border/80 bg-background/45 p-4 leading-7 text-muted-foreground"
                 key={principle}
@@ -123,23 +76,19 @@ export function AboutPage() {
             ))}
           </ul>
         </Card>
-      </section>
 
-      <section className="grid gap-5 lg:grid-cols-2">
-        <DemoLauncherPanel
-          body="The Work index is the best next stop for the Orion-aligned module set and the proof tags attached to each build."
-          ctaLabel="Open work"
-          href="/work"
-          meta="Public project index"
-          title="Project dossiers"
-        />
-        <DemoLauncherPanel
-          body="The repo workflow page is the holding place for branch strategy, CI/CD rationale, Terraform notes, and public build discipline."
-          ctaLabel="Open repo workflow"
-          href="/repo-workflow"
-          meta="Build process context"
-          title="Background material"
-        />
+        <Card>
+          <SectionHeading
+            eyebrow={siteCopy.about.closing.title}
+            lead={siteCopy.about.closing.body}
+            title={siteCopy.about.closing.title}
+          />
+          <div className="mt-5">
+            <Link className={designTokens.buttonPrimary} to="/work">
+              {siteCopy.about.closing.cta}
+            </Link>
+          </div>
+        </Card>
       </section>
     </div>
   );

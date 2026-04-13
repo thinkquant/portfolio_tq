@@ -1,3 +1,5 @@
+import { siteCopy } from '@/content/textCopy';
+
 import type { DashboardShellConfig } from './DashboardShell';
 
 const sharedCharts = [
@@ -55,11 +57,11 @@ const sharedCharts = [
 
 export const observabilityDashboardConfig: DashboardShellConfig = {
   eyebrow: 'Observability',
-  title: 'Cross-project operational signal shell.',
-  lead: 'A portfolio-level observability surface for run counts, failures, fallbacks, latency, cost, confidence, schema validity, and latest flagged runs across the demo system.',
+  title: 'Cross-project operational signals.',
+  lead: 'Aggregate run counts, pass and fail patterns, latency, cost, fallback behavior, and latest flagged cases across the portfolio workflows.',
   tags: [
     { label: 'Portfolio overview', tone: 'accent' },
-    { label: 'Firestore-backed later' },
+    { label: 'Cross-demo visibility' },
     { label: 'Public-safe shell', tone: 'success' },
   ],
   metrics: [
@@ -152,60 +154,35 @@ export const observabilityDashboardConfig: DashboardShellConfig = {
   },
   backendNote:
     'Hydrate this route from GET /api/observability/overview, GET /api/runs, GET /api/evaluations, and GET /api/projects/:projectId/metrics.',
+  recentRunsTitle: 'Latest runs',
+  flaggedRunsTitle: 'Latest flagged runs',
 };
 
 export const evalConsoleDashboardConfig: DashboardShellConfig = {
-  eyebrow: 'Evaluation console',
-  title: 'Reliability console shell for AI workflow runs.',
-  lead: 'A route-level monitoring console for run history, pass/fail summaries, latency, estimated cost, fallback rate, low-confidence rate, prompt/version comparison, and flagged run investigation.',
+  eyebrow: 'Demo',
+  title: siteCopy.demos.evalConsole.title,
+  lead: siteCopy.demos.evalConsole.subhead,
   tags: [
-    { label: 'Run table', tone: 'accent' },
-    { label: 'Flagged runs', tone: 'warning' },
-    { label: 'Prompt comparison' },
+    { label: siteCopy.shell.states.loadingLabel, tone: 'accent' },
+    { label: siteCopy.shell.states.flaggedLabel, tone: 'warning' },
+    { label: 'Comparison' },
   ],
-  metrics: [
-    {
-      label: 'success rate',
+  metrics: siteCopy.demos.evalConsole.metricLabels.map((label, index) => ({
+      label,
       value: '--',
-      detail: 'Pass/fail summary across selected demo runs.',
-      tone: 'success',
-    },
-    {
-      label: 'latency',
-      value: '--',
-      detail: 'Median and threshold status for selected run set.',
-      tone: 'accent',
-    },
-    {
-      label: 'cost',
-      value: '--',
-      detail: 'Estimated total and per-project execution cost.',
-    },
-    {
-      label: 'schema validity',
-      value: '--',
-      detail: 'Structured output contract pass rate.',
-      tone: 'success',
-    },
-    {
-      label: 'fallback rate',
-      value: '--',
-      detail: 'Runs that required fallback behavior.',
-      tone: 'warning',
-    },
-    {
-      label: 'confidence flags',
-      value: '--',
-      detail: 'Low-confidence, review-required, or escalation-triggered runs.',
-      tone: 'danger',
-    },
-  ],
+      detail: siteCopy.shell.states.noDataBody,
+      tone:
+        index === 4
+          ? 'success'
+          : index === 5
+            ? 'warning'
+            : 'neutral',
+    })),
   charts: [
     ...sharedCharts,
     {
-      title: 'Prompt/version comparison placeholder',
-      description:
-        'Reserved comparison view for candidate versus active prompts and run-version behavior.',
+      title: siteCopy.demos.evalConsole.comparisonTitle,
+      description: siteCopy.demos.evalConsole.comparisonBody,
       bars: [
         {
           label: 'active prompt',
@@ -226,53 +203,49 @@ export const evalConsoleDashboardConfig: DashboardShellConfig = {
     {
       id: 'eval-run-001',
       project: 'Payment Exception Review Agent',
-      status: 'pending data',
-      signal: 'Schema valid, confidence, fallback, escalation, and latency will appear here.',
+      status: siteCopy.shell.states.loadingLabel,
+      signal: siteCopy.demos.evalConsole.recentRunsColumns.join(', '),
     },
     {
       id: 'eval-run-002',
       project: 'Investing Operations Copilot',
-      status: 'pending data',
-      signal: 'Citation presence, policy pass/fail, and confidence will appear here.',
+      status: siteCopy.shell.states.loadingLabel,
+      signal: siteCopy.demos.evalConsole.recentRunsEmpty,
     },
     {
       id: 'eval-run-003',
       project: 'Legacy AI Adapter',
-      status: 'pending data',
-      signal: 'Validation issues, legacy status, and failure path will appear here.',
+      status: siteCopy.shell.states.loadingLabel,
+      signal: siteCopy.demos.evalConsole.recentRunsEmpty,
     },
   ],
   flaggedRuns: [
     {
       id: 'flag-low-confidence',
       project: 'Cross-demo',
-      status: 'flag slot',
-      signal: 'Low-confidence or unsupported-claim flags land here.',
+      status: siteCopy.shell.states.flaggedLabel,
+      signal: siteCopy.demos.evalConsole.flaggedRunsBody,
     },
     {
       id: 'flag-fallback',
       project: 'Cross-demo',
-      status: 'flag slot',
-      signal: 'Fallback, escalation, or policy conflict runs land here.',
+      status: siteCopy.shell.states.flaggedLabel,
+      signal: siteCopy.demos.evalConsole.flaggedRunsBody,
     },
   ],
   detail: {
-    title: 'Run detail inspector',
-    rows: [
-      {
-        label: 'inputs',
-        value: 'Selected run input reference and project metadata.',
-      },
-      {
-        label: 'trace',
-        value: 'Tool calls, retrieval calls, schema validation, fallback, and run status events.',
-      },
-      {
-        label: 'evaluation',
-        value: 'Schema valid, confidence threshold, latency threshold, policy pass/fail, and cost.',
-      },
-    ],
+    title: siteCopy.demos.evalConsole.runDetailTitle,
+    rows: siteCopy.demos.evalConsole.runDetailFields.map((field) => ({
+      label: field,
+      value: siteCopy.shell.states.noDataBody,
+    })),
   },
   backendNote:
     'Hydrate this route from GET /api/runs, GET /api/runs/:id, GET /api/evaluations, and GET /api/projects/:projectId/metrics once the demo runtimes emit real records.',
+  recentRunsTitle: siteCopy.demos.evalConsole.recentRunsTitle,
+  recentRunsLead: siteCopy.demos.evalConsole.recentRunsColumns.join(', '),
+  flaggedRunsTitle: siteCopy.demos.evalConsole.flaggedRunsTitle,
+  flaggedRunsLead: siteCopy.demos.evalConsole.flaggedRunsBody,
+  detailLead: siteCopy.demos.evalConsole.runDetailFields.join(', '),
+  footerNote: siteCopy.demos.evalConsole.footerNote,
 };

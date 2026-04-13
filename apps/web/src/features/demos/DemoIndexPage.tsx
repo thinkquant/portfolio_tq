@@ -1,15 +1,14 @@
 import {
   Callout,
   Card,
-  DemoLauncherPanel,
   designTokens,
   PageHeading,
-  ProofTag,
   SectionHeading,
 } from '@portfolio-tq/ui';
 import { Link, useLoaderData } from 'react-router-dom';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
+import { siteCopy } from '../../content/textCopy';
 import type { DemoIndexPageData } from './demoLoaders';
 
 export function DemoIndexPage() {
@@ -18,78 +17,67 @@ export function DemoIndexPage() {
   return (
     <RouteDataStateView state={state}>
       {({ backendNote, projects }) => (
-    <div className={designTokens.pageSection}>
-      <PageHeading
-        actions={
-          <>
-            <ProofTag tone="accent">Demo shells</ProofTag>
-            <ProofTag>Public-safe data</ProofTag>
-            <ProofTag tone="warning">Access model pending</ProofTag>
-          </>
-        }
-        eyebrow="Demo access"
-        lead="The demo routes are structured now so backend execution, trace hydration, evaluation panels, and future access control can land without changing the public route map."
-        title="AI-native workflow demos start here."
-      />
-
-      <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-        <Card>
-          <SectionHeading
-            eyebrow="Access messaging"
-            lead="The current demo surfaces are public-safe shells. They show the intended panel structure and integration points, while full execution and any reviewer access gate arrive in later checklist sections."
-            title="Prepared for controlled demo access."
+        <div className={designTokens.pageSection}>
+          <PageHeading
+            eyebrow={siteCopy.demoIndex.eyebrow}
+            lead={siteCopy.demoIndex.body}
+            title={siteCopy.demoIndex.title}
           />
-        </Card>
 
-        <Callout title="Backend integration landing zone" tone="warning">
-          {backendNote}
-        </Callout>
-      </section>
-
-      <section className="grid gap-5">
-        <SectionHeading
-          eyebrow="Launch cards"
-          lead="Each card opens an individual route with input, output, trace, evaluation, and state panels already reserved."
-          title="Choose a demo shell."
-        />
-
-        <div className="grid gap-5 lg:grid-cols-2">
-          {projects.map((project) => (
-            <Card className="grid gap-5" key={project.demoHref}>
-              <div className="grid gap-3">
-                <div className="flex flex-wrap gap-2">
-                  <ProofTag tone="accent">{project.status}</ProofTag>
-                  {project.proofTags.slice(0, 2).map((tag) => (
-                    <ProofTag key={tag}>{tag}</ProofTag>
-                  ))}
-                </div>
-                <h3 className="max-w-[18ch] font-serif text-[1.5rem] leading-tight text-foreground">
-                  {project.title}
-                </h3>
-                <p className={designTokens.bodyTextTight}>{project.summary}</p>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Link className={designTokens.buttonPrimary} to={project.demoHref}>
-                  Open demo shell
-                </Link>
-                <Link className={designTokens.buttonSecondary} to={project.href}>
-                  Read project
-                </Link>
-              </div>
+          <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
+            <Card>
+              <SectionHeading
+                eyebrow={siteCopy.demoIndex.accessTitle}
+                lead={siteCopy.demoIndex.accessBody}
+                title={siteCopy.demoIndex.accessTitle}
+              />
             </Card>
-          ))}
-        </div>
-      </section>
 
-      <DemoLauncherPanel
-        body="The next implementation step will replace shell-only panels with working controls, API calls, live traces, and persisted evaluation data."
-        ctaLabel="Read architecture"
-        href="/architecture"
-        meta="Integration-ready route structure"
-        title="What happens next"
-      />
-    </div>
+            <Callout title={siteCopy.shell.states.comingSoonTitle} tone="warning">
+              {siteCopy.shell.states.comingSoonBody}
+            </Callout>
+          </section>
+
+          <section className="grid gap-5">
+            <SectionHeading
+              eyebrow={siteCopy.demoIndex.title}
+              lead={siteCopy.demoIndex.body}
+              title={siteCopy.demoIndex.title}
+            />
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              {projects.map((project, index) => (
+                <Card className="grid gap-5" key={project.demoHref}>
+                  <div className="grid gap-3">
+                    <h3 className="max-w-[18ch] font-serif text-[1.5rem] leading-tight text-foreground">
+                      {siteCopy.demoIndex.cards[index]?.title ?? project.title}
+                    </h3>
+                    <p className={designTokens.bodyTextTight}>
+                      {siteCopy.demoIndex.cards[index]?.body ?? project.summary}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <Link className={designTokens.buttonPrimary} to={project.demoHref}>
+                      {siteCopy.demoIndex.cards[index]?.cta ?? siteCopy.shell.ctas.tertiary}
+                    </Link>
+                    <Link className={designTokens.buttonSecondary} to={project.href}>
+                      Open Module
+                    </Link>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          <Card className="grid gap-3">
+            <SectionHeading
+              eyebrow="Runtime wiring"
+              lead={backendNote}
+              title="The route map is in place."
+            />
+          </Card>
+        </div>
       )}
     </RouteDataStateView>
   );

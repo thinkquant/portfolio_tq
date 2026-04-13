@@ -40,9 +40,13 @@ export type DashboardDetail = {
 };
 
 export type DashboardShellConfig = {
+  detailLead?: string;
   eyebrow: string;
   title: string;
   lead: string;
+  footerNote?: string;
+  flaggedRunsLead?: string;
+  flaggedRunsTitle?: string;
   tags: Array<{
     label: string;
     tone?: 'neutral' | 'accent' | 'success' | 'warning' | 'danger';
@@ -53,6 +57,8 @@ export type DashboardShellConfig = {
   flaggedRuns: DashboardRun[];
   detail: DashboardDetail;
   backendNote: string;
+  recentRunsLead?: string;
+  recentRunsTitle?: string;
 };
 
 type DashboardShellProps = {
@@ -102,10 +108,12 @@ function ChartPanel({ chart }: { chart: DashboardChart }) {
 }
 
 function RunListPanel({
+  lead,
   runs,
   title,
   variant = 'neutral',
 }: {
+  lead: string;
   runs: DashboardRun[];
   title: string;
   variant?: 'neutral' | 'flagged';
@@ -114,7 +122,7 @@ function RunListPanel({
     <section className="grid content-start gap-5 rounded-[var(--radius)] border border-border bg-card p-5 shadow-xl shadow-black/15">
       <SectionHeading
         eyebrow={variant === 'flagged' ? 'Flagged runs' : 'Run list'}
-        lead="Placeholder records reserve the table structure until the shared run API is hydrated."
+        lead={lead}
         title={title}
       />
       <div className="grid gap-3">
@@ -140,12 +148,18 @@ function RunListPanel({
   );
 }
 
-function DetailPanel({ detail }: { detail: DashboardDetail }) {
+function DetailPanel({
+  detail,
+  lead,
+}: {
+  detail: DashboardDetail;
+  lead: string;
+}) {
   return (
     <section className="grid content-start gap-5 rounded-[var(--radius)] border border-border bg-card p-5 shadow-xl shadow-black/15">
       <SectionHeading
         eyebrow="Detail panel"
-        lead="The selected run detail will explain failures, fallbacks, latency, and schema outcomes rather than only reporting success."
+        lead={lead}
         title={detail.title}
       />
       <dl className="grid gap-3">
@@ -188,18 +202,45 @@ export function DashboardShell({ config }: DashboardShellProps) {
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1fr_1fr_1fr]">
-        <RunListPanel runs={config.runs} title="Recent runs" />
         <RunListPanel
+          lead={
+            config.recentRunsLead ??
+            'Placeholder records reserve the table structure until the shared run API is hydrated.'
+          }
+          runs={config.runs}
+          title={config.recentRunsTitle ?? 'Recent runs'}
+        />
+        <RunListPanel
+          lead={
+            config.flaggedRunsLead ??
+            'Flagged records surface control-boundary hits that need review.'
+          }
           runs={config.flaggedRuns}
-          title="Runs needing attention"
+          title={config.flaggedRunsTitle ?? 'Runs needing attention'}
           variant="flagged"
         />
-        <DetailPanel detail={config.detail} />
+        <DetailPanel
+          detail={config.detail}
+          lead={
+            config.detailLead ??
+            detailRowsToLead(config.detail.rows)
+          }
+        />
       </section>
 
       <Callout title="Backend integration landing zone" tone="warning">
         {config.backendNote}
       </Callout>
+
+      {config.footerNote ? (
+        <p className="max-w-[72ch] text-sm leading-7 text-muted-foreground">
+          {config.footerNote}
+        </p>
+      ) : null}
     </div>
   );
+}
+
+function detailRowsToLead(rows: DashboardDetail['rows']): string {
+  return rows.map((row) => row.label).join(', ');
 }

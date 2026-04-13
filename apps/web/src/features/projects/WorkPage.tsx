@@ -1,15 +1,15 @@
 import {
   Card,
-  DemoLauncherPanel,
   designTokens,
-  EmptyState,
   PageHeading,
   ProofTag,
   SectionHeading,
 } from '@portfolio-tq/ui';
+import { useState } from 'react';
 import { Link, useLoaderData } from 'react-router-dom';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
+import { siteCopy } from '../../content/textCopy';
 import type { WorkPageData } from './projectLoaders';
 import { type PortfolioProject } from './projectCatalog';
 
@@ -21,25 +21,21 @@ function ProjectCard({
   return (
     <Card className="grid gap-5">
       <div className="grid gap-3">
-        <div className="flex flex-wrap gap-2">
-          <ProofTag tone="accent">{project.status}</ProofTag>
-          {project.proofTags.slice(0, 2).map((tag) => (
-            <ProofTag key={tag}>{tag}</ProofTag>
-          ))}
-        </div>
         <h3 className="max-w-[18ch] font-serif text-[1.5rem] leading-tight text-foreground">
           {project.title}
         </h3>
         <p className={designTokens.bodyTextTight}>{project.summary}</p>
-        <p className="text-sm leading-6 text-muted-foreground">{project.focus}</p>
+        <p className="text-sm leading-6 text-muted-foreground">{project.problem}</p>
+        <div className="flex flex-wrap gap-2">
+          {project.workCardProves.map((tag) => (
+            <ProofTag key={tag}>{tag}</ProofTag>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3">
         <Link className={designTokens.buttonPrimary} to={project.href}>
-          Open project
-        </Link>
-        <Link className={designTokens.buttonSecondary} to={project.demoHref}>
-          Demo shell
+          {project.workCardCta}
         </Link>
       </div>
     </Card>
@@ -48,53 +44,80 @@ function ProjectCard({
 
 export function WorkPage() {
   const state = useLoaderData() as WorkPageData;
+  const [activeFilter, setActiveFilter] = useState(siteCopy.work.filterOptions[0]);
 
   return (
     <RouteDataStateView state={state}>
-      {({ projects }) => (
-        <div className={designTokens.pageSection}>
+      {({ projects }) => {
+        const filteredProjects =
+          activeFilter === 'All'
+            ? projects
+            : projects.filter((project) =>
+                project.filterTags.includes(activeFilter),
+              );
+
+        return (
+          <div className={designTokens.pageSection}>
           <PageHeading
-            actions={
-              <>
-                <ProofTag tone="accent">4 modules</ProofTag>
-                <ProofTag>Orion aligned</ProofTag>
-                <ProofTag tone="success">Workflow demos</ProofTag>
-              </>
-            }
-            eyebrow="Work"
-            lead="The first portfolio milestone is a focused set of AI-native workflow modules for regulated-like operations, fintech review paths, and reliability-minded demo infrastructure."
-            title="Four project surfaces anchor the portfolio proof."
+            eyebrow={siteCopy.work.eyebrow}
+            lead={siteCopy.work.body}
+            title={siteCopy.work.title}
           />
 
           <section className="grid gap-6">
             <SectionHeading
-              eyebrow="Project index"
-              lead="Each module has a public project route and a demo route. The index should feel like a clean dossier list rather than a gallery of unrelated experiments."
-              title="Flagship modules."
+              eyebrow={siteCopy.work.filterLabel}
+              lead={siteCopy.work.body}
+              title={siteCopy.work.title}
             />
+            <div className="flex flex-wrap gap-2">
+              {siteCopy.work.filterOptions.map((filter) => (
+                <button
+                  className={[
+                    'min-h-11 rounded-[var(--radius)] border px-4 py-2.5 text-sm font-semibold transition',
+                    activeFilter === filter
+                      ? 'border-primary/80 bg-primary text-primary-foreground'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground',
+                  ].join(' ')}
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  type="button"
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
 
             <div className="grid gap-5 lg:grid-cols-2">
-              {projects.map((project) => (
+              {filteredProjects.map((project) => (
                 <ProjectCard key={project.href} project={project} />
               ))}
             </div>
           </section>
 
-          <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-            <DemoLauncherPanel
-              body="Demo routes are already present as structured shells. Later sections will add input, output, trace, and evaluation panels without changing the public route map."
-              ctaLabel="Open demo index"
-              href="/demo"
-              meta="Controlled-access structure comes later"
-              title="Demo entry path"
-            />
-            <EmptyState
-              message="Future portfolio expansion can add analytics, decision systems, strategic writing, and architecture case studies after the first AI-native workflow set is complete."
-              title="Expansion slot reserved."
-            />
+          <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+            <Card>
+              <SectionHeading
+                eyebrow={siteCopy.work.bottomTitle}
+                lead={siteCopy.work.bottomBody}
+                title={siteCopy.work.bottomTitle}
+              />
+            </Card>
+            <Card className="grid content-start gap-3">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                {siteCopy.shell.contactPrompt.short}
+              </p>
+              <p className={designTokens.bodyTextTight}>
+                {siteCopy.shell.contactPrompt.long}
+              </p>
+              <Link className={designTokens.buttonSecondary} to="/demo">
+                {siteCopy.shell.ctas.tertiary}
+              </Link>
+            </Card>
           </section>
-        </div>
-      )}
+          </div>
+        );
+      }}
     </RouteDataStateView>
   );
 }
