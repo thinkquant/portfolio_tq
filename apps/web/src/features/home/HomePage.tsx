@@ -9,6 +9,8 @@ import {
 } from '@portfolio-tq/ui';
 import { Link } from 'react-router-dom';
 
+import { HeroBlock } from '@/components/ui/hero-block-shadcnui';
+
 const featuredModules = [
   {
     title: 'Payment Exception Review Agent',
@@ -105,56 +107,12 @@ function HomeLink({
 export function HomePage() {
   return (
     <div className={designTokens.pageSection}>
-      <section className="grid gap-8 border-y border-border/80 py-12 lg:grid-cols-[minmax(0,1.18fr)_20rem] lg:items-end lg:gap-12 lg:py-18">
-        <div className="grid gap-6">
-          <div className="flex flex-wrap gap-2">
-            <ProofTag tone="accent">Systems portfolio</ProofTag>
-            <ProofTag>Public proof-of-work</ProofTag>
-            <ProofTag tone="success">High-agency build discipline</ProofTag>
-          </div>
-          <div className="grid gap-4">
-            <p className={designTokens.label}>Doctrine</p>
-            <h1 className="max-w-[14ch] font-serif text-[3rem] leading-[0.94] text-foreground sm:text-[3.65rem] lg:text-[4.2rem]">
-              Capture ambiguity. Process chaos. Produce ordered action.
-            </h1>
-            <p className="max-w-[66ch] text-[1.05rem] leading-8 text-muted-foreground">
-              A serious public portfolio product by Daniel J.G. Oosthuyzen,
-              built to show how systems thinking becomes architecture, demos,
-              product judgment, and working software.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <HomeLink to="/work">Explore the work</HomeLink>
-            <HomeLink tone="secondary" to="/architecture">
-              Read the architecture
-            </HomeLink>
-            <HomeLink tone="secondary" to="/about">
-              Read the background
-            </HomeLink>
-          </div>
-        </div>
+      <HeroBlock />
 
-        <div className="grid gap-4 border border-border/80 bg-card px-5 py-5 shadow-lg shadow-black/10">
-          <p className={designTokens.label}>Read this first</p>
-          <p className="text-sm leading-7 text-muted-foreground">
-            This site is designed for technical review. The goal is not to
-            present disconnected projects, but one operating discipline made
-            visible through product surfaces, architecture, and proof.
-          </p>
-          <div className="grid gap-3 border-t border-border/80 pt-4">
-            {['Measured', 'Rigorous', 'Sovereign'].map((item) => (
-              <div className="flex items-center justify-between gap-3" key={item}>
-                <span className="text-sm font-semibold text-foreground">
-                  {item}
-                </span>
-                <span className="h-px flex-1 bg-border/80" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_0.95fr]">
+      <section
+        className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_0.95fr]"
+        id="home-content"
+      >
         <div className="grid gap-4">
           <SectionHeading
             eyebrow="Positioning"
