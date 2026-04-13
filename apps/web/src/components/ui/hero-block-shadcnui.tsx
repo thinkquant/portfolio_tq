@@ -10,7 +10,7 @@ export function HeroBlock() {
     <section className="relative flex min-h-[calc(100svh-6rem)] w-full items-center justify-center overflow-hidden border-y border-border/80 bg-background">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800f_1px,transparent_1px),linear-gradient(to_bottom,#8080800f_1px,transparent_1px)] bg-[size:24px_24px]" />
 
-      <div className="relative z-10 mx-auto max-w-5xl text-center">
+      <div className="relative z-10 mx-auto w-full max-w-5xl px-6 py-20 text-center sm:px-8 lg:py-24">
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 20 }}
@@ -38,7 +38,7 @@ export function HeroBlock() {
             initial={{ scale: 0 }}
             transition={{ delay: 0.2, stiffness: 200, type: 'spring' }}
           >
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-border bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.26),transparent_55%),linear-gradient(145deg,rgba(38,38,38,0.95),rgba(23,23,23,1))] shadow-lg shadow-black/20">
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-background bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/10">
               <span className="font-serif text-2xl font-semibold tracking-[0.08em] text-foreground">
                 TQ
               </span>
@@ -47,11 +47,11 @@ export function HeroBlock() {
 
           <motion.h1
             animate={{ opacity: 1, y: 0 }}
-            className="mx-auto mb-6 max-w-[14ch] font-serif text-5xl leading-[0.95] text-foreground md:text-7xl"
+            className="mx-auto mb-6 max-w-[10ch] font-serif text-5xl leading-[0.95] text-foreground md:text-7xl"
             initial={{ opacity: 0, y: 20 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Serious systems portfolio. Working proof, not ornament.
+            Portfolio as Proof
           </motion.h1>
 
           <motion.p
@@ -108,7 +108,7 @@ export function HeroBlock() {
               >
                 <Link
                   aria-label={item.label}
-                  className="flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary/60 hover:bg-accent hover:text-foreground"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
                   to={item.to}
                 >
                   <item.icon className="h-5 w-5" />
