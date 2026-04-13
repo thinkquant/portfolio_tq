@@ -5,42 +5,56 @@ if (!baseUrl) {
 }
 
 const healthResponse = await fetch(`${baseUrl}/health`);
-const health = (await healthResponse.json()) as { status?: string; environment?: string };
+const healthEnvelope = (await healthResponse.json()) as {
+  ok?: boolean;
+  data?: { status?: string; environment?: string };
+};
+const health = healthEnvelope.data;
 
-if (!healthResponse.ok || health.status !== 'ok') {
+if (!healthResponse.ok || !healthEnvelope.ok || health?.status !== 'ok') {
   throw new Error(
     `Expected /health to return status ok, received HTTP ${healthResponse.status} with payload ${JSON.stringify(
-      health,
+      healthEnvelope,
     )}.`,
   );
 }
 
-console.log(`Smoke check passed for ${baseUrl}/health (${health.environment ?? 'unknown'})`);
+console.log(
+  `Smoke check passed for ${baseUrl}/health (${health.environment ?? 'unknown'})`,
+);
 
-const demoResponse = await fetch(`${baseUrl}/api/demo/payment-exception-review/run`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
+const demoResponse = await fetch(
+  `${baseUrl}/api/demo/payment-exception-review/run`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      caseId: 'bootstrap-case',
+      note: 'smoke-check',
+    }),
   },
-  body: JSON.stringify({
-    caseId: 'bootstrap-case',
-    note: 'smoke-check',
-  }),
-});
+);
 
-const demo = (await demoResponse.json()) as {
-  run?: { projectId?: string; status?: string };
-  result?: { decision?: string };
+const demoEnvelope = (await demoResponse.json()) as {
+  ok?: boolean;
+  data?: {
+    run?: { projectId?: string; status?: string };
+    result?: { decision?: string };
+  };
 };
+const demo = demoEnvelope.data;
 
 if (
   !demoResponse.ok ||
+  !demoEnvelope.ok ||
   demo.run?.projectId !== 'payment-exception-review' ||
   demo.run?.status !== 'completed'
 ) {
   throw new Error(
     `Expected demo route to return a completed payment-exception-review run, received HTTP ${demoResponse.status} with payload ${JSON.stringify(
-      demo,
+      demoEnvelope,
     )}.`,
   );
 }

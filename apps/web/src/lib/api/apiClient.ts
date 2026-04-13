@@ -7,6 +7,22 @@ type ApiRequestJsonOptions = Omit<RequestInit, 'body' | 'method'> & {
 
 type ApiRouteBuilder = (...segments: string[]) => string;
 
+type ApiSuccessEnvelope<T> = {
+  ok: true;
+  data: T;
+  requestId?: string;
+};
+
+type ApiErrorEnvelope = {
+  ok: false;
+  error?: {
+    code?: string;
+    message?: string;
+    details?: Record<string, unknown>;
+  };
+  requestId?: string;
+};
+
 function trimSlashes(value: string): string {
   return value.replace(/^\/+|\/+$/g, '');
 }
@@ -59,14 +75,44 @@ export class ApiClientError extends Error {
   readonly status: number;
   readonly statusText: string;
   readonly responseBody: string;
+  readonly apiCode: string | null;
+  readonly apiMessage: string | null;
+  readonly requestId: string | null;
 
   constructor(status: number, statusText: string, responseBody: string) {
-    super(`API request failed with ${status} ${statusText}`.trim());
+    const parsed = parseApiErrorEnvelope(responseBody);
+    const apiMessage = parsed?.error?.message ?? null;
+
+    super(
+      apiMessage ?? `API request failed with ${status} ${statusText}`.trim(),
+    );
     this.name = 'ApiClientError';
     this.status = status;
     this.statusText = statusText;
     this.responseBody = responseBody;
+    this.apiCode = parsed?.error?.code ?? null;
+    this.apiMessage = apiMessage;
+    this.requestId = parsed?.requestId ?? null;
   }
+}
+
+function parseApiErrorEnvelope(responseBody: string): ApiErrorEnvelope | null {
+  try {
+    const parsed = JSON.parse(responseBody) as unknown;
+
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      'ok' in parsed &&
+      (parsed as { ok?: unknown }).ok === false
+    ) {
+      return parsed as ApiErrorEnvelope;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
 }
 
 export async function apiRequestJson<T>(
@@ -93,5 +139,17 @@ export async function apiRequestJson<T>(
     );
   }
 
-  return (await response.json()) as T;
+  const payload = (await response.json()) as ApiSuccessEnvelope<T> | T;
+
+  if (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'ok' in payload &&
+    (payload as { ok?: unknown }).ok === true &&
+    'data' in payload
+  ) {
+    return (payload as ApiSuccessEnvelope<T>).data;
+  }
+
+  return payload as T;
 }

@@ -67,7 +67,7 @@ Reference docs:
 Detailed implementation checklist:
 - `docs/checklists/web-app-shell-foundation-checklist.md`
 
-- [ ] Complete `docs/checklists/web-app-shell-foundation-checklist.md`
+- [x] Complete `docs/checklists/web-app-shell-foundation-checklist.md`
 
 Expected outcome:
 - responsive portfolio shell exists in `apps/web`
@@ -85,7 +85,7 @@ Reference docs:
 Detailed implementation checklist:
 - `docs/checklists/shared-api-runtime-foundation-checklist.md`
 
-- [ ] Create `docs/checklists/shared-api-runtime-foundation-checklist.md`
+- [x] Create `docs/checklists/shared-api-runtime-foundation-checklist.md`
 - [ ] Complete `docs/checklists/shared-api-runtime-foundation-checklist.md`
 
 Expected outcome:

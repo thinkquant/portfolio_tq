@@ -32,29 +32,33 @@ if (!overviewResponse.ok) {
 }
 
 const payload = (await overviewResponse.json()) as {
-  summary?: Record<string, unknown>;
-  projectBreakdown?: unknown[];
-  latestFlaggedRuns?: unknown[];
+  ok?: boolean;
+  data?: {
+    summary?: Record<string, unknown>;
+    projectBreakdown?: unknown[];
+    latestFlaggedRuns?: unknown[];
+  };
 };
+const overview = payload.data;
 
-if (!payload.summary) {
+if (!payload.ok || !overview?.summary) {
   throw new Error(
     'Expected the observability overview payload to include a summary object.',
   );
 }
 
-if (!Array.isArray(payload.projectBreakdown)) {
+if (!Array.isArray(overview.projectBreakdown)) {
   throw new Error(
     'Expected the observability overview payload to include projectBreakdown.',
   );
 }
 
-if (!Array.isArray(payload.latestFlaggedRuns)) {
+if (!Array.isArray(overview.latestFlaggedRuns)) {
   throw new Error(
     'Expected the observability overview payload to include latestFlaggedRuns.',
   );
 }
 
 console.log(
-  `Observability shell and API verified successfully for ${baseUrl} (${payload.projectBreakdown.length} project rows from ${environment} API).`,
+  `Observability shell and API verified successfully for ${baseUrl} (${overview.projectBreakdown.length} project rows from ${environment} API).`,
 );

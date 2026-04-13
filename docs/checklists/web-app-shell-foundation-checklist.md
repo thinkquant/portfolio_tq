@@ -605,15 +605,15 @@ Reference docs:
 
 - `docs/checklists/build-checklist-definition-of-done.md`
 
-- [ ] Run `pnpm lint`
-- [ ] Run `pnpm typecheck`
-- [ ] Run `pnpm test`
-- [ ] Run `pnpm build`
-- [ ] Confirm the app still deploys cleanly to the dev environment
-- [ ] Confirm all new routes render in the deployed dev site
-- [ ] Confirm CI passes on pushed branch
-- [ ] Write a clean milestone commit message
-- [ ] Update any relevant docs if the actual route/component structure changed materially
+- [x] Run `pnpm lint`
+- [x] Run `pnpm typecheck`
+- [x] Run `pnpm test`
+- [x] Run `pnpm build`
+- [x] Confirm the app still deploys cleanly to the dev environment
+- [x] Confirm all new routes render in the deployed dev site
+- [x] Confirm CI passes on pushed branch
+- [x] Write a clean milestone commit message
+- [x] Update any relevant docs if the actual route/component structure changed materially
 
 Definition of done:
 

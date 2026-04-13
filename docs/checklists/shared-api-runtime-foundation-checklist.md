@@ -1,0 +1,663 @@
+# Shared API Runtime Foundation Checklist
+
+## Agent instructions before starting
+
+Before making changes, read these documents in this order:
+
+1. `README.md`
+2. `docs/specs/technical-spec-overall.md`
+3. `docs/specs/service-api.md`
+4. `docs/specs/service-web.md`
+5. `docs/specs/service-eval-console.md`
+6. `docs/architecture/repo-skeleton.md`
+7. `docs/architecture/observability-and-dashboards.md`
+8. `docs/checklists/build-checklist-definition-of-done.md`
+9. `docs/checklists/shared-api-runtime-foundation-checklist.md`
+
+Agent operating rules:
+
+- Do not invent alternate architecture unless a checklist item explicitly calls for a deviation note.
+- Keep all environment names consistent with `dev` and `prod`.
+- Keep the API foundation generic and reusable across all demo modules.
+- Prefer shared runtime utilities over demo-specific one-off code.
+- Never commit secrets, service account keys, `.tfvars`, or local env files.
+- Never write sensitive values into docs, comments, examples, commits, or source files; this repository is public.
+- If a manual cloud console step is unavoidable, document it in a short markdown note under `docs/architecture/adr-bootstrapping-notes.md`.
+
+---
+
+Purpose:
+
+- build the shared backend runtime foundation in `apps/api`
+- create the reusable API structure that all later portfolio demos will plug into
+- finish with a deployed and verifiable dev API that supports health checks, run logging, trace retrieval, evaluation logging, seeded data access, and mock internal tool access
+
+Rules:
+
+- work on `dev`
+- do not build demo-specific business logic in this milestone unless the checklist explicitly requires a placeholder
+- optimize for clarity, reuse, and predictable extension
+- the API should be deployable and testable before deeper demo logic begins
+
+---
+
+## 1. Confirm backend scope and ownership boundaries
+
+Reference docs:
+
+- `docs/specs/technical-spec-overall.md`
+- `docs/specs/service-api.md`
+- `docs/specs/service-web.md`
+
+- [x] Confirm `apps/api` is the single shared backend runtime for the portfolio demos.
+- [x] Confirm later demo modules will plug into the shared API foundation rather than becoming separate backend apps.
+- [x] Confirm the API owns:
+  - [x] health and readiness endpoints
+  - [x] run creation and run retrieval
+  - [x] tool invocation logging
+  - [x] evaluation record creation and retrieval
+  - [x] seeded data access
+  - [x] mock internal tool access
+  - [x] common error handling
+- [x] Confirm the API does not yet need:
+  - [x] full production auth
+  - [x] real third-party integrations
+  - [x] heavy background job orchestration
+  - [x] demo-specific AI workflow logic beyond stubs/placeholders
+
+Verification note:
+
+- Confirmed on `dev` from `README.md`, `docs/specs/technical-spec-overall.md`, `docs/specs/service-api.md`, and `docs/specs/service-web.md`.
+- The architecture remains one portfolio web app backed by one API/orchestration service and shared packages; demo modules should plug into that foundation rather than becoming separate backend apps.
+- The milestone scope stays generic: shared health/readiness, run/eval/tool logging, seeded data, mock tools, and common API error handling before deeper demo-specific workflows.
+- Full production auth, real third-party integrations, heavy background jobs, and non-placeholder demo-specific AI workflow logic are intentionally outside this section's milestone boundary.
+
+Definition of done:
+
+- [x] backend scope is locked for this milestone
+- [x] service boundaries are explicit before deeper implementation begins
+
+---
+
+## 2. Confirm runtime stack and app baseline
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/architecture/repo-skeleton.md`
+
+- [x] Confirm the backend runtime stack.
+- [x] Confirm TypeScript configuration in `apps/api` is clean and stable.
+- [x] Confirm build output path and runtime entrypoint are explicit.
+- [x] Confirm local development command works.
+- [x] Confirm production build command works.
+- [x] Confirm current scaffold files are either adopted cleanly or removed.
+
+Recommended baseline:
+
+- [x] Node.js
+- [x] TypeScript
+- [x] lightweight HTTP server framework already chosen for the repo
+- [x] clear route/module separation
+- [x] shared package imports resolving cleanly
+
+Verification note:
+
+- Confirmed on `dev`.
+- Runtime stack is Node.js + TypeScript using `tsx` for local development and `tsc -b` for production builds.
+- The current HTTP runtime uses Node's built-in `node:http` server in `apps/api/src/app/server.ts`; no external framework is introduced for this baseline.
+- `apps/api/tsconfig.json` extends the shared NodeNext strict config, uses `rootDir: "src"`, emits to `dist`, and references shared workspace packages.
+- Runtime entrypoint and build output are explicit: `start` runs `node dist/index.js`, and `outDir` is `dist`.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/api dev` starts locally by running it on temporary port `18080` and checking `GET /health`.
+- Route/module separation was completed in section 3 by splitting bootstrap, routes, handlers, services, repositories, middleware, config, errors, and shared HTTP helpers into dedicated modules.
+
+Definition of done:
+
+- [x] `apps/api` starts locally without errors
+- [x] `apps/api` builds cleanly
+- [x] runtime baseline is stable enough for real route/module implementation
+
+---
+
+## 3. Establish API folder structure and module boundaries
+
+Reference docs:
+
+- `docs/architecture/repo-skeleton.md`
+- `docs/specs/service-api.md`
+
+- [x] Create or finalize a clean internal API structure.
+- [x] Separate concerns into clear folders/modules for:
+  - [x] app bootstrap
+  - [x] routes
+  - [x] handlers/controllers
+  - [x] services
+  - [x] repositories/data access
+  - [x] middleware
+  - [x] logging
+  - [x] config
+  - [x] error handling
+- [x] Add a shared route prefix strategy if appropriate.
+- [x] Ensure module naming is consistent and predictable.
+- [x] Avoid route logic being mixed with storage or evaluation logic.
+
+Recommended route groups:
+
+- [x] `/health`
+- [x] `/runs`
+- [x] `/evals`
+- [x] `/tools`
+- [x] `/seed`
+- [x] `/demo` or workflow-specific routing namespace placeholder if needed later
+
+Verification note:
+
+- Confirmed on `dev`.
+- API bootstrap now lives in `apps/api/src/index.ts` and `apps/api/src/app/server.ts`.
+- Shared app context lives in `apps/api/src/app/context.ts`.
+- Runtime config lives in `apps/api/src/config/runtime.ts`.
+- Route groups live under `apps/api/src/routes/`, with `/health` plus API-prefixed groups for `/api/runs`, `/api/evals`, `/api/tools`, `/api/seed`, `/api/demo`, `/api/observability`, and `/api/projects`.
+- Handler/controller logic lives under `apps/api/src/handlers/`.
+- Service logic lives under `apps/api/src/services/`, including demo workflow placeholder logic under `apps/api/src/services/demos/`.
+- Firestore data access lives under `apps/api/src/repositories/`.
+- Middleware lives under `apps/api/src/middleware/`.
+- Logging remains centralized in `apps/api/src/services/logs.ts`.
+- Error handling is split between `apps/api/src/errors/api-error.ts` and `apps/api/src/middleware/error-handler.ts`.
+- Shared HTTP helpers live in `apps/api/src/lib/http.ts`.
+- Added reserved namespace endpoints for `GET /api/tools` and `GET /api/seed` so those future route groups exist without adding real tool or seed business logic early.
+- Preserved the existing `/api/evaluations` route while adding `/api/evals` as the section 3 route group alias.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api dev` starts locally by running it on temporary port `18082` and checking `GET /health`, `GET /api/tools`, and `GET /api/seed`.
+- Verified Prettier formatting on the section 3 files and this checklist.
+
+Definition of done:
+
+- [x] the API codebase has stable structure before feature logic grows
+- [x] future demos can slot in without structural rewrites
+
+---
+
+## 4. Implement configuration and environment handling
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/specs/technical-spec-overall.md`
+
+- [x] Create explicit runtime configuration handling for `dev` and `prod`.
+- [x] Centralize environment-variable access behind one config module.
+- [x] Define required environment variables for this milestone.
+- [x] Create `.env.example` or equivalent non-sensitive example config if not already present.
+- [x] Ensure local defaults do not leak secrets.
+- [x] Ensure the API can run in dev without production-only settings.
+
+Likely config categories:
+
+- [x] app runtime
+- [x] Firestore collection names
+- [x] Vertex AI/model placeholders
+- [x] logging level
+- [x] frontend origin / CORS allowance
+- [ ] feature flags for gated demo behavior
+
+Verification note:
+
+- Confirmed on `dev`.
+- Centralized runtime config now lives in `apps/api/src/config/runtime.ts`.
+- Defined required environment variables for Firestore persistence via `requiredEnvVars.firestore`.
+- Added non-sensitive example config at `apps/api/.env.example`.
+- Default values keep dev startup safe: `APP_ENV` defaults to `dev`, `PORT` defaults to `8080`, `VERTEX_AI_LOCATION` falls back to `FIRESTORE_LOCATION` then `us-central1`, and `CORS_ALLOWED_ORIGIN` defaults to `*`.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api dev` starts locally with `GCP_PROJECT_ID` and `FIRESTORE_DATABASE` unset by running it on temporary port `18083` and checking `GET /health` (Firestore remains unconfigured but the API still runs).
+
+Definition of done:
+
+- [x] the API has one clear source of runtime config truth
+- [x] no route directly reads ad hoc environment variables
+
+---
+
+## 5. Implement health, readiness, and version surfaces
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/architecture/observability-and-dashboards.md`
+
+- [x] Implement a basic health endpoint.
+- [x] Implement a readiness endpoint if separated from health.
+- [x] Include version/build metadata if reasonably available.
+- [x] Return structured JSON responses.
+- [x] Ensure failed internal dependency states can be represented clearly later.
+
+Suggested minimum endpoints:
+
+- [x] `GET /health`
+- [x] `GET /ready`
+
+Suggested response fields:
+
+- [x] status
+- [x] service
+- [x] environment
+- [x] timestamp
+- [x] version or commit identifier placeholder
+
+Verification note:
+
+- Confirmed on `dev`.
+- `GET /health` is implemented in `apps/api/src/handlers/system-handler.ts` and routed from `apps/api/src/routes/health.ts`.
+- `GET /ready` is implemented separately and returns dependency state for Firestore so unconfigured/degraded conditions can be represented cleanly.
+- Version/build metadata now comes from `apps/api/src/config/runtime.ts`, including package version plus optional `GIT_COMMIT_SHA`/`COMMIT_SHA` and `BUILD_ID`.
+- The root service surface now advertises `/ready` alongside `/health`.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `GET /health` on temporary port `18084` returns structured JSON with `status`, `service`, `environment`, `timestamp`, `version`, and `commitSha`.
+- Verified `GET /ready` on temporary port `18084` returns `503` with `status: "degraded"` and `dependencies.firestore.status: "unconfigured"` when Firestore env vars are absent.
+- Verified `GET /ready` on temporary port `18085` returns `200` with `status: "ready"` and `dependencies.firestore.status: "configured"` when Firestore env vars are present.
+
+Definition of done:
+
+- [x] the API exposes a clean health surface for smoke checks, deployment verification, and future monitoring
+
+---
+
+## 6. Implement shared response and error handling conventions
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/specs/technical-spec-overall.md`
+
+- [x] Create one consistent success response shape where appropriate.
+- [x] Create one consistent error response shape.
+- [x] Add a typed application error model.
+- [x] Add centralized error middleware/handling.
+- [x] Map validation errors cleanly.
+- [x] Map not-found errors cleanly.
+- [x] Map internal errors cleanly without leaking sensitive details.
+- [x] Ensure API errors are readable from the frontend demo shells.
+
+Suggested response qualities:
+
+- [x] predictable
+- [x] typed
+- [x] concise
+- [x] non-leaky
+- [x] easy to inspect in demo surfaces
+
+Verification note:
+
+- Confirmed on `dev`.
+- Success responses now use a shared envelope in `apps/api/src/lib/http.ts`: `{ ok: true, data, requestId? }`.
+- Error responses now use a shared envelope in `apps/api/src/lib/http.ts`: `{ ok: false, error: { code, message, details? }, requestId }`.
+- The typed application error model now includes `ApiError`, `ValidationError`, and `NotFoundError` in `apps/api/src/errors/api-error.ts`.
+- Centralized error mapping remains in `apps/api/src/middleware/error-handler.ts`.
+- Invalid JSON bodies are now mapped to `invalid_json` instead of surfacing as generic server failures.
+- Unsupported request shapes for the payment review demo are now mapped to `invalid_request`.
+- Bad project IDs are mapped to `invalid_project_id`.
+- Missing routes are mapped to `not_found`.
+- Internal errors return `internal_error` with a stable non-leaky message.
+- Frontend API handling in `apps/web/src/lib/api/apiClient.ts` now unwraps success envelopes and parses error envelopes into readable `apiCode`, `apiMessage`, and `requestId` fields on `ApiClientError`.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api smoke http://127.0.0.1:18089` passes with Firestore env vars unset, confirming the success envelope for `/health` and the demo route.
+- Verified on temporary port `18087` that invalid project IDs return `invalid_project_id`, malformed JSON returns `invalid_json`, unknown routes return `not_found`, and internal dependency failures return `internal_error`.
+
+Definition of done:
+
+- [x] all implemented endpoints fail cleanly and consistently
+- [x] frontend integration can rely on stable response behavior
+
+---
+
+## 7. Implement request validation and shared typed contracts
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/specs/service-eval-console.md`
+- `docs/specs/technical-spec-overall.md`
+
+- [ ] Define request/response contracts for the shared runtime endpoints.
+- [ ] Wire validation to shared packages where appropriate.
+- [ ] Confirm `packages/schemas` and `packages/types` are used instead of duplicate local types where possible.
+- [ ] Add validation for:
+  - [ ] run creation payloads
+  - [ ] evaluation write payloads
+  - [ ] tool invocation request payloads
+  - [ ] seed data request/query payloads where needed
+- [ ] Ensure invalid input returns a stable validation error shape.
+
+Definition of done:
+
+- implemented endpoints reject malformed input predictably
+- typed contracts are aligned between backend and future frontend consumers
+
+---
+
+## 8. Implement run logging foundation
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/specs/service-eval-console.md`
+- `docs/architecture/observability-and-dashboards.md`
+
+- [ ] Define the run record model.
+- [ ] Implement endpoint to create a run record.
+- [ ] Implement endpoint to fetch a run by ID.
+- [ ] Implement endpoint to list runs with simple filters.
+- [ ] Include fields needed for later demos:
+  - [ ] id
+  - [ ] projectId
+  - [ ] status
+  - [ ] inputRef or input summary
+  - [ ] outputRef placeholder
+  - [ ] confidence placeholder
+  - [ ] latency placeholder
+  - [ ] estimated cost placeholder
+  - [ ] promptVersionId placeholder
+  - [ ] createdAt
+- [ ] Decide whether initial persistence is Firestore-backed or a thin local abstraction that already targets Firestore.
+
+Suggested endpoints:
+
+- [ ] `POST /runs`
+- [ ] `GET /runs`
+- [ ] `GET /runs/:id`
+
+Definition of done:
+
+- the platform has a real run ledger that later demo flows can write into and the eval console can read from
+
+---
+
+## 9. Implement tool invocation logging foundation
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/architecture/observability-and-dashboards.md`
+
+- [ ] Define the tool invocation record model.
+- [ ] Implement endpoint to create a tool invocation log entry.
+- [ ] Implement endpoint to list tool invocations for a run.
+- [ ] Include fields needed later:
+  - [ ] id
+  - [ ] runId
+  - [ ] toolName
+  - [ ] input summary
+  - [ ] output summary
+  - [ ] success
+  - [ ] durationMs
+  - [ ] createdAt
+- [ ] Ensure the model is generic enough for all future demos.
+
+Suggested endpoints:
+
+- [ ] `POST /tools/invocations`
+- [ ] `GET /tools/invocations`
+- [ ] `GET /runs/:id/tools`
+
+Definition of done:
+
+- tool activity can be logged and retrieved independently from business-specific demo logic
+
+---
+
+## 10. Implement evaluation record foundation
+
+Reference docs:
+
+- `docs/specs/service-eval-console.md`
+- `docs/specs/service-api.md`
+- `docs/architecture/observability-and-dashboards.md`
+
+- [ ] Define the evaluation record model.
+- [ ] Implement endpoint to create an evaluation record.
+- [ ] Implement endpoint to fetch evaluations by run.
+- [ ] Implement endpoint to list evaluations.
+- [ ] Include fields needed later:
+  - [ ] id
+  - [ ] runId
+  - [ ] schemaValid
+  - [ ] policyPass
+  - [ ] fallbackTriggered
+  - [ ] groundednessScore placeholder
+  - [ ] notes
+  - [ ] createdAt
+- [ ] Ensure the evaluation model supports future extension without breaking callers.
+
+Suggested endpoints:
+
+- [ ] `POST /evals`
+- [ ] `GET /evals`
+- [ ] `GET /runs/:id/evals`
+
+Definition of done:
+
+- the shared evaluation backbone exists before the demos and console depend on it heavily
+
+---
+
+## 11. Implement seeded data access layer
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/specs/service-web.md`
+
+- [ ] Define how seeded data will be stored for the current stage.
+- [ ] Implement a repository/service layer for reading seeded cases and mock documents.
+- [ ] Keep this layer generic and reusable.
+- [ ] Avoid hard-coding data directly into route files.
+- [ ] Support simple retrieval for:
+  - [ ] sample payment cases
+  - [ ] sample investing ops cases
+  - [ ] legacy intake examples
+  - [ ] policy documents or source docs placeholders
+- [ ] Return data in a format usable by frontend demo pages immediately.
+
+Suggested endpoints:
+
+- [ ] `GET /seed/payment-cases`
+- [ ] `GET /seed/investing-cases`
+- [ ] `GET /seed/legacy-intakes`
+- [ ] `GET /seed/documents`
+
+Definition of done:
+
+- frontend demo shells can load sample inputs and reference material from the API instead of hardcoded UI constants
+
+---
+
+## 12. Implement mock internal tools foundation
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/specs/service-web.md`
+- `docs/specs/service-investing-ops-copilot.md`
+- `docs/specs/service-payment-exception-review.md`
+
+- [ ] Define the first shared mock tools.
+- [ ] Implement tool handlers or service functions for:
+  - [ ] customer profile lookup
+  - [ ] transaction or payment case lookup
+  - [ ] account profile lookup
+  - [ ] policy search
+  - [ ] event timeline lookup
+  - [ ] escalation creation placeholder
+- [ ] Keep tools deterministic and inspectable.
+- [ ] Return stable typed outputs.
+- [ ] Do not yet add real third-party integration.
+
+Suggested endpoints:
+
+- [ ] `POST /tools/customer-profile`
+- [ ] `POST /tools/payment-case`
+- [ ] `POST /tools/account-profile`
+- [ ] `POST /tools/policy-search`
+- [ ] `POST /tools/event-timeline`
+- [ ] `POST /tools/escalation`
+
+Definition of done:
+
+- the shared mock tool layer exists and is usable by later demo logic without redesign
+
+---
+
+## 13. Implement API logging and observability hooks
+
+Reference docs:
+
+- `docs/architecture/observability-and-dashboards.md`
+- `docs/specs/service-api.md`
+
+- [ ] Add structured request logging.
+- [ ] Add request IDs or correlation IDs.
+- [ ] Add basic latency measurement per request.
+- [ ] Log endpoint errors in a consistent format.
+- [ ] Ensure logs are readable locally and in dev deployment.
+- [ ] Add lightweight internal logging helpers if needed.
+- [ ] Make sure future run/eval/tool events can be correlated from logs.
+
+Definition of done:
+
+- the shared runtime exposes meaningful backend observability before demo complexity increases
+
+---
+
+## 14. Wire minimal frontend-dev compatibility and CORS behavior
+
+Reference docs:
+
+- `docs/specs/service-web.md`
+- `docs/specs/service-api.md`
+
+- [ ] Configure allowed frontend origin handling for local development and dev deployment.
+- [ ] Confirm the web app can call the API in local development without cross-origin failure.
+- [ ] Confirm the dev deployed web app can call the dev deployed API.
+- [ ] Keep origin configuration explicit and environment-aware.
+
+Definition of done:
+
+- frontend and backend can communicate cleanly in dev
+
+---
+
+## 15. Persistence decision and implementation
+
+Reference docs:
+
+- `docs/specs/service-api.md`
+- `docs/specs/service-eval-console.md`
+
+- [ ] Decide the persistence mode for this milestone.
+- [ ] Recommended: use Firestore now for real shared runtime records.
+- [ ] Implement repositories for:
+  - [ ] runs
+  - [ ] tool invocations
+  - [ ] evaluations
+  - [ ] optional seed metadata if needed
+- [ ] Keep repository interfaces clean enough to swap storage strategy later if required.
+- [ ] Ensure Firestore collection naming is explicit and environment-safe.
+
+Definition of done:
+
+- shared runtime records persist outside process memory
+- dev deployment behaves like a real multi-run service, not a single-session toy
+
+---
+
+## 16. Deploy the API to dev and verify runtime
+
+Reference docs:
+
+- `docs/architecture/iac-and-cicd.md`
+- `docs/checklists/build-checklist-definition-of-done.md`
+
+- [ ] Confirm Terraform or deployment config for the API service is current.
+- [ ] Build and deploy the API to the dev environment.
+- [ ] Verify health endpoint from the deployed service.
+- [ ] Verify at least one run creation request works against the deployed service.
+- [ ] Verify at least one evaluation write/read flow works against the deployed service.
+- [ ] Verify at least one seeded data endpoint works against the deployed service.
+- [ ] Verify logs are visible and usable in dev.
+
+Definition of done:
+
+- the shared API runtime is live in dev and demonstrably functional
+
+---
+
+## 17. Testing and verification
+
+Reference docs:
+
+- `docs/checklists/build-checklist-definition-of-done.md`
+
+- [ ] Add unit or lightweight integration coverage for core shared runtime paths.
+- [ ] Test validation failures.
+- [ ] Test success path for health endpoint.
+- [ ] Test success path for run creation and retrieval.
+- [ ] Test success path for evaluation creation and retrieval.
+- [ ] Test success path for seeded data retrieval.
+- [ ] Test success path for at least one mock tool.
+- [ ] Confirm `pnpm lint` passes.
+- [ ] Confirm `pnpm typecheck` passes.
+- [ ] Confirm `pnpm test` passes.
+- [ ] Confirm `pnpm build` passes.
+- [ ] Confirm CI passes on pushed branch.
+
+Definition of done:
+
+- the shared API foundation is verified locally and in CI before later milestones depend on it
+
+---
+
+## 18. Documentation and handoff update
+
+Reference docs:
+
+- `README.md`
+- `docs/specs/service-api.md`
+- `docs/architecture/observability-and-dashboards.md`
+
+- [ ] Update docs if the final route set or data model differs materially from the original spec.
+- [ ] Add a short note describing the deployed shared runtime capability.
+- [ ] Document any temporary bootstrap exceptions.
+- [ ] Document any known limitations intentionally left for later demo milestones.
+
+Definition of done:
+
+- the current state of the shared runtime is legible to future agents and reviewers
+
+---
+
+## Final definition of done
+
+This checklist is complete when:
+
+- `apps/api` is structurally sound
+- health/readiness endpoints exist
+- shared request validation exists
+- run logging exists
+- tool invocation logging exists
+- evaluation logging exists
+- seeded data endpoints exist
+- mock tool endpoints exist
+- logging/observability hooks exist
+- persistence is real and environment-safe
+- the API is deployed and verifiable in `dev`
+- local checks and CI pass
+- later demo modules can now be built on top of this runtime without architectural rework

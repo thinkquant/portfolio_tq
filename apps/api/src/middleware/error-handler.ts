@@ -1,0 +1,68 @@
+import type { ProjectId } from '@portfolio-tq/types';
+
+import type { AppContext } from '../app/context.js';
+import { ApiError } from '../errors/api-error.js';
+import type { RequestContext } from '../lib/http.js';
+import { sendError } from '../lib/http.js';
+
+function failedRunProject(path: string): ProjectId | null {
+  return path === '/api/demo/payment-exception-review/run'
+    ? 'payment-exception-review'
+    : null;
+}
+
+export function handleRouteError(
+  error: unknown,
+  context: RequestContext,
+  app: AppContext,
+): void {
+  app.logger.error(
+    'request.failed',
+    error,
+    {
+      requestId: context.requestId,
+      latencyMs: Date.now() - context.startedAt,
+    },
+    {
+      method: context.method,
+      path: context.path,
+      projectId: null,
+    },
+  );
+
+  const projectId = failedRunProject(context.path);
+
+  if (projectId) {
+    app.logger.runLifecycle(
+      'run.failed',
+      {
+        requestId: context.requestId,
+        projectId,
+        runId: `${context.requestId}-failed`,
+      },
+      {
+        path: context.path,
+      },
+    );
+  }
+
+  if (error instanceof ApiError) {
+    sendError(
+      context.response,
+      error.statusCode,
+      context.requestId,
+      error.code,
+      error.message,
+      error.details,
+    );
+    return;
+  }
+
+  sendError(
+    context.response,
+    500,
+    context.requestId,
+    'internal_error',
+    'An unexpected API error occurred.',
+  );
+}
