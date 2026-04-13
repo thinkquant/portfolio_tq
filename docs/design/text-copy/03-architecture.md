@@ -16,12 +16,13 @@ This portfolio is structured like a real product: one web application, one backe
 ## Section: System shape
 
 **Section title**
-System shape
+One product
 
 **Body**
-The portfolio is one product surface supported by shared runtime layers, not a loose stack of disconnected mini-apps.
+The portfolio is one product supported by shared runtime layers, not a loose stack of disconnected mini-apps.
 
 **Structure block**
+
 - apps/web
 - apps/api
 - packages/ui
@@ -37,12 +38,13 @@ The portfolio is one product surface supported by shared runtime layers, not a l
 ## Section: Environment model
 
 **Section title**
-Environment model
+Branch and cloud model
 
 **Body**
 Development and production are separated on purpose. The branch model mirrors the cloud model.
 
 **Mapping**
+
 - dev branch → dev project
 - main branch → prod project
 
@@ -54,12 +56,13 @@ The repo is public. The workflow still stays disciplined.
 ## Section: Delivery model
 
 **Section title**
-Delivery model
+From code change to production
 
 **Body**
 Infrastructure is codified. Verification is automated. The repo is part of the proof.
 
 **Flow**
+
 ```text
 Code change
   -> local checks
@@ -88,13 +91,14 @@ A portfolio can be decorative, or it can reveal how someone actually works. This
 Where to inspect the build
 
 **List**
+
 - repo structure
 - checklists
 - technical specs
 - Terraform
 - workflow files
-- demo surfaces
-- evaluation surfaces
+- demo views
+- evaluation views
 
 **CTA**
 Inspect the Build

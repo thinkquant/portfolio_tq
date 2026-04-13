@@ -1,5 +1,4 @@
 import {
-  Callout,
   MetricTile,
   PageHeading,
   ProofTag,
@@ -56,7 +55,6 @@ export type DashboardShellConfig = {
   runs: DashboardRun[];
   flaggedRuns: DashboardRun[];
   detail: DashboardDetail;
-  backendNote: string;
   recentRunsLead?: string;
   recentRunsTitle?: string;
 };
@@ -85,8 +83,10 @@ function ChartPanel({ chart }: { chart: DashboardChart }) {
   return (
     <figure className="grid gap-5 rounded-[var(--radius)] border border-border bg-card p-5 shadow-xl shadow-black/15">
       <figcaption>
-        <h3 className="font-serif text-2xl text-foreground">{chart.title}</h3>
-        <p className="mt-2 leading-7 text-muted-foreground">
+        <h3 className="font-serif text-2xl font-semibold leading-tight text-foreground [text-wrap:balance]">
+          {chart.title}
+        </h3>
+        <p className="mt-2 text-base leading-7 text-muted-foreground [text-wrap:pretty]">
           {chart.description}
         </p>
       </figcaption>
@@ -98,7 +98,9 @@ function ChartPanel({ chart }: { chart: DashboardChart }) {
               <strong className="font-mono text-foreground">{bar.value}</strong>
             </div>
             <div className="h-3 overflow-hidden rounded-[var(--radius)] bg-background/80">
-              <div className={`h-full rounded-lg ${bar.toneClass} ${bar.widthClass}`} />
+              <div
+                className={`h-full rounded-lg ${bar.toneClass} ${bar.widthClass}`}
+              />
             </div>
           </div>
         ))}
@@ -121,7 +123,7 @@ function RunListPanel({
   return (
     <section className="grid content-start gap-5 rounded-[var(--radius)] border border-border bg-card p-5 shadow-xl shadow-black/15">
       <SectionHeading
-        eyebrow={variant === 'flagged' ? 'Flagged runs' : 'Run list'}
+        eyebrow={variant === 'flagged' ? 'Review queue' : 'Run stream'}
         lead={lead}
         title={title}
       />
@@ -132,15 +134,17 @@ function RunListPanel({
             key={run.id}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-mono text-sm text-primary">
-                {run.id}
-              </span>
+              <span className="font-mono text-sm text-primary">{run.id}</span>
               <ProofTag tone={variant === 'flagged' ? 'warning' : 'neutral'}>
                 {run.status}
               </ProofTag>
             </div>
-            <p className="text-sm leading-6 text-card-foreground">{run.project}</p>
-            <p className="text-sm leading-6 text-muted-foreground">{run.signal}</p>
+            <p className="text-base leading-7 text-card-foreground">
+              {run.project}
+            </p>
+            <p className="text-base leading-7 text-muted-foreground">
+              {run.signal}
+            </p>
           </article>
         ))}
       </div>
@@ -158,7 +162,7 @@ function DetailPanel({
   return (
     <section className="grid content-start gap-5 rounded-[var(--radius)] border border-border bg-card p-5 shadow-xl shadow-black/15">
       <SectionHeading
-        eyebrow="Detail panel"
+        eyebrow="Selected record"
         lead={lead}
         title={detail.title}
       />
@@ -168,10 +172,12 @@ function DetailPanel({
             className="grid gap-2 rounded-[var(--radius)] border border-border bg-background/70 p-4"
             key={row.label}
           >
-            <dt className="text-xs font-black uppercase tracking-normal text-primary">
+            <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-primary">
               {row.label}
             </dt>
-            <dd className="leading-7 text-muted-foreground">{row.value}</dd>
+            <dd className="text-base leading-7 text-muted-foreground">
+              {row.value}
+            </dd>
           </div>
         ))}
       </dl>
@@ -181,7 +187,7 @@ function DetailPanel({
 
 export function DashboardShell({ config }: DashboardShellProps) {
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-10 lg:gap-12">
       <PageHeading
         actions={config.tags.map((tag) => (
           <ProofTag key={tag.label} tone={tag.tone ?? 'neutral'}>
@@ -195,17 +201,17 @@ export function DashboardShell({ config }: DashboardShellProps) {
 
       <DashboardMetricsRow metrics={config.metrics} />
 
-      <section className="grid gap-5 lg:grid-cols-2">
+      <section className="grid gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         {config.charts.map((chart) => (
           <ChartPanel chart={chart} key={chart.title} />
         ))}
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[1fr_1fr_1fr]">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,1.1fr)]">
         <RunListPanel
           lead={
             config.recentRunsLead ??
-            'Placeholder records reserve the table structure until the shared run API is hydrated.'
+            'Recent run records will appear here as activity is captured.'
           }
           runs={config.runs}
           title={config.recentRunsTitle ?? 'Recent runs'}
@@ -213,7 +219,7 @@ export function DashboardShell({ config }: DashboardShellProps) {
         <RunListPanel
           lead={
             config.flaggedRunsLead ??
-            'Flagged records surface control-boundary hits that need review.'
+            'Flagged records show control-boundary hits that need review.'
           }
           runs={config.flaggedRuns}
           title={config.flaggedRunsTitle ?? 'Runs needing attention'}
@@ -221,19 +227,12 @@ export function DashboardShell({ config }: DashboardShellProps) {
         />
         <DetailPanel
           detail={config.detail}
-          lead={
-            config.detailLead ??
-            detailRowsToLead(config.detail.rows)
-          }
+          lead={config.detailLead ?? detailRowsToLead(config.detail.rows)}
         />
       </section>
 
-      <Callout title="Backend integration landing zone" tone="warning">
-        {config.backendNote}
-      </Callout>
-
       {config.footerNote ? (
-        <p className="max-w-[72ch] text-sm leading-7 text-muted-foreground">
+        <p className="max-w-[68ch] text-base leading-7 text-muted-foreground [text-wrap:pretty]">
           {config.footerNote}
         </p>
       ) : null}

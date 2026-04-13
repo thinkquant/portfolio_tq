@@ -4,7 +4,6 @@ import {
   routeDataSuccess,
   type RouteDataState,
 } from '../../app/routeData';
-import { apiRoutes, describeApiRequest } from '../../lib/api/apiClient';
 import {
   findPortfolioProjectByDemoHref,
   portfolioProjects,
@@ -16,7 +15,6 @@ import {
 } from './demoShellContent';
 
 export type DemoIndexPageData = RouteDataState<{
-  backendNote: string;
   projects: PortfolioProject[];
 }>;
 
@@ -24,14 +22,6 @@ export type DemoShellPageData = RouteDataState<{
   content: DemoPanelContent;
   project: PortfolioProject;
 }>;
-
-function describeSharedDemoApis(projectId: string): string {
-  return [
-    describeApiRequest('POST', apiRoutes.demoRun(projectId)),
-    describeApiRequest('GET', apiRoutes.runs()),
-    describeApiRequest('GET', apiRoutes.evaluations()),
-  ].join(', ');
-}
 
 export async function loadDemoIndexPageData(): Promise<DemoIndexPageData> {
   try {
@@ -43,17 +33,13 @@ export async function loadDemoIndexPageData(): Promise<DemoIndexPageData> {
     }
 
     return routeDataSuccess({
-      backendNote: `Demo execution will flow through ${describeApiRequest(
-        'POST',
-        apiRoutes.demoRun(':projectId'),
-      )}, then read run detail, trace, metrics, and evaluation records from the shared run feeds.`,
       projects: portfolioProjects,
     });
   } catch (error) {
     return routeDataError(
       'The demo index could not be prepared.',
-      'Demo-launch data should resolve in a route loader before the access shell renders.',
-      error instanceof Error ? error.message : 'Unknown demo index loader error.',
+      'Demo links are temporarily unavailable.',
+      error instanceof Error ? error.message : 'Unknown demo index error.',
     );
   }
 }
@@ -73,17 +59,14 @@ export async function loadDemoShellPageData(
     }
 
     return routeDataSuccess({
-      content: {
-        ...content,
-        backendNote: `Wire this page through ${describeSharedDemoApis(project.id)} so the input, trace, and evaluation panels can hydrate from shared runtime records.`,
-      },
+      content,
       project,
     });
   } catch (error) {
     return routeDataError(
       'The demo shell could not be prepared.',
-      'Demo route data should resolve in a loader before the shell panels render.',
-      error instanceof Error ? error.message : 'Unknown demo shell loader error.',
+      'This demo is temporarily unavailable.',
+      error instanceof Error ? error.message : 'Unknown demo error.',
     );
   }
 }

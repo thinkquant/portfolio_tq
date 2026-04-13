@@ -4,9 +4,9 @@ import type { DashboardShellConfig } from './DashboardShell';
 
 const sharedCharts = [
   {
-    title: 'Latency and cost placeholder',
+    title: 'Latency and cost baseline',
     description:
-      'Reserved chart space for median latency, p95 latency, and estimated cost per project once run data is hydrated.',
+      'Tracks median latency, p95 latency, and estimated cost as runs become available.',
     bars: [
       {
         label: 'median latency',
@@ -29,9 +29,9 @@ const sharedCharts = [
     ],
   },
   {
-    title: 'Reliability signal placeholder',
+    title: 'Reliability signal baseline',
     description:
-      'Reserved chart space for schema validity, fallback rate, low-confidence rate, and escalation rate.',
+      'Tracks schema validity, fallback rate, low-confidence rate, and escalation rate.',
     bars: [
       {
         label: 'schema valid',
@@ -62,7 +62,7 @@ export const observabilityDashboardConfig: DashboardShellConfig = {
   tags: [
     { label: 'Portfolio overview', tone: 'accent' },
     { label: 'Cross-demo visibility' },
-    { label: 'Public-safe shell', tone: 'success' },
+    { label: 'Public-safe', tone: 'success' },
   ],
   metrics: [
     {
@@ -92,12 +92,12 @@ export const observabilityDashboardConfig: DashboardShellConfig = {
     {
       label: 'median latency',
       value: '--',
-      detail: 'API runtime signal from persisted run records.',
+      detail: 'Median response time from recorded runs.',
     },
     {
       label: 'estimated cost',
       value: '--',
-      detail: 'Estimated model/tool cost once execution is wired.',
+      detail: 'Estimated model and tool cost per run.',
     },
   ],
   charts: sharedCharts,
@@ -140,20 +140,20 @@ export const observabilityDashboardConfig: DashboardShellConfig = {
     rows: [
       {
         label: 'trace',
-        value: 'Timeline will show run.created through run.completed or run.failed events.',
+        value: 'Timeline from run start through completion or failure.',
       },
       {
         label: 'evaluation',
-        value: 'Schema, confidence, latency, fallback, and project-specific checks land here.',
+        value:
+          'Schema, confidence, latency, fallback, and project-specific checks land here.',
       },
       {
         label: 'debug note',
-        value: 'Failures should be explainable without exposing secrets or private data.',
+        value:
+          'Failures stay explainable without exposing secrets or private data.',
       },
     ],
   },
-  backendNote:
-    'Hydrate this route from GET /api/observability/overview, GET /api/runs, GET /api/evaluations, and GET /api/projects/:projectId/metrics.',
   recentRunsTitle: 'Latest runs',
   flaggedRunsTitle: 'Latest flagged runs',
 };
@@ -168,16 +168,11 @@ export const evalConsoleDashboardConfig: DashboardShellConfig = {
     { label: 'Comparison' },
   ],
   metrics: siteCopy.demos.evalConsole.metricLabels.map((label, index) => ({
-      label,
-      value: '--',
-      detail: siteCopy.shell.states.noDataBody,
-      tone:
-        index === 4
-          ? 'success'
-          : index === 5
-            ? 'warning'
-            : 'neutral',
-    })),
+    label,
+    value: '--',
+    detail: siteCopy.shell.states.noDataBody,
+    tone: index === 4 ? 'success' : index === 5 ? 'warning' : 'neutral',
+  })),
   charts: [
     ...sharedCharts,
     {
@@ -240,8 +235,6 @@ export const evalConsoleDashboardConfig: DashboardShellConfig = {
       value: siteCopy.shell.states.noDataBody,
     })),
   },
-  backendNote:
-    'Hydrate this route from GET /api/runs, GET /api/runs/:id, GET /api/evaluations, and GET /api/projects/:projectId/metrics once the demo runtimes emit real records.',
   recentRunsTitle: siteCopy.demos.evalConsole.recentRunsTitle,
   recentRunsLead: siteCopy.demos.evalConsole.recentRunsColumns.join(', '),
   flaggedRunsTitle: siteCopy.demos.evalConsole.flaggedRunsTitle,

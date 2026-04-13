@@ -152,10 +152,16 @@ function getSubsection(raw: string, title: string): string {
   return section;
 }
 
-function getLabelBlock(raw: string, label: string): string {
+function getLabelBlock(
+  raw: string,
+  label: string,
+  aliases: string[] = [],
+): string {
   const lines = normalize(raw).split('\n');
-  const marker = `**${label}**`;
-  const start = lines.findIndex((line) => line.trim() === marker);
+  const labels = [label, ...aliases];
+  const start = lines.findIndex((line) =>
+    labels.some((candidate) => line.trim() === `**${candidate}**`),
+  );
 
   if (start === -1) {
     throw new Error(`Missing label "${label}".`);
@@ -167,7 +173,12 @@ function getLabelBlock(raw: string, label: string): string {
     const line = lines[index];
     const trimmed = line.trim();
 
-    if (trimmed.startsWith('**') || trimmed.startsWith('## ') || trimmed.startsWith('### ') || trimmed === '---') {
+    if (
+      trimmed.startsWith('**') ||
+      trimmed.startsWith('## ') ||
+      trimmed.startsWith('### ') ||
+      trimmed === '---'
+    ) {
       break;
     }
 
@@ -177,12 +188,12 @@ function getLabelBlock(raw: string, label: string): string {
   return collected.join('\n').trim();
 }
 
-function getText(raw: string, label: string): string {
-  return getLabelBlock(raw, label).replace(/\n+/g, ' ').trim();
+function getText(raw: string, label: string, aliases: string[] = []): string {
+  return getLabelBlock(raw, label, aliases).replace(/\n+/g, ' ').trim();
 }
 
-function getList(raw: string, label: string): string[] {
-  return getLabelBlock(raw, label)
+function getList(raw: string, label: string, aliases: string[] = []): string[] {
+  return getLabelBlock(raw, label, aliases)
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line.startsWith('- '))
@@ -216,12 +227,18 @@ const linkedInHref = 'https://www.linkedin.com/in/daniel-oosthuyzen';
 const persistentHeader = getSection(persistentRaw, 'Header / Brand block');
 const persistentNav = getSection(persistentRaw, 'Primary navigation');
 const persistentUtility = getSection(persistentRaw, 'Header utility text');
-const persistentAnnouncement = getSection(persistentRaw, 'Global announcement bar');
+const persistentAnnouncement = getSection(
+  persistentRaw,
+  'Global announcement bar',
+);
 const persistentFooter = getSection(persistentRaw, 'Footer');
 const persistentProofTags = getSection(persistentRaw, 'Shared proof tags');
 const persistentCtas = getSection(persistentRaw, 'Shared CTA labels');
 const persistentDemoStates = getSection(persistentRaw, 'Shared demo states');
-const persistentContactPrompt = getSection(persistentRaw, 'Shared contact prompt');
+const persistentContactPrompt = getSection(
+  persistentRaw,
+  'Shared contact prompt',
+);
 
 export const siteCopy = {
   shell: {
@@ -255,7 +272,7 @@ export const siteCopy = {
         { label: 'Repo', href: repoHref },
       ] satisfies NamedLink[],
       contacts: [
-        { label: 'daniel@thinkquant.co', href: 'mailto:daniel@thinkquant.co' },
+        { label: 'Email', href: '' },
         { label: 'LinkedIn', href: linkedInHref },
         { label: 'GitHub', href: repoHref },
       ],
@@ -298,7 +315,7 @@ export const siteCopy = {
     return {
       hero: {
         eyebrow: getText(hero, 'Eyebrow'),
-        headline: getText(hero, 'Headline'),
+        headline: getText(hero, 'Headline', ['Hero Headline']),
         subhead: getText(hero, 'Subhead'),
         primaryCta: getText(hero, 'Primary CTA'),
         secondaryCta: getText(hero, 'Secondary CTA'),
@@ -316,17 +333,19 @@ export const siteCopy = {
       },
       featuredSurfaces: {
         title: getText(featured, 'Section title'),
-        tiles: ['Tile 1', 'Tile 2', 'Tile 3', 'Tile 4'].map((tileName, index) => {
-          const tile = getSubsection(featured, tileName);
-          const hrefs = ['/work', '/architecture', '/demo', '/about'];
+        tiles: ['Tile 1', 'Tile 2', 'Tile 3', 'Tile 4'].map(
+          (tileName, index) => {
+            const tile = getSubsection(featured, tileName);
+            const hrefs = ['/work', '/architecture', '/demo', '/about'];
 
-          return {
-            title: getText(tile, 'Title'),
-            body: getText(tile, 'Body'),
-            cta: getText(tile, 'CTA'),
-            href: hrefs[index],
-          };
-        }),
+            return {
+              title: getText(tile, 'Title'),
+              body: getText(tile, 'Body'),
+              cta: getText(tile, 'CTA'),
+              href: hrefs[index],
+            };
+          },
+        ),
       },
       proofPieces: {
         title: getText(proofPieces, 'Section title'),
@@ -371,9 +390,18 @@ export const siteCopy = {
   architecture: (() => {
     const header = getSection(architectureRaw, 'Page header');
     const systemShape = getSection(architectureRaw, 'Section: System shape');
-    const environmentModel = getSection(architectureRaw, 'Section: Environment model');
-    const deliveryModel = getSection(architectureRaw, 'Section: Delivery model');
-    const whyItMatters = getSection(architectureRaw, 'Section: Why this matters');
+    const environmentModel = getSection(
+      architectureRaw,
+      'Section: Environment model',
+    );
+    const deliveryModel = getSection(
+      architectureRaw,
+      'Section: Delivery model',
+    );
+    const whyItMatters = getSection(
+      architectureRaw,
+      'Section: Why this matters',
+    );
     const inspect = getSection(architectureRaw, 'Section: What to inspect');
 
     return {
@@ -475,27 +503,24 @@ export const siteCopy = {
   repoWorkflow: {
     eyebrow: 'Repo',
     title: 'Public build. Public proof.',
-    body:
-      'The repository is part of the portfolio surface. Structure, specs, Terraform, CI/CD, and working discipline are visible by design.',
+    body: 'The repository is part of the portfolio. Structure, specs, Terraform, CI/CD, and working discipline are visible by design.',
     sections: [
       {
         title: 'What is visible',
-        body:
-          'Reviewers can inspect repo structure, technical specs, checklists, workflow files, Terraform, and the route surfaces themselves.',
+        body: 'Reviewers can inspect repo structure, technical specs, checklists, workflow files, Terraform, and the public pages themselves.',
         items: [
           'repo structure',
           'technical specs',
           'checklists',
           'workflow files',
           'Terraform',
-          'demo surfaces',
-          'evaluation surfaces',
+          'demo views',
+          'evaluation views',
         ],
       },
       {
         title: 'Delivery model',
-        body:
-          'Code change, local checks, GitHub Actions, Terraform plan, deploy to dev, milestone merge, deploy to prod.',
+        body: 'Code change, local checks, GitHub Actions, Terraform plan, deploy to dev, milestone merge, deploy to prod.',
         items: [
           'Code change',
           'local checks',
@@ -508,8 +533,7 @@ export const siteCopy = {
       },
       {
         title: 'Branch and environment discipline',
-        body:
-          'Development and production are separated on purpose. The branch model mirrors the cloud model.',
+        body: 'Development and production are separated on purpose. The branch model mirrors the cloud model.',
         items: ['dev branch -> dev project', 'main branch -> prod project'],
       },
     ],
@@ -549,7 +573,12 @@ const projectDefinitions = [
     workSection: getSection(workRaw, 'Project card 4'),
     href: '/projects/eval-console',
     demoHref: '/demo/eval-console',
-    filterTags: ['All', 'Reliability', 'Systems Architecture', 'Product Thinking'],
+    filterTags: [
+      'All',
+      'Reliability',
+      'Systems Architecture',
+      'Product Thinking',
+    ],
   },
 ] as const;
 

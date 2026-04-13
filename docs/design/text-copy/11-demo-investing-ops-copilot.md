@@ -16,6 +16,7 @@ Ask an internal operations question, inspect retrieval, and review the controlle
 Question
 
 **Field labels**
+
 - Account
 - Question
 - Context note
@@ -34,6 +35,7 @@ Load Sample Case
 Structured response
 
 **Field labels**
+
 - Account summary
 - Issue category
 - Recommended next actions
@@ -49,6 +51,7 @@ Structured response
 Grounding
 
 **Labels**
+
 - Retrieved sources
 - Policy references
 - Account events
@@ -62,6 +65,7 @@ Grounding
 Run evaluation
 
 **Metrics**
+
 - Sources cited
 - Schema valid
 - Confidence threshold
@@ -76,4 +80,4 @@ Run evaluation
 Controlled boundaries
 
 **Body**
-This surface is built to support operations, not to improvise past policy.
+This demo is built to support operations, not to improvise past policy.

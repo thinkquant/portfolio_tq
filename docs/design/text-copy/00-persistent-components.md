@@ -54,6 +54,7 @@ Daniel J.G. Oosthuyzen
 First-principles thinking. Systems architecture. Products and pipelines.
 
 **Footer navigation**
+
 - Work
 - Architecture
 - About
@@ -61,7 +62,7 @@ First-principles thinking. Systems architecture. Products and pipelines.
 - Repo
 
 **Footer contact block**
-daniel@thinkquant.co  
+Email
 LinkedIn  
 GitHub
 
@@ -115,6 +116,9 @@ Inspect the Build
 - Demo
 - Next step
 
+**Copy usage note**
+Do not repeat the same phrase, root word, or reversed phrase across an eyebrow and its paired heading. Eyebrows should frame the section category; headings should make the specific claim.
+
 ---
 
 ## Shared demo states
@@ -123,25 +127,25 @@ Inspect the Build
 Demo Access
 
 **Locked state body**
-Some demo surfaces are gated. The work remains public. Access can be provided when review requires it.
+Some demos are gated. The work remains public. Access can be provided when review requires it.
 
 **Coming soon title**
 Shell Ready
 
 **Coming soon body**
-The structure is live. The runtime is being wired in.
+The page is available. Live execution is not active yet.
 
 **No data title**
 No Runs Yet
 
 **No data body**
-This view will populate as real runs are executed.
+Runs will appear here after they execute.
 
 **Error title**
 Something Broke Cleanly
 
 **Error body**
-The surface failed safely. Check the run details and trace.
+The demo stopped safely. Check the run details and trace.
 
 **Loading label**
 Running

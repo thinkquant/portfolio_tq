@@ -16,7 +16,7 @@ My path is non-traditional. My work is deeply applied. I am strongest where ambi
 ## Section: Positioning
 
 **Section title**
-How I work
+Full-chain technical ownership
 
 **Body**
 I work across the full delivery chain: problem framing, architecture, implementation planning, AI-assisted execution, audit, integration, testing, documentation, and deployment. The clearest description is architect, builder, and technical lead with founder-level ownership.
@@ -29,6 +29,7 @@ I work across the full delivery chain: problem framing, architecture, implementa
 Where I am strongest
 
 **Bullets**
+
 - Architecting ambiguous systems from scratch
 - Turning messy inputs into usable structure
 - Designing event-driven, decision-oriented workflows
@@ -43,6 +44,7 @@ Where I am strongest
 Domains of work
 
 **Bullets**
+
 - systems architecture
 - AI-native workflows
 - backend and full-stack delivery

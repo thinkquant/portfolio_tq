@@ -3,10 +3,10 @@
 ## Page header
 
 **Eyebrow**
-Demos
+Interactive proof
 
 **Title**
-Working surfaces
+Workflow demos
 
 **Body**
 These demos are built to show architecture in motion: typed inputs, controlled outputs, traces, evaluation, and failure handled cleanly.
@@ -19,7 +19,7 @@ These demos are built to show architecture in motion: typed inputs, controlled o
 Access model
 
 **Body**
-Some demo surfaces may be gated. The architecture and project pages remain public.
+Some demos may be gated. The architecture and project pages remain public.
 
 ---
 

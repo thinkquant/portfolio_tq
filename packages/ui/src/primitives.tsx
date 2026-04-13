@@ -81,18 +81,18 @@ const proofToneClasses: Record<PrimitiveTone, string> = {
 };
 
 export const designTokens = {
-  pageSection: 'grid gap-10 lg:gap-14',
+  pageSection: 'grid gap-12 lg:gap-16',
   insetSection:
     'rounded-[var(--radius)] border border-border/80 bg-card p-6 text-card-foreground shadow-lg shadow-black/10 sm:p-8',
   cardSurface:
     'rounded-[var(--radius)] border border-border/80 bg-card p-5 text-card-foreground shadow-lg shadow-black/12',
-  headingSerif: 'font-[family-name:var(--font-serif)] tracking-normal',
+  headingSerif:
+    'font-[family-name:var(--font-serif)] font-semibold tracking-normal [text-wrap:balance]',
   focusRing:
     'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
-  bodyText: 'max-w-[72ch] text-[0.98rem] leading-8 text-muted-foreground',
-  bodyTextTight: 'text-sm leading-6 text-muted-foreground',
-  label:
-    'text-[0.7rem] font-black uppercase tracking-[0.12em] text-primary/85',
+  bodyText: 'max-w-[68ch] text-base leading-8 text-muted-foreground',
+  bodyTextTight: 'text-base leading-7 text-muted-foreground',
+  label: 'text-[0.75rem] font-semibold uppercase tracking-[0.11em] text-primary/85',
   panel:
     'rounded-[var(--radius)] border border-border/80 bg-card p-5 shadow-lg shadow-black/10',
   panelMuted:
@@ -127,13 +127,13 @@ export function PageHeading({
           <h1
             className={cx(
               designTokens.headingSerif,
-              'max-w-[16ch] text-[2.4rem] leading-[0.98] text-foreground sm:text-[3rem] lg:text-[3.65rem]',
+              'max-w-[16ch] text-[2.5rem] leading-[0.98] text-foreground sm:text-[3.125rem] lg:text-[3.75rem]',
             )}
           >
             {title}
           </h1>
           {lead ? (
-            <p className="max-w-[68ch] text-[1.02rem] leading-8 text-muted-foreground">
+            <p className="max-w-[68ch] text-[1.0625rem] leading-8 text-muted-foreground [text-wrap:pretty]">
               {lead}
             </p>
           ) : null}
@@ -160,13 +160,13 @@ export function SectionHeading({
       <h2
         className={cx(
           designTokens.headingSerif,
-          'max-w-[24ch] text-[1.7rem] leading-tight text-foreground sm:text-[2.05rem]',
+          'max-w-[24ch] text-[1.75rem] leading-tight text-foreground sm:text-[2.125rem]',
         )}
       >
         {title}
       </h2>
       {lead ? (
-        <p className="max-w-[68ch] text-[0.98rem] leading-8 text-muted-foreground">
+        <p className="max-w-[68ch] text-base leading-8 text-muted-foreground [text-wrap:pretty]">
           {lead}
         </p>
       ) : null}
@@ -179,7 +179,8 @@ export function Card({ children, className, tone = 'neutral' }: CardProps) {
     <article
       className={cx(
         designTokens.cardSurface,
-        tone === 'accent' && 'border-primary/25 bg-accent text-accent-foreground',
+        tone === 'accent' &&
+          'border-primary/25 bg-accent text-accent-foreground',
         className,
       )}
     >
@@ -196,7 +197,7 @@ export function ProofTag({
   return (
     <span
       className={cx(
-        'inline-flex items-center rounded-[var(--radius)] border px-2.5 py-1 text-[0.68rem] font-black uppercase tracking-[0.12em]',
+        'inline-flex items-center rounded-[var(--radius)] border px-2.5 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.11em]',
         proofToneClasses[tone],
         className,
       )}
@@ -220,10 +221,10 @@ export function Callout({
         className,
       )}
     >
-      <h3 className="font-[family-name:var(--font-serif)] text-xl text-foreground">
+      <h3 className="font-[family-name:var(--font-serif)] text-[1.375rem] font-semibold leading-tight text-foreground [text-wrap:balance]">
         {title}
       </h3>
-      <div className="mt-3 leading-7 text-current/90">{children}</div>
+      <div className="mt-3 text-base leading-7 text-current/90">{children}</div>
     </aside>
   );
 }
@@ -243,14 +244,14 @@ export function MetricTile({
         className,
       )}
     >
-      <p className="text-xs font-black uppercase tracking-normal opacity-75">
+      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.08em] opacity-75">
         {label}
       </p>
-      <strong className="mt-3 block font-[family-name:var(--font-serif)] text-4xl leading-none text-foreground">
+      <strong className="mt-3 block font-[family-name:var(--font-serif)] text-4xl font-semibold leading-none text-foreground">
         {value}
       </strong>
       {detail ? (
-        <p className="mt-3 text-sm leading-6 opacity-80">{detail}</p>
+        <p className="mt-3 text-base leading-7 opacity-80">{detail}</p>
       ) : null}
     </article>
   );
@@ -269,10 +270,10 @@ export function EmptyState({
         className,
       )}
     >
-      <h3 className="font-[family-name:var(--font-serif)] text-2xl text-foreground">
+      <h3 className="font-[family-name:var(--font-serif)] text-2xl font-semibold leading-tight text-foreground [text-wrap:balance]">
         {title}
       </h3>
-      <p className="mx-auto mt-3 max-w-2xl leading-7 text-muted-foreground">
+      <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-muted-foreground [text-wrap:pretty]">
         {message}
       </p>
       {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
@@ -288,11 +289,7 @@ export function DemoLauncherPanel({
   meta,
   className,
 }: DemoLauncherPanelProps) {
-  const cta = (
-    <span className={designTokens.buttonPrimary}>
-      {ctaLabel}
-    </span>
-  );
+  const cta = <span className={designTokens.buttonPrimary}>{ctaLabel}</span>;
 
   return (
     <article
@@ -301,10 +298,12 @@ export function DemoLauncherPanel({
         className,
       )}
     >
-      <h3 className="font-[family-name:var(--font-serif)] text-2xl text-foreground">
+      <h3 className="font-[family-name:var(--font-serif)] text-2xl font-semibold leading-tight text-foreground [text-wrap:balance]">
         {title}
       </h3>
-      <p className="mt-3 leading-7 text-muted-foreground">{body}</p>
+      <p className="mt-3 text-base leading-7 text-muted-foreground [text-wrap:pretty]">
+        {body}
+      </p>
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {href ? (
           <a className={designTokens.focusRing} href={href}>
@@ -313,7 +312,9 @@ export function DemoLauncherPanel({
         ) : (
           cta
         )}
-        {meta ? <div className="text-sm text-muted-foreground">{meta}</div> : null}
+        {meta ? (
+          <div className="text-sm text-muted-foreground">{meta}</div>
+        ) : null}
       </div>
     </article>
   );
@@ -334,11 +335,11 @@ export function ArchitecturePanelFrame({
     >
       <figcaption className="mb-4">
         {kicker ? (
-          <p className="text-xs font-black uppercase tracking-normal text-primary">
+          <p className="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-primary">
             {kicker}
           </p>
         ) : null}
-        <h3 className="mt-2 font-[family-name:var(--font-serif)] text-2xl text-foreground">
+        <h3 className="mt-2 font-[family-name:var(--font-serif)] text-2xl font-semibold leading-tight text-foreground [text-wrap:balance]">
           {title}
         </h3>
       </figcaption>

@@ -16,7 +16,7 @@ A rigid deterministic intake flow upgraded into a structured AI-native service w
 ## Problem
 
 **Section title**
-Problem
+The intake mismatch
 
 **Body**
 Legacy systems often expect perfect fields, clean forms, and already-structured reality. Actual inputs rarely arrive that way.
@@ -36,9 +36,10 @@ Replacing old systems is not always the right move. Often the higher-leverage mo
 ## How it works
 
 **Section title**
-How it works
+Adapter path
 
 **Flow**
+
 ```text
 Messy input
   -> schema extraction
@@ -52,9 +53,10 @@ Messy input
 ## Controls
 
 **Section title**
-Controls
+Compatibility safeguards
 
 **Bullets**
+
 - typed normalization
 - explicit validation layer
 - legacy compatibility preserved
@@ -65,9 +67,10 @@ Controls
 ## What this proves
 
 **Section title**
-What this proves
+Capability evidence
 
 **Bullets**
+
 - adapter architecture
 - deterministic plus probabilistic design
 - safe modernization
@@ -78,7 +81,7 @@ What this proves
 ## Demo prompt
 
 **Section title**
-Demo
+Inspect the transform
 
 **Body**
 Open the demo to watch raw input become structured, validated, and transformed for an older service shape.

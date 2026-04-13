@@ -16,7 +16,7 @@ A manual payments review problem, redesigned into a structured, confidence-aware
 ## Problem
 
 **Section title**
-Problem
+The review bottleneck
 
 **Body**
 Exception review gets slow when context is split across transaction records, support notes, processor history, and policy. The cost is not only time. It is inconsistency.
@@ -36,9 +36,10 @@ This is the kind of work that should become more structured, not more chaotic, w
 ## How it works
 
 **Section title**
-How it works
+Decision path
 
 **Flow**
+
 ```text
 Case intake
   -> fact extraction
@@ -53,9 +54,10 @@ Case intake
 ## Controls
 
 **Section title**
-Controls
+Control boundaries
 
 **Bullets**
+
 - structured output first
 - explicit confidence threshold
 - policy-aware fallback
@@ -66,9 +68,10 @@ Controls
 ## What this proves
 
 **Section title**
-What this proves
+Capability evidence
 
 **Bullets**
+
 - workflow redesign
 - tool-calling architecture
 - safe AI behavior
@@ -80,7 +83,7 @@ What this proves
 ## Demo prompt
 
 **Section title**
-Demo
+Inspect the run
 
 **Body**
 Open the demo to inspect the run, the trace, and the point where the workflow decides whether to complete or escalate.

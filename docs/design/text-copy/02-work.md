@@ -19,6 +19,7 @@ Each piece is here to show a specific capability clearly: systems design, workfl
 Filter by proof
 
 **Filter options**
+
 - All
 - Systems Architecture
 - AI Workflows
@@ -60,7 +61,7 @@ An internal copilot for wealth operations that retrieves context, cites sources,
 Support and operations teams lose time reconstructing account state and policy context manually.
 
 **What this proves**
-RAG, internal-tool orchestration, policy-aware response design, controlled action surfaces.
+RAG, internal-tool orchestration, policy-aware response design, controlled action paths.
 
 **CTA**
 Open Module
@@ -92,7 +93,7 @@ Open Module
 Evaluation & Reliability Console
 
 **One-line summary**
-A monitoring surface for AI workflows that treats correctness and control as first-class concerns.
+A monitoring view for AI workflows that treats correctness and control as first-class concerns.
 
 **Problem**
 A workflow is not production-ready just because it returns an answer.

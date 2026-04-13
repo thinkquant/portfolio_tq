@@ -1,10 +1,4 @@
-import {
-  Callout,
-  Card,
-  PageHeading,
-  ProofTag,
-  SectionHeading,
-} from '@portfolio-tq/ui';
+import { PageHeading } from '@portfolio-tq/ui';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { DemoAccessShell } from '../features/access/DemoAccessShell';
@@ -41,33 +35,7 @@ type ShellPageProps = {
 function ShellPage({ eyebrow, title, body }: ShellPageProps) {
   return (
     <div className="grid gap-8">
-      <PageHeading
-        actions={
-          <>
-            <ProofTag tone="accent">Shell baseline</ProofTag>
-            <ProofTag>Public-safe</ProofTag>
-          </>
-        }
-        eyebrow={eyebrow}
-        lead={body}
-        title={title}
-      />
-
-      <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <SectionHeading
-            eyebrow="Composable surface"
-            lead="This route is intentionally using shared primitives now so later page work can focus on content and behavior instead of repeating styling decisions."
-            title="Reusable shell components are active."
-          />
-        </Card>
-
-        <Callout title="Implementation note">
-          Later checklist sections will replace the route copy with substantive
-          page content, while preserving the shared spacing, typography, and
-          feedback conventions introduced here.
-        </Callout>
-      </section>
+      <PageHeading eyebrow={eyebrow} lead={body} title={title} />
     </div>
   );
 }
@@ -75,9 +43,9 @@ function ShellPage({ eyebrow, title, body }: ShellPageProps) {
 function NotFoundPage() {
   return (
     <ShellPage
-      body="This route is not part of the locked web shell route map yet. Use the primary navigation to return to a supported portfolio surface."
+      body="That address does not point to a published page. Use the primary navigation to return to the portfolio."
       eyebrow="404"
-      title="That route is outside the current shell."
+      title="Page not found."
     />
   );
 }

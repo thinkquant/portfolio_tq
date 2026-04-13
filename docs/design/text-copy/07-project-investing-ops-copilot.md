@@ -16,7 +16,7 @@ An internal copilot for wealth operations that retrieves context, cites sources,
 ## Problem
 
 **Section title**
-Problem
+The context bottleneck
 
 **Body**
 Operations work slows down when staff have to reconstruct account state, policy context, and next allowed actions manually.
@@ -36,9 +36,10 @@ A useful copilot in a regulated context is not one that speaks confidently. It i
 ## How it works
 
 **Section title**
-How it works
+Grounded response path
 
 **Flow**
+
 ```text
 Question
   -> retrieve account and policy context
@@ -53,11 +54,12 @@ Question
 ## Controls
 
 **Section title**
-Controls
+Operational guardrails
 
 **Bullets**
+
 - source-cited response
-- restricted action surface
+- restricted actions
 - no uncontrolled advice
 - escalation when policy certainty is weak
 
@@ -66,9 +68,10 @@ Controls
 ## What this proves
 
 **Section title**
-What this proves
+Capability evidence
 
 **Bullets**
+
 - RAG architecture
 - internal-tool orchestration
 - policy-aware interface design
@@ -79,7 +82,7 @@ What this proves
 ## Demo prompt
 
 **Section title**
-Demo
+Try the copilot
 
 **Body**
 Open the demo to query a case, inspect retrieval, and see how response structure is kept grounded.

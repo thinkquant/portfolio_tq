@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation, useNavigation } from 'react-router-dom';
 
+import { ProtectedEmailLink } from '@/components/ProtectedEmail';
 import { siteCopy } from '@/content/textCopy';
 
 function isNavigationActive(href: string, pathname: string): boolean {
@@ -42,16 +43,16 @@ export function RootLayout() {
                 className="group grid max-w-3xl gap-2 text-left no-underline"
                 to="/"
               >
-                <span className="text-[0.7rem] font-black uppercase tracking-[0.14em] text-primary/80">
+                <span className="text-[0.75rem] font-semibold uppercase tracking-[0.11em] text-primary/80">
                   {siteCopy.shell.brand}
                 </span>
-                <span className="font-serif text-[2rem] leading-none tracking-normal text-foreground transition group-hover:text-primary sm:text-[2.35rem]">
+                <span className="font-serif text-[2rem] font-semibold leading-none tracking-normal text-foreground transition group-hover:text-primary sm:text-[2.35rem]">
                   {siteCopy.shell.primaryLockup}
                 </span>
-                <span className="max-w-[56ch] text-sm leading-6 text-muted-foreground">
+                <span className="max-w-[56ch] text-[0.9375rem] leading-6 text-muted-foreground [text-wrap:pretty]">
                   {siteCopy.shell.secondaryLine}
                 </span>
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                <span className="text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                   {siteCopy.shell.utilityLine}
                 </span>
               </Link>
@@ -85,7 +86,7 @@ export function RootLayout() {
         </header>
 
         <main
-          className="flex-1 py-4 sm:py-5 lg:py-6"
+          className="flex-1 pb-4 pt-[3.75rem] sm:pb-5 sm:pt-16 lg:pb-6 lg:pt-[4.25rem]"
           id="main-content"
           tabIndex={-1}
         >
@@ -112,7 +113,7 @@ export function RootLayout() {
               <p className="max-w-[60ch] leading-6">
                 {siteCopy.shell.footer.line2}
               </p>
-              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+              <p className="text-[0.75rem] uppercase tracking-[0.1em] text-muted-foreground">
                 {siteCopy.shell.footer.note}
               </p>
             </div>
@@ -144,13 +145,25 @@ export function RootLayout() {
 
               <div className="grid gap-2">
                 {siteCopy.shell.footer.contacts.map((contact) =>
-                  contact.href ? (
+                  contact.label === 'Email' ? (
+                    <ProtectedEmailLink
+                      className="w-fit border-0 bg-transparent p-0 text-left text-muted-foreground transition hover:text-foreground"
+                      key={contact.label}
+                      revealLabel={contact.label}
+                    />
+                  ) : contact.href ? (
                     <a
                       className="text-muted-foreground transition hover:text-foreground"
                       href={contact.href}
                       key={contact.label}
-                      rel={contact.href.startsWith('http') ? 'noreferrer' : undefined}
-                      target={contact.href.startsWith('http') ? '_blank' : undefined}
+                      rel={
+                        contact.href.startsWith('http')
+                          ? 'noreferrer'
+                          : undefined
+                      }
+                      target={
+                        contact.href.startsWith('http') ? '_blank' : undefined
+                      }
                     >
                       {contact.label}
                     </a>

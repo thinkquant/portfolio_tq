@@ -18,49 +18,56 @@ export function ArchitecturePage() {
         title={siteCopy.architecture.title}
       />
 
-      <section className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-        <Card>
+      <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
+        <div className="grid max-w-3xl content-start gap-5">
           <SectionHeading
-            eyebrow={siteCopy.architecture.systemShape.title}
+            eyebrow="System shape"
             lead={siteCopy.architecture.systemShape.body}
             title={siteCopy.architecture.systemShape.title}
           />
-        </Card>
+          <p className={designTokens.bodyText}>
+            {siteCopy.architecture.whyItMatters.body}
+          </p>
+        </div>
 
-        <Card>
-          <SectionHeading
-            eyebrow={siteCopy.architecture.whyItMatters.title}
-            lead={siteCopy.architecture.whyItMatters.body}
-            title={siteCopy.architecture.whyItMatters.title}
-          />
+        <Card className="grid content-start gap-3">
+          <p className={designTokens.label}>
+            {siteCopy.architecture.whyItMatters.title}
+          </p>
+          <p className={designTokens.bodyTextTight}>
+            {siteCopy.architecture.whyItMatters.body}
+          </p>
         </Card>
       </section>
 
-      <section className="grid gap-5">
+      <section className="grid gap-7 border-y border-border/80 py-10 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-12">
         <SectionHeading
-          eyebrow={siteCopy.architecture.systemShape.title}
+          eyebrow="Composition"
           lead={siteCopy.architecture.systemShape.body}
           title="Shared runtime layers"
         />
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {siteCopy.architecture.systemShape.structure.map((layer) => (
-            <Card className="grid gap-3" key={layer}>
-              <h3 className="font-serif text-[1.45rem] leading-tight text-foreground">
+        <div className="grid gap-0 divide-y divide-border/80">
+          {siteCopy.architecture.systemShape.structure.map((layer, index) => (
+            <article
+              className="grid gap-3 py-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-5"
+              key={layer}
+            >
+              <span className="font-mono text-sm font-semibold text-primary">
+                0{index + 1}
+              </span>
+              <p className="font-serif text-[1.375rem] font-semibold leading-tight text-foreground [text-wrap:balance]">
                 {layer}
-              </h3>
-              <p className={designTokens.bodyTextTight}>
-                {siteCopy.architecture.body}
               </p>
-            </Card>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
-        <div className="grid gap-5">
+      <section className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-12">
+        <div className="grid content-start gap-6">
           <SectionHeading
-            eyebrow={siteCopy.architecture.environmentModel.title}
+            eyebrow="Environment discipline"
             lead={siteCopy.architecture.environmentModel.body}
             title={siteCopy.architecture.environmentModel.title}
           />
@@ -70,53 +77,57 @@ export function ArchitecturePage() {
 
           <div className="grid gap-3">
             {siteCopy.architecture.environmentModel.mapping.map((mapping) => (
-              <Card className="grid gap-2" key={mapping}>
-                <p className={designTokens.bodyTextTight}>{mapping}</p>
-              </Card>
+              <div
+                className="rounded-[var(--radius)] border border-border/80 bg-card p-4 text-base leading-7 text-muted-foreground [text-wrap:pretty]"
+                key={mapping}
+              >
+                {mapping}
+              </div>
             ))}
           </div>
         </div>
 
         <ArchitecturePanelFrame
-          kicker={siteCopy.architecture.deliveryModel.title}
+          kicker="Delivery path"
           title={siteCopy.architecture.deliveryModel.title}
         >
-          <ol className="grid gap-3 text-sm leading-6 text-muted-foreground">
-            {siteCopy.architecture.deliveryModel.flow.map((step) => (
+          <ol className="grid gap-3 text-base leading-7 text-muted-foreground">
+            {siteCopy.architecture.deliveryModel.flow.map((step, index) => (
               <li
-                className="rounded-[var(--radius)] border border-border/80 bg-background/70 p-4"
+                className="grid gap-2 rounded-[var(--radius)] border border-border/80 bg-background/70 p-4"
                 key={step}
               >
-                {step}
+                <span className="font-mono text-[0.75rem] font-semibold text-primary">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span>{step}</span>
               </li>
             ))}
           </ol>
         </ArchitecturePanelFrame>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-        <Card>
+      <section className="grid gap-6 rounded-[var(--radius)] border border-border/80 bg-card p-6 text-card-foreground shadow-lg shadow-black/10 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="grid gap-5">
           <SectionHeading
-            eyebrow={siteCopy.architecture.inspect.title}
+            eyebrow="Inspection"
             lead={siteCopy.architecture.inspect.list.join(', ')}
             title={siteCopy.architecture.inspect.title}
           />
-          <ul className="mt-5 grid gap-3">
+          <ul className="flex flex-wrap gap-2">
             {siteCopy.architecture.inspect.list.map((item) => (
               <li
-                className="rounded-[var(--radius)] border border-border/80 bg-background/45 p-4 leading-7 text-muted-foreground"
+                className="rounded-[var(--radius)] border border-border/80 bg-background/60 px-3 py-2 text-sm font-semibold leading-6 text-muted-foreground"
                 key={item}
               >
                 {item}
               </li>
             ))}
           </ul>
-          <div className="mt-5">
-            <Link className={designTokens.buttonPrimary} to="/repo-workflow">
-              {siteCopy.architecture.inspect.cta}
-            </Link>
-          </div>
-        </Card>
+        </div>
+        <Link className={designTokens.buttonPrimary} to="/repo-workflow">
+          {siteCopy.architecture.inspect.cta}
+        </Link>
       </section>
     </div>
   );

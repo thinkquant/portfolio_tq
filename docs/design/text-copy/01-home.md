@@ -9,7 +9,7 @@ Portfolio Built as Proof
 Daniel J.G Oosthuyzen
 
 **Subhead**
-This web app is a live portfolio and a public build. The work, the repo, the structure, and the delivery discipline are all part of the proof.
+This web app is built in the open as my live public portfolio. The work, the repo, the structure, and the delivery discipline are all part of the proof.
 
 **Primary CTA**
 Explore the Work
@@ -24,17 +24,17 @@ View the Repo
 
 ## Hero proof strip
 
-- Founder-level technical ownership
 - AI-native workflow design
 - Public proof-of-work
 - Systems built under real constraints
+- Founder-level technical ownership
 
 ---
 
 ## Section: What this is
 
 **Section title**
-What this is
+What this portfolio is
 
 **Body**
 Not a gallery of disconnected projects. A structured body of work built to show how I think, how I design, and how I carry systems into operation.
@@ -47,6 +47,7 @@ Not a gallery of disconnected projects. A structured body of work built to show 
 The governing discipline
 
 **Three-part doctrine**
+
 - Capture ambiguity
 - Process chaos
 - Produce ordered action
@@ -59,9 +60,10 @@ The same operating logic shows up whether the output is a product, a pipeline, a
 ## Section: Featured surfaces
 
 **Section title**
-Where to start
+Entry points
 
 ### Tile 1
+
 **Title**
 Work
 
@@ -72,6 +74,7 @@ The clearest proof pieces, condensed fast.
 Open Work
 
 ### Tile 2
+
 **Title**
 Architecture
 
@@ -82,16 +85,18 @@ How the repo, services, environments, and runtime are structured.
 Open Architecture
 
 ### Tile 3
+
 **Title**
 Demos
 
 **Body**
-Working surfaces for AI-native workflows, evaluation, and control.
+Working demos for AI-native workflows, evaluation, and control.
 
 **CTA**
 Open Demos
 
 ### Tile 4
+
 **Title**
 About
 
@@ -106,9 +111,10 @@ Open About
 ## Section: Current proof pieces
 
 **Section title**
-Current proof pieces
+Proof pieces in view
 
 ### Project 1
+
 **Title**
 Payment Exception Review Agent
 
@@ -116,6 +122,7 @@ Payment Exception Review Agent
 A structured review workflow for payments operations: mixed inputs, typed outputs, fallback logic, and escalation.
 
 ### Project 2
+
 **Title**
 Intelligent Investing Operations Copilot
 
@@ -123,6 +130,7 @@ Intelligent Investing Operations Copilot
 A grounded internal copilot for wealth operations: retrieval, policy context, and controlled next actions.
 
 ### Project 3
+
 **Title**
 Legacy Workflow → AI-Native Adapter
 
@@ -130,11 +138,12 @@ Legacy Workflow → AI-Native Adapter
 A demonstration of how rigid deterministic systems can be upgraded without losing control.
 
 ### Project 4
+
 **Title**
 Evaluation & Reliability Console
 
 **Body**
-A surface for latency, cost, schema validity, fallback rate, and run review.
+A view for latency, cost, schema validity, fallback rate, and run review.
 
 ---
 
@@ -144,7 +153,7 @@ A surface for latency, cost, schema validity, fallback rate, and run review.
 Why the repo is public
 
 **Body**
-The portfolio is not only the result. The structure, commit discipline, IaC, CI/CD, and implementation path are visible by design.
+The portfolio is not only the result. The structure, commit discipline, IaC, CI/CD, and build history are visible by design.
 
 **CTA**
 Inspect the Build
@@ -157,7 +166,7 @@ Inspect the Build
 Start where the proof is strongest
 
 **Body**
-The fastest path through this site is simple: open the work, inspect the architecture, then try the demo surfaces.
+If the work is relevant, the strongest evidence is in the project modules and the architecture behind them.
 
 **Primary CTA**
 Explore the Work
