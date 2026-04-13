@@ -2,6 +2,7 @@ import {
   Callout,
   Card,
   DemoLauncherPanel,
+  designTokens,
   PageHeading,
   ProofTag,
   SectionHeading,
@@ -17,7 +18,7 @@ export function DemoIndexPage() {
   return (
     <RouteDataStateView state={state}>
       {({ backendNote, projects }) => (
-    <div className="grid gap-8">
+    <div className={designTokens.pageSection}>
       <PageHeading
         actions={
           <>
@@ -62,23 +63,17 @@ export function DemoIndexPage() {
                     <ProofTag key={tag}>{tag}</ProofTag>
                   ))}
                 </div>
-                <h3 className="font-serif text-2xl text-white">
+                <h3 className="max-w-[18ch] font-serif text-[1.5rem] leading-tight text-foreground">
                   {project.title}
                 </h3>
-                <p className="leading-7 text-stone-300">{project.summary}</p>
+                <p className={designTokens.bodyTextTight}>{project.summary}</p>
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <Link
-                  className="inline-flex min-h-11 items-center rounded-lg bg-amber-300 px-5 py-2 text-sm font-black text-stone-950 shadow-lg shadow-amber-950/30 transition hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-950"
-                  to={project.demoHref}
-                >
+                <Link className={designTokens.buttonPrimary} to={project.demoHref}>
                   Open demo shell
                 </Link>
-                <Link
-                  className="inline-flex min-h-11 items-center rounded-lg border border-white/15 bg-white/[0.04] px-5 py-2 text-sm font-black text-stone-100 transition hover:border-amber-300/60 hover:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-950"
-                  to={project.href}
-                >
+                <Link className={designTokens.buttonSecondary} to={project.href}>
                   Read project
                 </Link>
               </div>

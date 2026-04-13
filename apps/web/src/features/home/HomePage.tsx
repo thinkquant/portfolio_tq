@@ -2,8 +2,8 @@ import {
   Callout,
   Card,
   DemoLauncherPanel,
+  designTokens,
   MetricTile,
-  PageHeading,
   ProofTag,
   SectionHeading,
 } from '@portfolio-tq/ui';
@@ -14,7 +14,7 @@ const featuredModules = [
     title: 'Payment Exception Review Agent',
     href: '/projects/payment-exception-review',
     summary:
-      'A confidence-aware review workflow for payment exception cases, combining unstructured intake, typed output, tool calls, fallback logic, and escalation paths.',
+      'A confidence-aware review workflow for payment exception cases with typed outputs, fallback logic, and escalation paths.',
     proofTags: ['Structured output', 'Escalation', 'Traceable flow'],
   },
   {
@@ -28,14 +28,14 @@ const featuredModules = [
     title: 'Legacy Workflow to AI-Native Service Adapter',
     href: '/projects/legacy-ai-adapter',
     summary:
-      'A practical path for wrapping deterministic legacy processes with structured AI-native intake, validation, transformation, and auditability.',
+      'A practical path for wrapping deterministic legacy processes with structured AI-native intake, validation, and transformation.',
     proofTags: ['Adapter pattern', 'Validation', 'Workflow redesign'],
   },
   {
     title: 'Evaluation and Reliability Console',
     href: '/projects/eval-console',
     summary:
-      'An operational view over AI workflow quality: latency, cost, schema validity, fallbacks, confidence thresholds, and prompt/version comparison.',
+      'An operational view over AI workflow quality: latency, cost, schema validity, fallbacks, and prompt-version comparison.',
     proofTags: ['Evaluation', 'Observability', 'Reliability'],
   },
 ];
@@ -61,7 +61,7 @@ const proofPoints = [
 const routeCards = [
   {
     title: 'Work',
-    body: 'Project pages frame the problem, system design, workflow, safety choices, and proof tags for each flagship module.',
+    body: 'Project dossiers frame the problem, system design, workflow, safety choices, and proof tags for each flagship module.',
     ctaLabel: 'Explore work',
     href: '/work',
   },
@@ -74,7 +74,7 @@ const routeCards = [
   {
     title: 'About',
     body: 'The background story connects the operating philosophy to systems architecture, AI-assisted execution, product judgment, and delivery discipline.',
-    ctaLabel: 'Meet Daniel',
+    ctaLabel: 'Read background',
     href: '/about',
   },
 ];
@@ -90,12 +90,11 @@ function HomeLink({
 }) {
   return (
     <Link
-      className={[
-        'inline-flex min-h-11 items-center rounded-[var(--radius)] px-5 py-2 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
+      className={
         tone === 'primary'
-          ? 'bg-primary text-primary-foreground shadow-lg shadow-slate-950/30 hover:bg-chart-2'
-          : 'border border-border bg-card/75 text-card-foreground hover:border-primary/60 hover:bg-accent',
-      ].join(' ')}
+          ? designTokens.buttonPrimary
+          : designTokens.buttonSecondary
+      }
       to={to}
     >
       {children}
@@ -105,66 +104,105 @@ function HomeLink({
 
 export function HomePage() {
   return (
-    <div className="grid gap-8">
-      <PageHeading
-        actions={
-          <>
-            <ProofTag tone="accent">Real product</ProofTag>
+    <div className={designTokens.pageSection}>
+      <section className="grid gap-8 border-y border-border/80 py-12 lg:grid-cols-[minmax(0,1.18fr)_20rem] lg:items-end lg:gap-12 lg:py-18">
+        <div className="grid gap-6">
+          <div className="flex flex-wrap gap-2">
+            <ProofTag tone="accent">Systems portfolio</ProofTag>
             <ProofTag>Public proof-of-work</ProofTag>
-            <ProofTag tone="success">AI-native systems</ProofTag>
-          </>
-        }
-        eyebrow="thinkquant"
-        lead="A public portfolio product by Daniel J.G. Oosthuyzen, built to make systems thinking, AI-native workflow design, and disciplined software delivery inspectable in one place."
-        title="Capture ambiguity. Process chaos. Produce ordered action."
-      />
-
-      <section className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
-        <Card>
-          <SectionHeading
-            eyebrow="Portfolio purpose"
-            lead="portfolio-tq is not a static resume site. It is a working web application and public engineering artifact for fintech-relevant AI workflow demos, architecture notes, observability surfaces, and proof-oriented project narratives."
-            title="A serious portfolio app, built in the open."
-          />
-          <div className="mt-6 flex flex-wrap gap-3">
+            <ProofTag tone="success">High-agency build discipline</ProofTag>
+          </div>
+          <div className="grid gap-4">
+            <p className={designTokens.label}>Doctrine</p>
+            <h1 className="max-w-[14ch] font-serif text-[3rem] leading-[0.94] text-foreground sm:text-[3.65rem] lg:text-[4.2rem]">
+              Capture ambiguity. Process chaos. Produce ordered action.
+            </h1>
+            <p className="max-w-[66ch] text-[1.05rem] leading-8 text-muted-foreground">
+              A serious public portfolio product by Daniel J.G. Oosthuyzen,
+              built to show how systems thinking becomes architecture, demos,
+              product judgment, and working software.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
             <HomeLink to="/work">Explore the work</HomeLink>
             <HomeLink tone="secondary" to="/architecture">
-              Read the system story
+              Read the architecture
+            </HomeLink>
+            <HomeLink tone="secondary" to="/about">
+              Read the background
             </HomeLink>
           </div>
-        </Card>
+        </div>
+
+        <div className="grid gap-4 border border-border/80 bg-card px-5 py-5 shadow-lg shadow-black/10">
+          <p className={designTokens.label}>Read this first</p>
+          <p className="text-sm leading-7 text-muted-foreground">
+            This site is designed for technical review. The goal is not to
+            present disconnected projects, but one operating discipline made
+            visible through product surfaces, architecture, and proof.
+          </p>
+          <div className="grid gap-3 border-t border-border/80 pt-4">
+            {['Measured', 'Rigorous', 'Sovereign'].map((item) => (
+              <div className="flex items-center justify-between gap-3" key={item}>
+                <span className="text-sm font-semibold text-foreground">
+                  {item}
+                </span>
+                <span className="h-px flex-1 bg-border/80" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_0.95fr]">
+        <div className="grid gap-4">
+          <SectionHeading
+            eyebrow="Positioning"
+            lead="The site is a disciplined systems portfolio disguised as a premium product experience. It exists to help a reviewer decide quickly whether the work reflects real architecture, execution discipline, and product seriousness."
+            title="A calm, inspectable front door for technical evaluation."
+          />
+          <p className={designTokens.bodyText}>
+            It is not a static resume, a blog-first personal site, or a vague
+            AI-brand surface. Every later route should inherit this same logic:
+            doctrine first, proof second, navigation third.
+          </p>
+        </div>
 
         <Callout title="Operating doctrine">
-          The portfolio is organized around one recurring pattern: take messy
-          inputs, impose useful structure, preserve auditability, and produce
-          action that can survive review.
+          The recurring pattern is simple: take messy inputs, impose useful
+          structure, preserve auditability, and produce action that survives
+          review.
         </Callout>
       </section>
 
-      <section className="grid gap-5">
-        <SectionHeading
-          eyebrow="Featured work"
-          lead="The first milestone centers on regulated-ops-style workflows where typed outputs, tool use, fallbacks, evaluation, and observability matter as much as the model response."
-          title="Flagship modules for AI-native workflow redesign."
-        />
+      <section className="grid gap-6">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
+          <SectionHeading
+            eyebrow="Flagship modules"
+            lead="The first milestone centers on AI-native workflow redesign in regulated-like or operationally sensitive contexts where typed outputs, observability, fallbacks, and evaluation matter."
+            title="Proof pieces built to show systems judgment, not demo theatrics."
+          />
+          <p className={designTokens.bodyTextTight}>
+            Each module should read as a compact case for how ambiguity becomes
+            a working product path.
+          </p>
+        </div>
 
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
           {featuredModules.map((module) => (
             <Card className="grid gap-5" key={module.href}>
               <div className="grid gap-3">
-                <h3 className="font-serif text-2xl text-foreground">
+                <h3 className="max-w-[18ch] font-serif text-[1.55rem] leading-tight text-foreground">
                   {module.title}
                 </h3>
-                <p className="leading-7 text-muted-foreground">
-                  {module.summary}
-                </p>
+                <p className={designTokens.bodyTextTight}>{module.summary}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {module.proofTags.map((tag) => (
                   <ProofTag key={tag}>{tag}</ProofTag>
                 ))}
               </div>
-              <div>
+              <div className="pt-1">
                 <HomeLink tone="secondary" to={module.href}>
                   Open project
                 </HomeLink>
@@ -174,21 +212,21 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-        <Card tone="accent">
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_1.1fr]">
+        <div className="grid gap-4">
           <SectionHeading
-            eyebrow="Public repo"
-            lead="The repository is part of the proof: docs, checklists, branch discipline, shared packages, Terraform, CI/CD, and local verification all sit beside the product code."
+            eyebrow="Public proof"
+            lead="The repository is part of the evaluation surface. Docs, checklists, shared packages, route structure, Terraform, CI/CD, and verification habits all sit beside the UI."
             title="The build process is visible by design."
           />
-          <p className="mt-5 leading-7 text-current/85">
-            Reviewers should be able to understand not only what shipped, but
-            how the system was framed, decomposed, implemented, and verified
-            over time.
+          <p className={designTokens.bodyText}>
+            Reviewers should be able to see not only what shipped, but how the
+            work was framed, decomposed, verified, and prepared for later
+            system depth.
           </p>
-        </Card>
+        </div>
 
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-3">
           {proofPoints.map((point) => (
             <MetricTile
               detail={point.detail}
@@ -201,11 +239,11 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-5">
+      <section className="grid gap-6">
         <SectionHeading
-          eyebrow="Next paths"
-          lead="The main public routes keep the review path short: understand the work, inspect the architecture, then connect the system back to the person building it."
-          title="Move from proof to context."
+          eyebrow="Next routes"
+          lead="The public navigation should keep the reviewer's path short: inspect the work, inspect the system, then inspect the person behind it."
+          title="Three places to go next."
         />
         <div className="grid gap-5 lg:grid-cols-3">
           {routeCards.map((card) => (

@@ -19,9 +19,9 @@ export function RouteDataStateView<T>({
           <Card className="grid gap-4">
             <SectionHeading lead={state.message} title={state.title} />
             <div className="grid gap-3">
-              <div className="h-3 rounded-lg bg-white/10" />
-              <div className="h-3 w-10/12 rounded-lg bg-white/10" />
-              <div className="h-24 rounded-lg border border-dashed border-white/10 bg-white/[0.03]" />
+              <div className="h-3 rounded-[var(--radius)] bg-border/80" />
+              <div className="h-3 w-10/12 rounded-[var(--radius)] bg-border/80" />
+              <div className="h-24 rounded-[var(--radius)] border border-dashed border-border/80 bg-background/45" />
             </div>
           </Card>
         </div>

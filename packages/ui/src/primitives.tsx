@@ -81,14 +81,26 @@ const proofToneClasses: Record<PrimitiveTone, string> = {
 };
 
 export const designTokens = {
-  pageSection: 'grid gap-8',
+  pageSection: 'grid gap-10 lg:gap-14',
   insetSection:
-    'rounded-[var(--radius)] border border-border bg-card p-6 text-card-foreground shadow-lg shadow-black/15 sm:p-8',
+    'rounded-[var(--radius)] border border-border/80 bg-card p-6 text-card-foreground shadow-lg shadow-black/10 sm:p-8',
   cardSurface:
-    'rounded-[var(--radius)] border border-border bg-card p-5 text-card-foreground shadow-xl shadow-black/20',
+    'rounded-[var(--radius)] border border-border/80 bg-card p-5 text-card-foreground shadow-lg shadow-black/12',
   headingSerif: 'font-[family-name:var(--font-serif)] tracking-normal',
   focusRing:
     'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
+  bodyText: 'max-w-[72ch] text-[0.98rem] leading-8 text-muted-foreground',
+  bodyTextTight: 'text-sm leading-6 text-muted-foreground',
+  label:
+    'text-[0.7rem] font-black uppercase tracking-[0.12em] text-primary/85',
+  panel:
+    'rounded-[var(--radius)] border border-border/80 bg-card p-5 shadow-lg shadow-black/10',
+  panelMuted:
+    'rounded-[var(--radius)] border border-border/70 bg-background/45 p-5',
+  buttonPrimary:
+    'inline-flex min-h-11 items-center justify-center rounded-[var(--radius)] bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-chart-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
+  buttonSecondary:
+    'inline-flex min-h-11 items-center justify-center rounded-[var(--radius)] border border-border/85 bg-transparent px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-primary/60 hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
 } as const;
 
 function cx(...classes: Array<string | false | null | undefined>): string {
@@ -105,33 +117,33 @@ export function PageHeading({
   return (
     <section
       className={cx(
-        'rounded-[var(--radius)] border border-border bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.2),transparent_34%),linear-gradient(135deg,rgba(38,38,38,0.96),rgba(23,23,23,0.98))] p-8 text-card-foreground shadow-2xl shadow-black/30 sm:p-12',
+        'grid gap-6 border-y border-border/80 py-10 sm:py-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-10 lg:py-16',
         className,
       )}
     >
-      {eyebrow ? (
-        <p className="text-xs font-black uppercase tracking-normal text-primary">
-          {eyebrow}
-        </p>
-      ) : null}
-      <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <div>
+      <div className="grid gap-4">
+        {eyebrow ? <p className={designTokens.label}>{eyebrow}</p> : null}
+        <div className="grid gap-4">
           <h1
             className={cx(
               designTokens.headingSerif,
-              'max-w-4xl text-4xl leading-none text-foreground',
+              'max-w-[16ch] text-[2.4rem] leading-[0.98] text-foreground sm:text-[3rem] lg:text-[3.65rem]',
             )}
           >
             {title}
           </h1>
           {lead ? (
-            <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground">
+            <p className="max-w-[68ch] text-[1.02rem] leading-8 text-muted-foreground">
               {lead}
             </p>
           ) : null}
         </div>
-        {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
       </div>
+      {actions ? (
+        <div className="flex flex-wrap items-center gap-3 lg:max-w-sm lg:justify-end">
+          {actions}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -144,21 +156,19 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   return (
     <div className={cx('grid gap-3', className)}>
-      {eyebrow ? (
-        <p className="text-xs font-black uppercase tracking-normal text-primary">
-          {eyebrow}
-        </p>
-      ) : null}
+      {eyebrow ? <p className={designTokens.label}>{eyebrow}</p> : null}
       <h2
         className={cx(
           designTokens.headingSerif,
-          'text-3xl leading-tight text-foreground',
+          'max-w-[24ch] text-[1.7rem] leading-tight text-foreground sm:text-[2.05rem]',
         )}
       >
         {title}
       </h2>
       {lead ? (
-        <p className="max-w-3xl leading-7 text-muted-foreground">{lead}</p>
+        <p className="max-w-[68ch] text-[0.98rem] leading-8 text-muted-foreground">
+          {lead}
+        </p>
       ) : null}
     </div>
   );
@@ -186,7 +196,7 @@ export function ProofTag({
   return (
     <span
       className={cx(
-        'inline-flex items-center rounded-[var(--radius)] border px-3 py-1 text-xs font-black uppercase tracking-normal',
+        'inline-flex items-center rounded-[var(--radius)] border px-2.5 py-1 text-[0.68rem] font-black uppercase tracking-[0.12em]',
         proofToneClasses[tone],
         className,
       )}
@@ -279,7 +289,7 @@ export function DemoLauncherPanel({
   className,
 }: DemoLauncherPanelProps) {
   const cta = (
-    <span className="inline-flex min-h-11 items-center rounded-[var(--radius)] bg-primary px-5 py-2 text-sm font-black text-primary-foreground shadow-lg shadow-slate-950/30 transition hover:bg-chart-2">
+    <span className={designTokens.buttonPrimary}>
       {ctaLabel}
     </span>
   );
@@ -287,14 +297,14 @@ export function DemoLauncherPanel({
   return (
     <article
       className={cx(
-        'rounded-[var(--radius)] border border-primary/20 bg-accent p-6 text-accent-foreground shadow-xl shadow-black/15',
+        'rounded-[var(--radius)] border border-border/80 bg-card p-6 text-card-foreground shadow-lg shadow-black/10',
         className,
       )}
     >
       <h3 className="font-[family-name:var(--font-serif)] text-2xl text-foreground">
         {title}
       </h3>
-      <p className="mt-3 leading-7 text-current/85">{body}</p>
+      <p className="mt-3 leading-7 text-muted-foreground">{body}</p>
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {href ? (
           <a className={designTokens.focusRing} href={href}>
@@ -303,7 +313,7 @@ export function DemoLauncherPanel({
         ) : (
           cta
         )}
-        {meta ? <div className="text-sm text-current/75">{meta}</div> : null}
+        {meta ? <div className="text-sm text-muted-foreground">{meta}</div> : null}
       </div>
     </article>
   );

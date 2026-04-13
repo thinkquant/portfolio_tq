@@ -2,6 +2,7 @@ import {
   ArchitecturePanelFrame,
   Callout,
   Card,
+  designTokens,
   MetricTile,
   PageHeading,
   ProofTag,
@@ -34,7 +35,7 @@ const environmentRows = [
 
 export function ArchitecturePage() {
   return (
-    <div className="grid gap-8">
+    <div className={designTokens.pageSection}>
       <PageHeading
         actions={
           <>
@@ -74,8 +75,10 @@ export function ArchitecturePage() {
         <div className="grid gap-5 md:grid-cols-2">
           {repoLayers.map((layer) => (
             <Card className="grid gap-3" key={layer.title}>
-              <h3 className="font-serif text-2xl text-white">{layer.title}</h3>
-              <p className="leading-7 text-stone-300">{layer.body}</p>
+              <h3 className="font-serif text-[1.45rem] leading-tight text-foreground">
+                {layer.title}
+              </h3>
+              <p className={designTokens.bodyTextTight}>{layer.body}</p>
             </Card>
           ))}
         </div>
@@ -96,11 +99,11 @@ export function ArchitecturePage() {
                   <ProofTag tone={name === 'dev' ? 'accent' : 'success'}>
                     {name}
                   </ProofTag>
-                  <span className="font-mono text-sm text-stone-300">
+                  <span className="font-mono text-sm text-muted-foreground">
                     {project}
                   </span>
                 </div>
-                <p className="leading-7 text-stone-300">{purpose}</p>
+                <p className={designTokens.bodyTextTight}>{purpose}</p>
               </Card>
             ))}
           </div>
@@ -110,18 +113,18 @@ export function ArchitecturePage() {
           kicker="Diagram slot"
           title="Runtime relationship"
         >
-          <div className="grid gap-3 text-sm leading-6 text-stone-300">
-            <div className="rounded-lg border border-cyan-300/30 bg-cyan-300/10 p-4">
+          <div className="grid gap-3 text-sm leading-6 text-muted-foreground">
+            <div className="rounded-[var(--radius)] border border-primary/20 bg-accent p-4 text-accent-foreground">
               Firebase Hosting serves the React portfolio shell.
             </div>
-            <div className="rounded-lg border border-emerald-300/30 bg-emerald-300/10 p-4">
+            <div className="rounded-[var(--radius)] border border-emerald-300/25 bg-emerald-300/10 p-4 text-emerald-100">
               Cloud Run hosts the API and orchestrates demo execution.
             </div>
-            <div className="rounded-lg border border-rose-300/30 bg-rose-300/10 p-4">
+            <div className="rounded-[var(--radius)] border border-rose-300/25 bg-rose-300/10 p-4 text-rose-100">
               Firestore stores runs, traces, evaluations, cases, documents, and
               access records.
             </div>
-            <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+            <div className="rounded-[var(--radius)] border border-border/80 bg-card p-4 text-card-foreground">
               Cloud Logging and Monitoring expose platform telemetry.
             </div>
           </div>
@@ -150,7 +153,7 @@ export function ArchitecturePage() {
             lead="Terraform owns the managed resources, GitHub Actions runs lint/typecheck/test/build and deploy workflows, and Firebase Hosting plus Cloud Run provide the public app/API split."
             title="Infrastructure and delivery are part of the review surface."
           />
-          <p className="mt-5 leading-7 text-stone-300">
+          <p className={`mt-5 ${designTokens.bodyText}`}>
             The architecture page leaves space for real diagrams as the demo
             modules mature, while the current panel gives reviewers a useful
             system map before later visual assets are added.

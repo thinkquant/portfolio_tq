@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Source+Serif+4:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Public+Sans:wght@400;500;600;700;800&family=Source+Serif+4:wght@600;700&display=swap');
 @import 'tailwindcss';
 
 :root {
@@ -18,7 +18,7 @@
   --primary: #3b82f6;
   --sidebar: #f9fafb;
   --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Public Sans', sans-serif;
   --secondary: #f3f4f6;
   --background: #ffffff;
   --font-serif: 'Source Serif 4', serif;
@@ -125,9 +125,8 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(circle at top left, rgb(59 130 246 / 0.18), transparent 28%),
-    radial-gradient(circle at 82% 12%, rgb(30 64 175 / 0.2), transparent 24%),
-    linear-gradient(145deg, #171717 0%, #111827 52%, #0f172a 100%);
+    radial-gradient(circle at top left, rgb(59 130 246 / 0.11), transparent 24%),
+    linear-gradient(180deg, rgb(23 23 23 / 0.98) 0%, rgb(23 23 23 / 1) 28%, rgb(18 24 38 / 1) 100%);
   color: var(--foreground);
 }
 
@@ -156,4 +155,16 @@ select {
 .rounded-md,
 .rounded-sm {
   border-radius: var(--radius);
+}
+
+:root {
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
 }

@@ -2,6 +2,7 @@ import {
   Callout,
   Card,
   DemoLauncherPanel,
+  designTokens,
   MetricTile,
   PageHeading,
   ProofTag,
@@ -36,7 +37,7 @@ const operatingPrinciples = [
 
 export function AboutPage() {
   return (
-    <div className="grid gap-8">
+    <div className={designTokens.pageSection}>
       <PageHeading
         actions={
           <>
@@ -57,7 +58,7 @@ export function AboutPage() {
             lead="My path is non-traditional, but the work is grounded in applied system-building: take incomplete requirements, find the structure, and turn the result into something a reviewer or operator can actually use."
             title="Strongest where ambiguity has to become a working system."
           />
-          <p className="mt-5 leading-7 text-stone-300">
+          <p className={`mt-5 ${designTokens.bodyText}`}>
             This portfolio is built for technical review. It connects the
             finished surfaces to the underlying specs, route map, shared
             packages, infrastructure, and verification habits behind them.
@@ -81,10 +82,10 @@ export function AboutPage() {
         <div className="grid gap-5 md:grid-cols-2">
           {skillDomains.map((domain) => (
             <Card className="grid gap-3" key={domain.title}>
-              <h3 className="font-serif text-2xl text-white">
+              <h3 className="max-w-[18ch] font-serif text-[1.45rem] leading-tight text-foreground">
                 {domain.title}
               </h3>
-              <p className="leading-7 text-stone-300">{domain.body}</p>
+              <p className={designTokens.bodyTextTight}>{domain.body}</p>
             </Card>
           ))}
         </div>
@@ -114,7 +115,7 @@ export function AboutPage() {
           <ul className="mt-5 grid gap-3">
             {operatingPrinciples.map((principle) => (
               <li
-                className="rounded-lg border border-white/10 bg-white/[0.03] p-4 leading-7 text-stone-300"
+                className="rounded-[var(--radius)] border border-border/80 bg-background/45 p-4 leading-7 text-muted-foreground"
                 key={principle}
               >
                 {principle}
