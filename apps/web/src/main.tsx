@@ -11,6 +11,8 @@ if (!rootElement) {
   throw new Error('Expected #root to exist before starting the web app.');
 }
 
+document.documentElement.classList.add('dark');
+
 createRoot(rootElement).render(
   <StrictMode>
     <RouterProvider router={appRouter} />

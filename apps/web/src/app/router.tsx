@@ -7,7 +7,28 @@ import {
 } from '@portfolio-tq/ui';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
+import { DemoAccessShell } from '../features/access/DemoAccessShell';
+import { AboutPage } from '../features/about/AboutPage';
+import { ArchitecturePage } from '../features/architecture/ArchitecturePage';
+import { EvalConsoleDashboardPage } from '../features/dashboards/EvalConsoleDashboardPage';
+import { ObservabilityPage } from '../features/dashboards/ObservabilityPage';
+import {
+  loadEvalConsolePageData,
+  loadObservabilityPageData,
+} from '../features/dashboards/dashboardLoaders';
+import { DemoIndexPage } from '../features/demos/DemoIndexPage';
+import { DemoShellPage } from '../features/demos/DemoShellPage';
+import {
+  loadDemoIndexPageData,
+  loadDemoShellPageData,
+} from '../features/demos/demoLoaders';
 import { HomePage } from '../features/home/HomePage';
+import { ProjectDetailPage } from '../features/projects/ProjectDetailPage';
+import {
+  loadProjectDetailPageData,
+  loadWorkPageData,
+} from '../features/projects/projectLoaders';
+import { WorkPage } from '../features/projects/WorkPage';
 import { RootLayout } from './RootLayout';
 
 type ShellPageProps = {
@@ -60,6 +81,10 @@ function NotFoundPage() {
   );
 }
 
+function withDemoAccess(element: React.ReactNode) {
+  return <DemoAccessShell>{element}</DemoAccessShell>;
+}
+
 export const appRouter = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -70,23 +95,12 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'about',
-        element: (
-          <ShellPage
-            body="This page will carry the concise background, operating philosophy, and capability framing for the public portfolio."
-            eyebrow="About"
-            title="The human context behind the system."
-          />
-        ),
+        element: <AboutPage />,
       },
       {
         path: 'work',
-        element: (
-          <ShellPage
-            body="This is the stable project index route for the shell phase. Project detail routes live under /projects/*."
-            eyebrow="Work"
-            title="Four Orion-aligned project surfaces anchor the portfolio."
-          />
-        ),
+        loader: loadWorkPageData,
+        element: <WorkPage />,
       },
       {
         path: 'projects',
@@ -94,23 +108,12 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'architecture',
-        element: (
-          <ShellPage
-            body="This route will explain the monorepo shape, dev/prod split, Terraform baseline, and frontend/backend/shared package boundaries."
-            eyebrow="Architecture"
-            title="Architecture is part of the portfolio proof."
-          />
-        ),
+        element: <ArchitecturePage />,
       },
       {
         path: 'observability',
-        element: (
-          <ShellPage
-            body="This route remains approved from the bootstrap phase and will become the live application observability surface."
-            eyebrow="Observability"
-            title="Operational signals are a first-class interface."
-          />
-        ),
+        loader: loadObservabilityPageData,
+        element: <ObservabilityPage />,
       },
       {
         path: 'repo-workflow',
@@ -124,93 +127,50 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'projects/payment-exception-review',
-        element: (
-          <ShellPage
-            body="A structured shell for the payment exception review project page. The full problem, architecture, flow, and demo launcher arrive in the project-page checklist section."
-            eyebrow="Project"
-            title="Payment Exception Review Agent"
-          />
-        ),
+        loader: () =>
+          loadProjectDetailPageData('/projects/payment-exception-review'),
+        element: <ProjectDetailPage />,
       },
       {
         path: 'projects/investing-ops-copilot',
-        element: (
-          <ShellPage
-            body="A structured shell for the investing operations copilot project page. The full narrative and workflow detail arrive later in this checklist."
-            eyebrow="Project"
-            title="Intelligent Investing Operations Copilot"
-          />
-        ),
+        loader: () =>
+          loadProjectDetailPageData('/projects/investing-ops-copilot'),
+        element: <ProjectDetailPage />,
       },
       {
         path: 'projects/legacy-ai-adapter',
-        element: (
-          <ShellPage
-            body="A structured shell for the legacy workflow to AI-native adapter project page."
-            eyebrow="Project"
-            title="Legacy Workflow to AI-Native Adapter"
-          />
-        ),
+        loader: () => loadProjectDetailPageData('/projects/legacy-ai-adapter'),
+        element: <ProjectDetailPage />,
       },
       {
         path: 'projects/eval-console',
-        element: (
-          <ShellPage
-            body="A structured shell for the evaluation and reliability console project page."
-            eyebrow="Project"
-            title="Evaluation and Reliability Console"
-          />
-        ),
+        loader: () => loadProjectDetailPageData('/projects/eval-console'),
+        element: <ProjectDetailPage />,
       },
       {
         path: 'demo',
-        element: (
-          <ShellPage
-            body="The demo index route is reserved for controlled access messaging and launch cards."
-            eyebrow="Demo access"
-            title="Demo surfaces start here."
-          />
-        ),
+        loader: loadDemoIndexPageData,
+        element: withDemoAccess(<DemoIndexPage />),
       },
       {
         path: 'demo/payment-exception-review',
-        element: (
-          <ShellPage
-            body="A route-level shell for the future payment exception review demo experience."
-            eyebrow="Demo"
-            title="Payment Exception Review Demo"
-          />
-        ),
+        loader: () => loadDemoShellPageData('/demo/payment-exception-review'),
+        element: withDemoAccess(<DemoShellPage />),
       },
       {
         path: 'demo/investing-ops-copilot',
-        element: (
-          <ShellPage
-            body="A route-level shell for the future investing operations copilot demo experience."
-            eyebrow="Demo"
-            title="Investing Operations Copilot Demo"
-          />
-        ),
+        loader: () => loadDemoShellPageData('/demo/investing-ops-copilot'),
+        element: withDemoAccess(<DemoShellPage />),
       },
       {
         path: 'demo/legacy-ai-adapter',
-        element: (
-          <ShellPage
-            body="A route-level shell for the future legacy workflow adapter demo experience."
-            eyebrow="Demo"
-            title="Legacy AI Adapter Demo"
-          />
-        ),
+        loader: () => loadDemoShellPageData('/demo/legacy-ai-adapter'),
+        element: withDemoAccess(<DemoShellPage />),
       },
       {
         path: 'demo/eval-console',
-        element: (
-          <ShellPage
-            body="A route-level shell for the future evaluation and reliability console."
-            eyebrow="Demo"
-            title="Evaluation Console Demo"
-          />
-        ),
+        loader: loadEvalConsolePageData,
+        element: withDemoAccess(<EvalConsoleDashboardPage />),
       },
       {
         path: '*',

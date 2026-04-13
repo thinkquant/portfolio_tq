@@ -262,33 +262,50 @@ Reference docs:
 
 ### About
 
-- [ ] Build `/about`
-- [ ] Include concise biography / positioning
-- [ ] Include operating philosophy
-- [ ] Include key skill domains
-- [ ] Include linkouts/placeholders for dossiers or background material if desired
+- [x] Build `/about`
+- [x] Include concise biography / positioning
+- [x] Include operating philosophy
+- [x] Include key skill domains
+- [x] Include linkouts/placeholders for dossiers or background material if desired
 
 ### Work
 
-- [ ] Build `/work`
-- [ ] Add project index grid/list
-- [ ] Add project summaries for the four Orion-aligned demos
-- [ ] Add proof tags to each project card
-- [ ] Add future-facing placeholder handling for later portfolio expansion
+- [x] Build `/work`
+- [x] Add project index grid/list
+- [x] Add project summaries for the four Orion-aligned demos
+- [x] Add proof tags to each project card
+- [x] Add future-facing placeholder handling for later portfolio expansion
 
 ### Architecture
 
-- [ ] Build `/architecture`
-- [ ] Explain monorepo shape
-- [ ] Explain dev/prod environment split
-- [ ] Explain Terraform + CI/CD baseline
-- [ ] Explain frontend/backend/shared package split
-- [ ] Add room for diagrams or architecture images
+- [x] Build `/architecture`
+- [x] Explain monorepo shape
+- [x] Explain dev/prod environment split
+- [x] Explain Terraform + CI/CD baseline
+- [x] Explain frontend/backend/shared package split
+- [x] Add room for diagrams or architecture images
 
 Definition of done:
 
 - these pages are real pages, not skeleton placeholders
 - they can be shown publicly without apology
+
+### Section 6 status notes
+
+- `/about` now renders from `apps/web/src/features/about/AboutPage.tsx` with concise positioning, operating philosophy, key skill domains, working principles, and links into `/work` and `/repo-workflow`.
+- `/work` now renders from `apps/web/src/features/projects/WorkPage.tsx` with a reusable project index, four Orion-aligned project summaries, proof tags, project/demo route links, and an expansion slot for later portfolio material.
+- Shared project metadata now lives in `apps/web/src/features/projects/projectCatalog.ts` so later project pages can build from the same module list.
+- `/architecture` now renders from `apps/web/src/features/architecture/ArchitecturePage.tsx` with the monorepo shape, dev/prod environment split, Terraform and CI/CD baseline, frontend/backend/shared package split, and a diagram-ready architecture panel.
+- The shared UI primitives and current shell links were tightened to use `8px`-or-less radii and fixed font sizing while these public content pages were being integrated.
+- Local verification completed successfully with:
+  - `pnpm --filter @portfolio-tq/ui typecheck`
+  - `pnpm --filter @portfolio-tq/ui lint`
+  - `pnpm --filter @portfolio-tq/web typecheck`
+  - `pnpm --filter @portfolio-tq/web lint`
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm --filter @portfolio-tq/web test` (currently prints the repo's "No tests yet" placeholder)
+  - local Vite dev-server route checks returning `200` for `/about`, `/work`, and `/architecture` at `http://127.0.0.1:5180/`
+- A full visual responsive browser pass was not performed here; the dedicated responsive verification pass remains tracked in section 12.
 
 ---
 
@@ -311,19 +328,39 @@ For each of these routes:
 
 Build:
 
-- [ ] project hero / title
-- [ ] problem statement
-- [ ] why it matters for Orion / fintech operations
-- [ ] architecture overview section
-- [ ] workflow summary section
-- [ ] demo entry section
-- [ ] fallback / safety / evaluation section
-- [ ] stack / proof tags
-- [ ] “what this proves” section
+- [x] project hero / title
+- [x] problem statement
+- [x] why it matters for Orion / fintech operations
+- [x] architecture overview section
+- [x] workflow summary section
+- [x] demo entry section
+- [x] fallback / safety / evaluation section
+- [x] stack / proof tags
+- [x] “what this proves” section
 
 Definition of done:
 
 - each project page is substantial enough that an employer can understand the intended value before the live demo is complete
+
+### Section 7 status notes
+
+- The four project detail routes now render through `apps/web/src/features/projects/ProjectDetailPage.tsx` instead of generic shell copy:
+  - `/projects/payment-exception-review`
+  - `/projects/investing-ops-copilot`
+  - `/projects/legacy-ai-adapter`
+  - `/projects/eval-console`
+- `apps/web/src/features/projects/projectCatalog.ts` now carries the shared project-page content for the problem statement, Orion/fintech relevance, architecture overview, workflow steps, safety/evaluation framing, stack tags, and proof statements.
+- Each project page now includes a hero/title, problem section, "why it matters" callout, architecture panel, workflow summary, demo-entry panel, fallback/safety/evaluation section, stack/proof tags, and "what this proves" cards.
+- Demo links intentionally point to the current demo shells; full interactive demo behavior is still tracked in section 8 and backend/runtime integration checklists.
+- Local verification completed successfully with:
+  - `pnpm --filter @portfolio-tq/ui typecheck`
+  - `pnpm --filter @portfolio-tq/ui lint`
+  - `pnpm --filter @portfolio-tq/web typecheck`
+  - `pnpm --filter @portfolio-tq/web lint`
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm --filter @portfolio-tq/web test` (currently prints the repo's "No tests yet" placeholder)
+  - local Vite dev-server route checks returning `200` for all four `/projects/*` routes at `http://127.0.0.1:5181/`
+- A full visual responsive browser pass was not performed here; the dedicated responsive verification pass remains tracked in section 12.
 
 ---
 
@@ -345,20 +382,41 @@ For each of these routes:
 
 Build:
 
-- [ ] top-level `/demo` index page with demo cards and access messaging
-- [ ] individual demo page shells with:
-  - [ ] input panel area
-  - [ ] output panel area
-  - [ ] trace / timeline area
-  - [ ] evaluation / metrics area
-  - [ ] empty/loading/error states
-- [ ] mark clearly where backend integration will land
-- [ ] ensure layout is strong enough that later feature work plugs in without redesign
+- [x] top-level `/demo` index page with demo cards and access messaging
+- [x] individual demo page shells with:
+  - [x] input panel area
+  - [x] output panel area
+  - [x] trace / timeline area
+  - [x] evaluation / metrics area
+  - [x] empty/loading/error states
+- [x] mark clearly where backend integration will land
+- [x] ensure layout is strong enough that later feature work plugs in without redesign
 
 Definition of done:
 
 - demo routes exist and are structurally ready for backend integration
 - no route is visually or structurally undefined
+
+### Section 8 status notes
+
+- `/demo` now renders from `apps/web/src/features/demos/DemoIndexPage.tsx` with launch cards for all four demos and clear access messaging that the current surfaces are public-safe shells.
+- Individual demo routes now render from `apps/web/src/features/demos/DemoShellPage.tsx`:
+  - `/demo/payment-exception-review`
+  - `/demo/investing-ops-copilot`
+  - `/demo/legacy-ai-adapter`
+  - `/demo/eval-console`
+- Demo-specific shell content now lives in `apps/web/src/features/demos/demoShellContent.ts`, including input fields, structured output fields, trace/timeline events, evaluation signals, and backend integration notes.
+- Each individual demo page now reserves an input panel, output panel, trace/timeline panel, evaluation/metrics panel, and explicit empty/loading/error state language.
+- Backend integration landing zones are called out per demo. These pages are still shell-only and intentionally defer live execution, API calls, streaming traces, persistence, and real evaluation hydration to later backend/runtime work.
+- Local verification completed successfully with:
+  - `pnpm --filter @portfolio-tq/ui typecheck`
+  - `pnpm --filter @portfolio-tq/ui lint`
+  - `pnpm --filter @portfolio-tq/web typecheck`
+  - `pnpm --filter @portfolio-tq/web lint`
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm --filter @portfolio-tq/web test` (currently prints the repo's "No tests yet" placeholder)
+  - local Vite dev-server route checks returning `200` for `/demo` and all four `/demo/*` routes at `http://127.0.0.1:5182/`
+- A full visual responsive browser pass was not performed here; the dedicated responsive verification pass remains tracked in section 12.
 
 ---
 
@@ -369,21 +427,40 @@ Reference docs:
 - `docs/architecture/observability-and-dashboards.md`
 - `docs/specs/service-eval-console.md`
 
-- [ ] Add a dashboard shell pattern usable by the Evaluation Console.
-- [ ] Build reusable metrics row / chart panel placeholders.
-- [ ] Build run-list / flagged-runs / detail-panel shell components.
-- [ ] Add a route-level shell for the evaluation console demo page that already resembles a real monitoring console.
-- [ ] Ensure the visual language supports:
-  - [ ] latency
-  - [ ] cost
-  - [ ] schema validity
-  - [ ] fallback rate
-  - [ ] confidence flags
-  - [ ] prompt/version comparison later
+- [x] Add a dashboard shell pattern usable by the Evaluation Console.
+- [x] Build reusable metrics row / chart panel placeholders.
+- [x] Build run-list / flagged-runs / detail-panel shell components.
+- [x] Add a route-level shell for the evaluation console demo page that already resembles a real monitoring console.
+- [x] Ensure the visual language supports:
+  - [x] latency
+  - [x] cost
+  - [x] schema validity
+  - [x] fallback rate
+  - [x] confidence flags
+  - [x] prompt/version comparison later
 
 Definition of done:
 
 - the dashboard surfaces are already credible before the backend data wiring starts
+
+### Section 9 status notes
+
+- A reusable dashboard shell pattern now lives in `apps/web/src/features/dashboards/DashboardShell.tsx`.
+- Dashboard configuration now lives in `apps/web/src/features/dashboards/dashboardConfigs.ts`, with separate configs for the public observability overview and the Evaluation Console demo route.
+- `/observability` now renders from `apps/web/src/features/dashboards/ObservabilityPage.tsx` as a cross-project operational signal shell instead of generic route copy.
+- `/demo/eval-console` now renders from `apps/web/src/features/dashboards/EvalConsoleDashboardPage.tsx` and resembles a monitoring console with metrics, chart placeholders, recent runs, flagged runs, and run detail inspection.
+- The reusable dashboard pattern includes a metrics row, chart panel placeholders, run-list panel, flagged-runs panel, and detail panel.
+- The visual language now explicitly reserves dashboard surfaces for latency, cost, schema validity, fallback rate, confidence flags, and prompt/version comparison.
+- These dashboard routes are still shell-only and intentionally defer live API hydration to later backend/runtime work.
+- Local verification completed successfully with:
+  - `pnpm --filter @portfolio-tq/ui typecheck`
+  - `pnpm --filter @portfolio-tq/ui lint`
+  - `pnpm --filter @portfolio-tq/web typecheck`
+  - `pnpm --filter @portfolio-tq/web lint`
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm --filter @portfolio-tq/web test` (currently prints the repo's "No tests yet" placeholder)
+  - local Vite dev-server route checks returning `200` for `/observability` and `/demo/eval-console` at `http://127.0.0.1:5183/`
+- A full visual responsive browser pass was not performed here; the dedicated responsive verification pass remains tracked in section 12.
 
 ---
 
@@ -394,18 +471,36 @@ Reference docs:
 - `docs/specs/service-web.md`
 - `docs/specs/technical-spec-overall.md`
 
-- [ ] Build a lightweight gated-route shell for demo access.
-- [ ] Decide and implement the initial access model placeholder:
+- [x] Build a lightweight gated-route shell for demo access.
+- [x] Decide and implement the initial access model placeholder:
   - [ ] password gate shell
-  - [ ] access code shell
+  - [x] access code shell
   - [ ] signed-in gate shell
-- [ ] Ensure public routes remain public.
-- [ ] Ensure demo routes can later be protected without route redesign.
-- [ ] Add clear UX for access denied / locked / reviewer entry states.
+- [x] Ensure public routes remain public.
+- [x] Ensure demo routes can later be protected without route redesign.
+- [x] Add clear UX for access denied / locked / reviewer entry states.
 
 Definition of done:
 
 - the shell supports a controlled demo-access model later without architectural changes
+
+### Section 10 status notes
+
+- The selected initial access model placeholder is an access code shell. Password and signed-in gate shells were intentionally not selected for this phase.
+- The demo access wrapper now lives in `apps/web/src/features/access/DemoAccessShell.tsx`.
+- The router now wraps only `/demo` and `/demo/*` route elements with the demo access shell, leaving public portfolio routes outside the access wrapper.
+- The access shell includes a disabled reviewer access-code entry area, plus explicit reviewer-entry, locked, and access-denied state examples.
+- No real auth, client-side secrets, usable access codes, or backend access checks were added in this section.
+- Later feature work can move validation behind the API/access-code store without changing the demo route map or demo page components.
+- Local verification completed successfully with:
+  - `pnpm --filter @portfolio-tq/ui typecheck`
+  - `pnpm --filter @portfolio-tq/ui lint`
+  - `pnpm --filter @portfolio-tq/web typecheck`
+  - `pnpm --filter @portfolio-tq/web lint`
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm --filter @portfolio-tq/web test` (currently prints the repo's "No tests yet" placeholder)
+  - local Vite dev-server route checks returning `200` for `/`, `/about`, `/work`, `/architecture`, `/observability`, `/demo`, and all four `/demo/*` routes at `http://127.0.0.1:5184/`
+- A full visual responsive browser pass was not performed here; the dedicated responsive verification pass remains tracked in section 12.
 
 ---
 
@@ -417,17 +512,34 @@ Reference docs:
 - `docs/specs/service-api.md`
 
 - [ ] Establish one consistent client-side pattern for:
-  - [ ] loading states
-  - [ ] error states
-  - [ ] empty states
-  - [ ] successful response rendering
-- [ ] Establish one consistent location for API client utilities.
-- [ ] Establish one consistent route-level data pattern.
-- [ ] Avoid hard-coding later backend assumptions directly into UI components.
+  - [x] loading states
+  - [x] error states
+  - [x] empty states
+  - [x] successful response rendering
+- [x] Establish one consistent location for API client utilities.
+- [x] Establish one consistent route-level data pattern.
+- [x] Avoid hard-coding later backend assumptions directly into UI components.
 
 Definition of done:
 
 - later integration work can proceed predictably without reworking page architecture
+
+### Section 11 status notes
+
+- Shared API client and route helpers now live under `apps/web/src/lib/api/apiClient.ts`, with `VITE_API_BASE_PATH` support and centralized request/endpoint helpers for later backend wiring.
+- Data-bearing routes now use one route-level pattern: React Router loaders return a typed `RouteDataState<T>` envelope from `apps/web/src/app/routeData.ts`, and route components render it through `apps/web/src/app/RouteDataStateView.tsx`.
+- The consistent state model now covers loading, error, empty, and success rendering:
+  - global route transitions show a shared loading notice from `RootLayout`
+  - route content now has one shared state-view wrapper for loading, empty, error, and success handling
+- Work, project-detail, demo-index, demo-shell, observability, and eval-console routes now resolve their page models in loaders instead of embedding route data assumptions directly into the components.
+- Backend endpoint assumptions were moved out of page components and into shared API helpers plus loader-produced view data, so the UI components stay closer to presentation-only.
+- Local verification completed successfully with:
+  - `pnpm --filter @portfolio-tq/web typecheck`
+  - `pnpm --filter @portfolio-tq/web lint`
+  - `pnpm --filter @portfolio-tq/ui typecheck`
+  - `pnpm --filter @portfolio-tq/ui lint`
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm --filter @portfolio-tq/web test` (currently prints the repo's "No tests yet" placeholder)
 
 ---
 
@@ -437,16 +549,53 @@ Reference docs:
 
 - `docs/specs/service-web.md`
 
-- [ ] Verify all implemented pages on desktop width.
-- [ ] Verify all implemented pages on tablet width.
-- [ ] Verify all implemented pages on mobile width.
-- [ ] Fix overflow, broken grids, cramped spacing, and unusable touch targets.
-- [ ] Ensure typography remains readable across breakpoints.
-- [ ] Ensure demo shells remain usable on smaller screens.
+- [x] Verify all implemented pages on desktop width.
+- [x] Verify all implemented pages on tablet width.
+- [x] Verify all implemented pages on mobile width.
+- [x] Fix overflow, broken grids, cramped spacing, and unusable touch targets.
+- [x] Ensure typography remains readable across breakpoints.
+- [x] Ensure demo shells remain usable on smaller screens.
 
 Definition of done:
 
 - the shell is responsive and credible on laptop, tablet, and phone
+
+### Section 12 status notes
+
+- Responsive verification was completed against the local Vite web app across 15 implemented routes:
+  - `/`
+  - `/about`
+  - `/work`
+  - `/architecture`
+  - `/observability`
+  - `/repo-workflow`
+  - `/projects/payment-exception-review`
+  - `/projects/investing-ops-copilot`
+  - `/projects/legacy-ai-adapter`
+  - `/projects/eval-console`
+  - `/demo`
+  - `/demo/payment-exception-review`
+  - `/demo/investing-ops-copilot`
+  - `/demo/legacy-ai-adapter`
+  - `/demo/eval-console`
+- The responsive pass covered three viewport classes:
+  - desktop `1440x1200`
+  - tablet `834x1112`
+  - mobile `390x844`
+- Verification used local Playwright-driven screenshots plus DOM layout checks for horizontal overflow, clipped content, and undersized header/footer touch targets.
+- One responsive issue was found and fixed during the pass: footer navigation links were updated to use touch-sized interactive targets instead of text-only inline links.
+- The final responsive rerun completed with:
+  - `45` route/viewport checks total
+  - `0` horizontal overflow failures
+  - `0` clipped-content failures
+  - `0` undersized header/footer target failures
+- Supporting code verification also completed successfully with:
+  - `pnpm --filter @portfolio-tq/web typecheck`
+  - `pnpm --filter @portfolio-tq/web lint`
+  - `pnpm --filter @portfolio-tq/ui typecheck`
+  - `pnpm --filter @portfolio-tq/ui lint`
+  - `pnpm --filter @portfolio-tq/web build`
+  - `pnpm --filter @portfolio-tq/web test` (currently prints the repo's "No tests yet" placeholder)
 
 ---
 

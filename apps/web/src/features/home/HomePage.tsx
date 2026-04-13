@@ -91,10 +91,10 @@ function HomeLink({
   return (
     <Link
       className={[
-        'inline-flex min-h-11 items-center rounded-full px-5 py-2 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-950',
+        'inline-flex min-h-11 items-center rounded-[var(--radius)] px-5 py-2 text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
         tone === 'primary'
-          ? 'bg-amber-300 text-stone-950 shadow-lg shadow-amber-950/30 hover:bg-amber-200'
-          : 'border border-white/15 bg-white/[0.04] text-stone-100 hover:border-amber-300/60 hover:bg-white/[0.08]',
+          ? 'bg-primary text-primary-foreground shadow-lg shadow-slate-950/30 hover:bg-chart-2'
+          : 'border border-border bg-card/75 text-card-foreground hover:border-primary/60 hover:bg-accent',
       ].join(' ')}
       to={to}
     >
@@ -152,10 +152,12 @@ export function HomePage() {
           {featuredModules.map((module) => (
             <Card className="grid gap-5" key={module.href}>
               <div className="grid gap-3">
-                <h3 className="font-serif text-2xl text-white">
+                <h3 className="font-serif text-2xl text-foreground">
                   {module.title}
                 </h3>
-                <p className="leading-7 text-stone-300">{module.summary}</p>
+                <p className="leading-7 text-muted-foreground">
+                  {module.summary}
+                </p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {module.proofTags.map((tag) => (
@@ -179,7 +181,7 @@ export function HomePage() {
             lead="The repository is part of the proof: docs, checklists, branch discipline, shared packages, Terraform, CI/CD, and local verification all sit beside the product code."
             title="The build process is visible by design."
           />
-          <p className="mt-5 leading-7 text-amber-50/85">
+          <p className="mt-5 leading-7 text-current/85">
             Reviewers should be able to understand not only what shipped, but
             how the system was framed, decomposed, implemented, and verified
             over time.
