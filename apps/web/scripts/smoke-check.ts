@@ -1,6 +1,5 @@
 type RouteExpectation = {
   path: string;
-  marker: string;
 };
 
 const baseUrl = process.argv[2];
@@ -10,27 +9,22 @@ if (!baseUrl) {
 }
 
 const routes: RouteExpectation[] = [
-  {
-    path: '/',
-    marker: 'A portfolio app built as a real system from day one.',
-  },
-  {
-    path: '/projects',
-    marker: 'Flagship demos are scaffolded as product surfaces, not one-off experiments.',
-  },
-  {
-    path: '/projects/payment-exception-review',
-    marker: 'Payment Exception Review Agent',
-  },
-  {
-    path: '/observability',
-    marker: 'Observability is a first-class feature, not an afterthought.',
-  },
-  {
-    path: '/demo/runtime-route-check',
-    marker: 'A portfolio app built as a real system from day one.',
-  },
+  { path: '/' },
+  { path: '/work' },
+  { path: '/projects/payment-exception-review' },
+  { path: '/observability' },
+  { path: '/demo/runtime-route-check' },
 ];
+
+function assertSpaDocument(body: string, routePath: string): void {
+  if (!body.includes('<div id="root"></div>')) {
+    throw new Error(`Expected ${routePath} to include the React root element.`);
+  }
+
+  if (!body.includes('src="/assets/') || !body.includes('href="/assets/')) {
+    throw new Error(`Expected ${routePath} to reference Vite-built assets.`);
+  }
+}
 
 const homeResponse = await fetch(`${baseUrl}/`);
 const homeBody = await homeResponse.text();
@@ -42,7 +36,9 @@ if (!homeResponse.ok) {
 }
 
 if (!indexResponse.ok) {
-  throw new Error(`Expected /index.html to return 200, received ${indexResponse.status}.`);
+  throw new Error(
+    `Expected /index.html to return 200, received ${indexResponse.status}.`,
+  );
 }
 
 const indexCacheControl = indexResponse.headers.get('cache-control') ?? '';
@@ -56,14 +52,18 @@ if (!indexCacheControl.includes('must-revalidate')) {
 const assetMatch = homeBody.match(/href="(\/assets\/[^"]+\.css)"/);
 
 if (!assetMatch) {
-  throw new Error('Expected home page to reference a hashed CSS asset under /assets/.');
+  throw new Error(
+    'Expected home page to reference a hashed CSS asset under /assets/.',
+  );
 }
 
 const assetResponse = await fetch(`${baseUrl}${assetMatch[1]}`);
 const assetCacheControl = assetResponse.headers.get('cache-control') ?? '';
 
 if (!assetResponse.ok) {
-  throw new Error(`Expected asset ${assetMatch[1]} to return 200, received ${assetResponse.status}.`);
+  throw new Error(
+    `Expected asset ${assetMatch[1]} to return 200, received ${assetResponse.status}.`,
+  );
 }
 
 if (!assetCacheControl.includes('immutable')) {
@@ -72,24 +72,23 @@ if (!assetCacheControl.includes('immutable')) {
   );
 }
 
-if (!indexBody.includes('A portfolio app built as a real system from day one.')) {
-  throw new Error('Expected /index.html to contain the home page marker.');
-}
-
-console.log('Cache header checks passed for /index.html and the generated CSS asset');
+assertSpaDocument(indexBody, '/index.html');
+console.log(
+  'Cache header checks passed for /index.html and the generated CSS asset',
+);
 
 for (const route of routes) {
-  const response = route.path === '/' ? homeResponse : await fetch(`${baseUrl}${route.path}`);
+  const response =
+    route.path === '/' ? homeResponse : await fetch(`${baseUrl}${route.path}`);
   const body = route.path === '/' ? homeBody : await response.text();
 
   if (!response.ok) {
-    throw new Error(`Expected ${route.path} to return 200, received ${response.status}.`);
+    throw new Error(
+      `Expected ${route.path} to return 200, received ${response.status}.`,
+    );
   }
 
-  if (!body.includes(route.marker)) {
-    throw new Error(`Expected ${route.path} to contain marker "${route.marker}".`);
-  }
-
+  assertSpaDocument(body, route.path);
   console.log(`Smoke check passed for ${route.path}`);
 }
 

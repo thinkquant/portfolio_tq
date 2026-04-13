@@ -1,11 +1,26 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/.tsbuildinfo"
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "jsx": "react-jsx",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@portfolio-tq/config": ["../../packages/config/src/index.ts"],
+      "@portfolio-tq/types": ["../../packages/types/src/index.ts"],
+      "@portfolio-tq/ui": ["../../packages/ui/src/index.ts"]
+    }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
   "references": [
     { "path": "../../packages/config" },
     { "path": "../../packages/types" },

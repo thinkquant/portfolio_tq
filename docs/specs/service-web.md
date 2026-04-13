@@ -1,9 +1,11 @@
 # Service Spec — `apps/web`
 
 ## Purpose
+
 The primary public interface for the portfolio.
 
 ## Responsibilities
+
 - render portfolio content
 - render project detail pages
 - render demos and dashboards
@@ -11,31 +13,45 @@ The primary public interface for the portfolio.
 - provide smooth navigation across all projects
 
 ## Core routes
+
 - `/`
 - `/about`
-- `/projects`
+- `/work`
+- `/architecture`
+- `/observability`
+- `/repo-workflow`
 - `/projects/payment-exception-review`
 - `/projects/investing-ops-copilot`
 - `/projects/legacy-ai-adapter`
 - `/projects/eval-console`
-- `/architecture`
-- `/observability`
-- `/repo-workflow`
+- `/demo`
 - `/demo/payment-exception-review`
 - `/demo/investing-ops-copilot`
 - `/demo/legacy-ai-adapter`
 - `/demo/eval-console`
 
+Route naming decision for the shell phase:
+
+- `/work` is the public project index route.
+- `/projects/*` routes are reserved for project detail pages.
+- `/observability` and `/repo-workflow` remain approved support routes from the infrastructure/bootstrap phase.
+- The older bootstrap `/projects` index route should be treated as a temporary compatibility route or redirect target when the richer shell is implemented, not the long-term primary index name.
+
 ## Key pages
+
 ### Home
+
 Must communicate:
+
 - who you are
 - what the portfolio is for
 - why these projects exist
 - quick links to flagship demos and repo
 
 ### Project detail pages
+
 Must include:
+
 - problem
 - why it matters for Orion
 - architecture
@@ -45,7 +61,9 @@ Must include:
 - demo launcher
 
 ### Observability page
+
 Must show:
+
 - aggregate run counts
 - pass/fail by project
 - latency charts
@@ -54,7 +72,9 @@ Must show:
 - latest flagged runs
 
 ### Repo workflow page
+
 Must show:
+
 - monorepo structure
 - CI/CD pipeline summary
 - Terraform overview
@@ -62,6 +82,7 @@ Must show:
 - public workflow rationale
 
 ## UI components
+
 - `ProjectCard`
 - `ArchitecturePanel`
 - `DemoLauncher`
@@ -74,12 +95,15 @@ Must show:
 - `AlertBanner`
 
 ## State management
+
 Keep simple:
+
 - React Query or equivalent for server state
 - local component state for UI interactions
 - minimal global state
 
 ## Definition of done
+
 - all primary routes implemented
 - responsive across desktop/tablet/mobile
 - lighthouse-style basic quality acceptable

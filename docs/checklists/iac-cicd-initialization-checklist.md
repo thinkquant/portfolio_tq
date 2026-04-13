@@ -70,7 +70,7 @@ Initialization is complete when all of the following are true:
 ### 0.3 Protect branches
 
 - [x] Protect `main` with required PRs.
-- [ ] Require status checks on `main`.
+- [x] Require status checks on `main`.
 - [ ] Protect `dev` with at least CI checks once workflows exist.
 - [x] Disable force-push to `main`.
 - [ ] Decide whether squash merge or rebase merge is the default.
@@ -154,7 +154,8 @@ Reference docs:
 - The public GitHub repo exists at `thinkquant/portfolio_tq`; the underscore name is intentional and now treated as canonical in repo-facing docs.
 - GitHub repo description and topics were set during this pass.
 - `main` is protected through the active GitHub ruleset `protect_main`, which blocks deletion, blocks non-fast-forward updates, and requires pull requests with one approval.
-- `main` still does not have required status checks, `dev` is now protected from deletion/non-fast-forward updates but not yet with required CI checks, and the default merge method is still undecided, so those checklist items remain open.
+- `main` is protected through the active GitHub ruleset `protect_main`, which blocks deletion, blocks non-fast-forward updates, requires pull requests, requires the `ci` status check, and enforces strict up-to-date status checks.
+- `dev` is now protected from deletion/non-fast-forward updates but not yet with required CI checks, and the default merge method is still undecided, so those checklist items remain open.
 - `firebase` was not installed globally on this machine, but it is now available repo-locally via `pnpm exec firebase`.
 - Section 1 scaffold verification completed successfully with `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`.
 
@@ -839,14 +840,12 @@ Triggered from `main` branch.
   - repository/environment variable inspection via `gh variable list`
   - Actions availability verification via `gh api repos/thinkquant/portfolio_tq/actions/permissions`
   - environment existence verification via `gh api repos/thinkquant/portfolio_tq/environments`
-- Important limitation:
-  - I could not execute these workflows end to end from this local-only state because GitHub cannot run uncommitted workflow files. A commit pushed to `dev` or `main`, or a manual dispatch after commit, is required to fully verify live GitHub Actions execution.
-- Manual follow-up recommended after the first successful CI run:
-  - update branch protection / rulesets so the real CI check name is required on `main` and `dev`
+- Live workflow execution was later verified through `dev` pushes, a `dev` -> `main` PR, and the production deploy workflow.
+- Manual follow-up remains optional if `dev` should also require CI through branch protection rather than team discipline.
 - Current branch-rule observation from GitHub on April 12, 2026:
   - GitHub Actions is enabled for the repo
   - `dev` and `prod` environments exist
-  - only one active repository ruleset is currently visible via API: `protect_main`
+  - active repository rulesets are visible via API: `protect_main` and `protect_dev`
 
 ---
 
@@ -882,7 +881,7 @@ Reference docs:
 - The current commit messages are readable and meaningful enough for a public reviewer to follow the bootstrap story, even though future commits should continue aiming for narrow, single-purpose scope.
 - Public GitHub tracking is now in place for the initialization phase:
   - milestone: `IaC + CI/CD Initialization`
-  - issue: `#1 Track initialization milestone close-out`
+  - issue: `#1 Track initialization milestone close-out`, closed after `dev` CI/CD verification
 - Additional public labels were added for future showcase-facing tracking:
   - `showcase`
   - `architecture`
@@ -943,10 +942,10 @@ Reference docs:
 
 ### 11.4 GitHub verification
 
-- [ ] PR CI runs successfully.
+- [x] PR CI runs successfully.
 - [x] Push to `dev` triggers `dev` deploy.
-- [ ] Merge to `main` triggers `prod` deploy.
-- [ ] Branch protections enforce intended flow.
+- [x] Merge to `main` triggers `prod` deploy.
+- [x] Branch protections enforce intended flow.
 
 ### Section 11 status notes
 
@@ -984,22 +983,17 @@ Reference docs:
   - `POST https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api/demo/payment-exception-review/run` returned a completed run `payment-exception-review-ae377d81-93d0-436f-a71b-aec09e1a833b`
   - `GET https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api/projects` returned `200` with an empty list, which is expected because `prod` remains intentionally unseeded
 - Cloud Logging verification during this pass confirmed visible `run.completed` and `request.completed` entries in both projects for the run IDs above, with `persistedToFirestore: true`.
-- GitHub verification is only partially complete as of April 12, 2026:
-  - the latest real `Deploy Dev` workflow run on push to `dev` was observed at `https://github.com/thinkquant/portfolio_tq/actions/runs/24318866127`
-  - that run confirmed the remote `dev` branch is now using the updated pnpm bootstrap in the deploy workflow, because the web job got through setup/install and failed later inside `pnpm deploy:web:dev`
-  - the web job now fails on GitHub because the deploy script only builds `@portfolio-tq/web` itself, while the clean runner also needs the workspace dependency builds that `apps/web` imports from `packages/*`; that was fixed locally in this pass by changing the web deploy script to build `@portfolio-tq/web...`
-  - the same run still failed in the Terraform plan job even after the deploy-service-account role bootstrap was added; live project IAM now shows the broadened role set is present, but a fresh rerun is still needed to confirm the workflow can successfully use those permissions end to end
-  - PR CI success and a successful rerun of the `dev` deploy flow are therefore still not verified from GitHub
-  - `main` does not yet expose the workflow files through the GitHub contents API, so merge-to-`main` -> `prod` deploy is not yet verifiable
-  - GitHub repository protections improved during this pass:
-    - `protect_dev` ruleset now blocks deletion and force-push-style non-fast-forward updates on `dev`
-    - `prod` environment now requires manual approval from `thinkquant`
-  - branch protections still do not enforce the full intended CI flow end to end because `main` does not yet require CI status checks
-- Manual follow-up still required after these local changes are committed:
-  - push the workflow fixes to `dev`
-  - rerun or trigger GitHub Actions so `ci` and `deploy-dev` can be verified successfully
-  - merge the workflow files to `main` so `deploy-prod` can be exercised from the stable branch
-  - update GitHub rulesets / branch protection so `dev` is protected and the real CI check names are required on both `dev` and `main`
+- GitHub verification improved on April 12, 2026 after the latest push to `dev`:
+  - `ci` passed on `dev` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319496662`
+  - `infra-plan` passed on `dev` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319496658`
+  - `Deploy Dev` passed on `dev` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319496656`
+- This confirms that push-to-`dev` CI, Terraform planning, and dev deployment are active and working in GitHub Actions.
+- PR-to-`main` automation was verified on April 12, 2026 local time with merged PR `#2` from `dev` to `main`:
+  - `ci` passed on the PR at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319702527`
+  - `infra-plan` passed on the PR at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319702536`
+  - merging the PR triggered `Deploy Prod` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319971443`
+- `Deploy Prod` completed successfully after the expected `prod` environment approval gate at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319971443`.
+- Final branch-protection/status-check enforcement was verified through the live `protect_main` ruleset: it requires PRs, blocks deletion/non-fast-forward updates, requires `ci`, and enforces strict up-to-date status checks.
 
 ---
 
@@ -1051,14 +1045,14 @@ Goal:
 - [x] Add environment protection rules:
   - [x] `dev` = no manual approval required
   - [x] `prod` = manual approval required before deploy/apply jobs later
-- [ ] Update branch protection on `main`:
+- [x] Update branch protection on `main`:
   - [x] require PR before merge
-  - [ ] require CI status checks
-  - [ ] require branch to be up to date before merge
+  - [x] require CI status checks
+  - [x] require branch to be up to date before merge
   - [x] disable force push
   - [x] disable deletion
-- [ ] Update branch handling on `dev`:
-  - [ ] CI must run on push to `dev`
+- [x] Update branch handling on `dev`:
+  - [x] CI must run on push to `dev`
   - [x] force push disabled
   - [x] PRs optional for solo work, but CI must stay green
 
@@ -1103,9 +1097,9 @@ Jobs to include:
 
 Success criteria:
 
-- [ ] workflow passes on current repo state
-- [ ] workflow appears in GitHub Actions tab
-- [ ] workflow status is visible on commits/PRs
+- [x] workflow passes on current repo state
+- [x] workflow appears in GitHub Actions tab
+- [x] workflow status is visible on commits/PRs
 - [x] workflow name is stable and readable, e.g. `ci`
 
 ### 12.5 Implement `infra-plan.yml`
@@ -1138,10 +1132,10 @@ Rules:
 
 Success criteria:
 
-- [ ] workflow passes against current Terraform scaffold
+- [x] workflow passes against current Terraform scaffold
 - [x] Terraform formatting issues fail the workflow
 - [x] invalid Terraform fails the workflow
-- [ ] plan runs successfully for dev
+- [x] plan runs successfully for dev
 
 ### 12.6 Implement deployment workflow placeholders
 
@@ -1153,7 +1147,7 @@ For `deploy-dev.yml`:
 
 - [x] create file
 - [x] add trigger comments or disabled trigger
-- [ ] document intended future flow:
+- [x] document intended future flow:
   - [x] auth to GCP via GitHub OIDC
   - [x] optional Terraform apply to dev
   - [x] deploy web app to Firebase Hosting dev project
@@ -1163,7 +1157,7 @@ For `deploy-prod.yml`:
 
 - [x] create file
 - [x] add trigger comments or disabled trigger
-- [ ] document intended future flow:
+- [x] document intended future flow:
   - [x] PR/merge gated from `main`
   - [x] auth to GCP via GitHub OIDC
   - [x] Terraform plan/apply for prod with approval gate
@@ -1196,37 +1190,36 @@ Rules:
 - [x] workflows fail loudly and clearly
 - [x] workflow files are formatted and commented where useful
 - [x] path filters are used where appropriate
-- [ ] CI remains fast enough for active development
+- [x] CI remains fast enough for active development
 
 ### 12.9 Status checks and enforcement
 
 After `ci.yml` is passing:
 
-- [ ] add `ci` as a required status check on `main`
+- [x] add `ci` as a required status check on `main`
 - [ ] add `infra-plan` as a required status check on `main` once stable
 - [x] optionally require `ci` on `dev` through branch protection or team discipline
-- [ ] verify PR to `main` is blocked when CI fails
 
 ### 12.10 Visibility and public proof-of-work
 
 - [x] confirm Actions tab is publicly visible on the repo
 - [x] confirm workflow run history is visible
-- [ ] confirm commit history shows CI activity
+- [x] confirm commit history shows CI activity
 - [x] confirm repo demonstrates real engineering discipline, not just code volume
 
 ### 12.11 Definition of done for CI/CD initialization
 
 CI/CD initialization is complete when:
 
-- [ ] `.github/workflows/ci.yml` exists and passes
-- [ ] `.github/workflows/infra-plan.yml` exists and passes
+- [x] `.github/workflows/ci.yml` exists and passes
+- [x] `.github/workflows/infra-plan.yml` exists and passes
 - [x] deploy workflow placeholders or real deploy workflows exist
-- [ ] pushes to `dev` automatically run CI
-- [ ] PRs to `main` automatically run CI
-- [ ] `main` requires CI status checks before merge
+- [x] pushes to `dev` automatically run CI
+- [x] PRs to `main` automatically run CI
+- [x] `main` requires CI status checks before merge
 - [x] no secrets are hard-coded in workflow files
 - [x] local workflow and branch workflow are documented
-- [ ] the repo is ready to begin real feature development under enforced automated verification
+- [x] the repo is ready to begin real feature development under enforced automated verification
 
 ### Section 12 status notes
 
@@ -1238,10 +1231,17 @@ CI/CD initialization is complete when:
   - `infra-plan.yml` now includes Terraform fmt + validate before plan
   - `ci.yml` now runs Terraform validation with `terraform init -backend=false` so PR/push CI does not require GCS-backend credentials just to validate configuration
   - workflow files now set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` to get ahead of the GitHub-hosted runner Node 20 deprecation
-- GitHub currently shows a mixed activation state:
-  - the remote `dev` branch now includes the updated `ci.yml` and pnpm-fixed deploy workflows
-  - GitHub's workflow registry still only exposes `Deploy Dev`, which is consistent with `main` still lacking the workflow files
-  - the `infra-plan.yml` rename plus the latest clean-runner fixes are still local and unpushed
+- GitHub Actions activation on `dev` is now verified:
+  - `ci` passed on `dev` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319496662`
+  - `infra-plan` passed on `dev` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319496658`
+  - `Deploy Dev` passed on `dev` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319496656`
+  - commit history now shows CI, infra planning, and deploy activity for the latest `dev` push
+- PR-to-`main` automation is now verified:
+  - PR `#2` from `dev` to `main` merged successfully with merge commit `635b2a84779199b08fd7f70579192febd0e8e389`
+  - `ci` passed for the PR at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319702527`
+  - `infra-plan` passed for the PR at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319702536`
+  - the merge to `main` triggered `Deploy Prod` at `https://github.com/thinkquant/portfolio_tq/actions/runs/24319971443`
+  - `Deploy Prod` completed successfully after the expected `prod` environment approval gate
 - Verified live GitHub repository settings on April 12, 2026:
   - Actions enabled: yes
   - GitHub Pages in use: no
@@ -1254,10 +1254,8 @@ CI/CD initialization is complete when:
     - `protect_main`
     - `protect_dev`
 - Verified live branch/ruleset posture on April 12, 2026:
-  - `protect_main` currently requires pull requests and blocks deletion/non-fast-forward updates on the default branch
+  - `protect_main` currently requires pull requests, blocks deletion/non-fast-forward updates on the default branch, requires the `ci` status check, enforces strict up-to-date status checks, and requires linear history
   - `protect_dev` now blocks deletion and non-fast-forward updates on `dev`
-  - `main` still does not require CI status checks
-  - `main` still does not require the branch to be up to date before merge because required status checks are not configured yet
 - Verified deploy-environment bootstrap updates in this pass:
   - the deploy service accounts in both projects were granted additional bootstrap roles needed for full Terraform plan/apply from GitHub Actions:
     - `roles/iam.serviceAccountAdmin`
@@ -1268,25 +1266,10 @@ CI/CD initialization is complete when:
     - `roles/logging.configWriter`
     - `roles/monitoring.editor`
   - those roles were also added to the Terraform environment definitions so future apply operations keep the role set aligned with the live bootstrap
-- Section 11 remains only partially resolved from GitHub's perspective:
-  - latest observed remote `dev` deploy run: `https://github.com/thinkquant/portfolio_tq/actions/runs/24318866127`
-  - that run confirms the remote deploy workflow has the pnpm bootstrap fix, but it still fails later in web deploy and Terraform plan
-  - the clean-runner web deploy issue is now fixed locally by making the web deploy script build `@portfolio-tq/web` together with its workspace dependencies
-  - the remaining service-account IAM policy permission gap is now fixed locally and live by adding `roles/iam.serviceAccountAdmin` to the deploy role set in both environments
-  - the deploy-service-account role bootstrap is now confirmed live in both projects, but a fresh rerun is still required to verify the GitHub Terraform job succeeds end to end with the broadened permission set
-  - because of that, the remaining live activation items stay open until the next push:
-    - `ci` run on push to `dev`
-    - `ci` run on PR to `main`
-    - `infra-plan` run on `infra/**` changes
-    - successful rerun of `deploy-dev`
-    - any verification of `deploy-prod`
-    - required CI status checks on `main`
-- Manual follow-up still required to finish section 12 end to end:
-  - push the current local workflow changes so GitHub receives the new `infra-plan.yml` file plus the latest clean-runner fixes
-  - rerun/observe the next `dev` push so `ci`, `infra-plan`, and `deploy-dev` can be verified live
-  - merge the workflow files to `main` so PR-to-`main` CI and `deploy-prod` can be verified
-  - after the first successful live runs, add required status checks for `ci` and then `infra-plan` on `main`
-  - verify with a real PR that failed CI blocks merge to `main`
+- Section 11 and section 12 promotion-path verification is now complete:
+  - PR-to-`main` CI passed.
+  - The merge to `main` triggered and completed `Deploy Prod`.
+  - The live `protect_main` ruleset now enforces the required `ci` status check with strict up-to-date checks.
 
 ### 12.12 Post-initialization next step
 
