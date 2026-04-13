@@ -211,6 +211,7 @@ function getCodeLines(raw: string, label: string): string[] {
 }
 
 const repoHref = 'https://github.com/thinkquant/portfolio_tq';
+const linkedInHref = 'https://www.linkedin.com/in/daniel-oosthuyzen';
 
 const persistentHeader = getSection(persistentRaw, 'Header / Brand block');
 const persistentNav = getSection(persistentRaw, 'Primary navigation');
@@ -255,7 +256,7 @@ export const siteCopy = {
       ] satisfies NamedLink[],
       contacts: [
         { label: 'daniel@thinkquant.co', href: 'mailto:daniel@thinkquant.co' },
-        { label: 'LinkedIn' },
+        { label: 'LinkedIn', href: linkedInHref },
         { label: 'GitHub', href: repoHref },
       ],
       note: getText(persistentFooter, 'Footer note'),

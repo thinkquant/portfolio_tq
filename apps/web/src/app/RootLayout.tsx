@@ -23,9 +23,6 @@ export function RootLayout() {
   const navigation = useNavigation();
   const isNavigating = navigation.state !== 'idle';
   const shellNavigation = siteCopy.shell.navigation;
-  const repoLink = siteCopy.shell.footer.navigation.find(
-    (item) => item.label === 'Repo',
-  );
 
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -36,25 +33,9 @@ export function RootLayout() {
         Skip to content
       </a>
 
-      <div className="mx-auto flex min-h-screen w-full max-w-[82rem] flex-col px-5 py-5 sm:px-7 sm:py-6 lg:px-10 lg:py-7">
-        <header className="sticky top-0 z-40 bg-background/92 pb-5 pt-1 backdrop-blur-xl">
-          <div className="grid gap-3 border-b border-border/80 pb-3">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] border border-border/70 bg-muted/55 px-4 py-3 text-sm text-muted-foreground">
-              <p className="max-w-[72ch] leading-6">
-                {siteCopy.shell.announcement}
-              </p>
-              {repoLink ? (
-                <a
-                  className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-                  href={repoLink.href}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {siteCopy.shell.repoLinkLabel}
-                </a>
-              ) : null}
-            </div>
-
+      <div className="mx-auto flex min-h-screen w-full max-w-[82rem] flex-col px-5 py-4 sm:px-7 sm:py-5 lg:px-10 lg:py-6">
+        <header className="sticky top-0 z-40 bg-background/92 pb-3 pt-1 backdrop-blur-xl">
+          <div className="grid gap-4 border-b border-border/80 pb-3">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <Link
                 aria-label="Go to portfolio home"
@@ -104,7 +85,7 @@ export function RootLayout() {
         </header>
 
         <main
-          className="flex-1 py-8 sm:py-10 lg:py-12"
+          className="flex-1 py-4 sm:py-5 lg:py-6"
           id="main-content"
           tabIndex={-1}
         >

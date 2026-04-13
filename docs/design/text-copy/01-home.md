@@ -5,11 +5,11 @@
 **Eyebrow**
 Portfolio Built as Proof
 
-**Headline**
-I turn ambiguity into working systems, products, and pipelines.
+**Hero Headline**
+Daniel J.G Oosthuyzen
 
 **Subhead**
-This site is a live portfolio and a public build. The work, the repo, the structure, and the delivery discipline are all part of the proof.
+This web app is a live portfolio and a public build. The work, the repo, the structure, and the delivery discipline are all part of the proof.
 
 **Primary CTA**
 Explore the Work
