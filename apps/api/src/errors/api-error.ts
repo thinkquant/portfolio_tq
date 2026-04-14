@@ -1,3 +1,5 @@
+import type { JsonObject } from '@portfolio-tq/types';
+
 export type ApiErrorCode =
   | 'invalid_json'
   | 'invalid_request'
@@ -11,7 +13,7 @@ export class ApiError extends Error {
     public readonly statusCode: number,
     public readonly code: ApiErrorCode,
     message: string,
-    public readonly details: Record<string, unknown> = {},
+    public readonly details: JsonObject = {},
   ) {
     super(message);
     this.name = 'ApiError';
@@ -25,7 +27,7 @@ export class ValidationError extends ApiError {
       'invalid_json' | 'invalid_request' | 'invalid_project_id'
     >,
     message: string,
-    details: Record<string, unknown> = {},
+    details: JsonObject = {},
   ) {
     super(400, code, message, details);
     this.name = 'ValidationError';
@@ -36,7 +38,7 @@ export class NotFoundError extends ApiError {
   constructor(
     code: Extract<ApiErrorCode, 'not_found' | 'project_not_found'>,
     message: string,
-    details: Record<string, unknown> = {},
+    details: JsonObject = {},
   ) {
     super(404, code, message, details);
     this.name = 'NotFoundError';

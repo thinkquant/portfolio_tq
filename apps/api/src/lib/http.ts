@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
+import type {
+  ApiErrorEnvelope,
+  ApiSuccessEnvelope,
+  JsonObject,
+} from '@portfolio-tq/types';
 import { ValidationError } from '../errors/api-error.js';
 import { applyCors } from '../middleware/cors.js';
 
@@ -12,22 +17,6 @@ export type RequestContext = {
   url: URL;
   path: string;
   startedAt: number;
-};
-
-export type ApiSuccessResponse<T> = {
-  ok: true;
-  data: T;
-  requestId?: string;
-};
-
-export type ApiErrorResponse = {
-  ok: false;
-  error: {
-    code: string;
-    message: string;
-    details?: Record<string, unknown>;
-  };
-  requestId: string;
 };
 
 export function createRequestContext(
@@ -68,7 +57,7 @@ export function sendSuccess<T>(
     ok: true,
     data: payload,
     ...(requestId ? { requestId } : {}),
-  } satisfies ApiSuccessResponse<T>);
+  } satisfies ApiSuccessEnvelope<T>);
 }
 
 export function sendError(
@@ -77,7 +66,7 @@ export function sendError(
   requestId: string,
   code: string,
   message: string,
-  details?: Record<string, unknown>,
+  details?: JsonObject,
 ): void {
   sendJson(response, statusCode, {
     ok: false,
@@ -87,7 +76,7 @@ export function sendError(
       ...(details && Object.keys(details).length ? { details } : {}),
     },
     requestId,
-  } satisfies ApiErrorResponse);
+  } satisfies ApiErrorEnvelope);
 }
 
 export async function readJsonBody<TPayload extends object>(

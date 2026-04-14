@@ -1,14 +1,22 @@
-import { NotFoundError, ValidationError } from '../errors/api-error.js';
+import {
+  parseProjectId,
+  parseProjectScopedListQuery,
+} from '@portfolio-tq/schemas';
+import type {
+  EvaluationListResponseData,
+  ProjectListResponseData,
+  ProjectScopedListQuery,
+} from '@portfolio-tq/types';
+import { NotFoundError } from '../errors/api-error.js';
 import type { AppContext } from '../app/context.js';
 import type { RequestContext } from '../lib/http.js';
 import { sendSuccess } from '../lib/http.js';
+import { assertValid } from '../lib/validation.js';
 import {
   getObservabilityOverview,
   getProjectMetrics,
-  isProjectId,
   listEvaluations,
   listProjects,
-  listRuns,
 } from '../services/observability.js';
 
 export async function handleObservabilityOverview(
@@ -32,37 +40,7 @@ export async function handleListProjects(
     {
       projects,
       count: projects.length,
-    },
-    context.requestId,
-  );
-}
-
-export async function handleListRuns(
-  context: RequestContext,
-  app: AppContext,
-): Promise<void> {
-  const projectId = context.url.searchParams.get('projectId');
-
-  if (projectId && !isProjectId(projectId)) {
-    throw new ValidationError(
-      'invalid_project_id',
-      'Project ID must match a supported portfolio project.',
-      { projectId },
-    );
-  }
-
-  const runs = await listRuns(
-    app.firestore,
-    projectId && isProjectId(projectId) ? projectId : undefined,
-  );
-
-  sendSuccess(
-    context.response,
-    200,
-    {
-      runs,
-      count: runs.length,
-    },
+    } satisfies ProjectListResponseData,
     context.requestId,
   );
 }
@@ -71,20 +49,9 @@ export async function handleListEvaluations(
   context: RequestContext,
   app: AppContext,
 ): Promise<void> {
-  const projectId = context.url.searchParams.get('projectId');
+  const query = validateProjectScopedQuery(context);
 
-  if (projectId && !isProjectId(projectId)) {
-    throw new ValidationError(
-      'invalid_project_id',
-      'Project ID must match a supported portfolio project.',
-      { projectId },
-    );
-  }
-
-  const evaluations = await listEvaluations(
-    app.firestore,
-    projectId && isProjectId(projectId) ? projectId : undefined,
-  );
+  const evaluations = await listEvaluations(app.firestore, query.projectId);
 
   sendSuccess(
     context.response,
@@ -92,7 +59,7 @@ export async function handleListEvaluations(
     {
       evaluations,
       count: evaluations.length,
-    },
+    } satisfies EvaluationListResponseData,
     context.requestId,
   );
 }
@@ -102,17 +69,33 @@ export async function handleProjectMetrics(
   app: AppContext,
   params: { projectId?: string },
 ): Promise<void> {
-  const projectId = params.projectId ?? '';
+  const parsedProjectId = parseProjectId(params.projectId ?? '');
 
-  if (!isProjectId(projectId)) {
+  if (!parsedProjectId.success) {
     throw new NotFoundError(
       'project_not_found',
       'No project metrics were found for the requested project ID.',
-      { projectId },
+      {
+        projectId: params.projectId ?? '',
+      },
     );
   }
 
-  const metrics = await getProjectMetrics(app.firestore, projectId);
+  const metrics = await getProjectMetrics(app.firestore, parsedProjectId.data);
 
   sendSuccess(context.response, 200, metrics, context.requestId);
+}
+
+function validateProjectScopedQuery(
+  context: RequestContext,
+): ProjectScopedListQuery {
+  return assertValid(
+    parseProjectScopedListQuery({
+      projectId: context.url.searchParams.get('projectId') ?? undefined,
+    }),
+    {
+      code: 'invalid_project_id',
+      message: 'Project ID must match a supported portfolio project.',
+    },
+  );
 }

@@ -1,33 +1,25 @@
+import { parsePaymentReviewDemoRequest } from '@portfolio-tq/schemas';
 import { portfolioAgents } from '@portfolio-tq/agents';
+import type { PaymentReviewDemoResponseData } from '@portfolio-tq/types';
 
 import type { AppContext } from '../app/context.js';
-import { ValidationError } from '../errors/api-error.js';
 import type { RequestContext } from '../lib/http.js';
 import { readJsonBody, sendSuccess } from '../lib/http.js';
-import {
-  runPaymentReviewDemo,
-  type DemoRequestPayload,
-} from '../services/demos/payment-review.js';
+import { assertValid } from '../lib/validation.js';
+import { runPaymentReviewDemo } from '../services/demos/payment-review.js';
 
 export async function handlePaymentReviewRun(
   context: RequestContext,
   app: AppContext,
 ): Promise<void> {
-  const payload = await readJsonBody<DemoRequestPayload>(context.request);
-
-  if (
-    (payload.caseId !== undefined && typeof payload.caseId !== 'string') ||
-    (payload.note !== undefined && typeof payload.note !== 'string')
-  ) {
-    throw new ValidationError(
-      'invalid_request',
+  const rawPayload = await readJsonBody<Record<string, unknown>>(
+    context.request,
+  );
+  const payload = assertValid(parsePaymentReviewDemoRequest(rawPayload), {
+    code: 'invalid_request',
+    message:
       'Payment review requests accept optional string values for caseId and note.',
-      {
-        caseIdType: typeof payload.caseId,
-        noteType: typeof payload.note,
-      },
-    );
-  }
+  });
 
   const demoResult = await runPaymentReviewDemo({
     requestId: context.requestId,
@@ -46,7 +38,7 @@ export async function handlePaymentReviewRun(
       escalation: demoResult.escalation ?? null,
       result: demoResult.result,
       agentCount: portfolioAgents.length,
-    },
+    } satisfies PaymentReviewDemoResponseData,
     context.requestId,
   );
 }

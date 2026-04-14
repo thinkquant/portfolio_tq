@@ -1,3 +1,5 @@
+import type { NamespacePlaceholderData } from '@portfolio-tq/types';
+
 import type { AppContext } from '../app/context.js';
 import type { RequestContext } from '../lib/http.js';
 import { sendSuccess } from '../lib/http.js';
@@ -12,9 +14,9 @@ export function handleToolsNamespace(
     {
       namespace: 'tools',
       environment: app.config.environment,
-      routes: [],
+      routes: ['/api/tools/invocations', '/api/runs/:runId/tools'],
       status: 'reserved',
-    },
+    } satisfies NamespacePlaceholderData,
     context.requestId,
   );
 }
@@ -31,7 +33,7 @@ export function handleSeedNamespace(
       environment: app.config.environment,
       routes: [],
       status: 'reserved',
-    },
+    } satisfies NamespacePlaceholderData,
     context.requestId,
   );
 }

@@ -1,5 +1,5 @@
 import { createApiServer } from './app/server.js';
-import { getRuntimeConfig } from './config/runtime.js';
+import { env, getRuntimeConfig } from './config/index.js';
 import { createApiRouter } from './routes/index.js';
 import { createLogger } from './services/logs.js';
 import { createFirestoreClient } from './services/observability.js';
@@ -23,14 +23,14 @@ const app = {
 const router = createApiRouter(app);
 const server = createApiServer(app, router);
 
-server.listen(config.port, '0.0.0.0', () => {
+server.listen(env.runtime.port, '0.0.0.0', () => {
   logger.info(
     'service.started',
     {
       latencyMs: 0,
     },
     {
-      port: config.port,
+      port: env.runtime.port,
       agentCount: portfolioAgents.length,
       evaluationStatusCount: evaluationStatuses.length,
       firestoreEnabled: Boolean(firestore),

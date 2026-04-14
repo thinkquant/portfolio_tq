@@ -210,10 +210,11 @@ Verification note:
 - Centralized runtime config now lives in `apps/api/src/config/runtime.ts`.
 - Defined required environment variables for Firestore persistence via `requiredEnvVars.firestore`.
 - Added non-sensitive example config at `apps/api/.env.example`.
-- Default values keep dev startup safe: `APP_ENV` defaults to `dev`, `PORT` defaults to `8080`, `VERTEX_AI_LOCATION` falls back to `FIRESTORE_LOCATION` then `us-central1`, and `CORS_ALLOWED_ORIGIN` defaults to `*`.
+- The current API env contract uses explicit runtime and Firestore settings including `NODE_ENV`, `PORT`, `APP_ENV`, `SERVICE_NAME`, `API_BASE_PATH`, `GCP_PROJECT_ID`, `GOOGLE_CLOUD_PROJECT`, `FIRESTORE_DATABASE_ID`, collection-name envs, `WEB_ALLOWED_ORIGIN`, and the current feature flags.
+- The committed example config now reflects the existing named dev Firestore database ID used by repo infrastructure rather than assuming `(default)`.
 - Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
 - Verified `pnpm --filter @portfolio-tq/api lint` passes.
-- Verified `pnpm --filter @portfolio-tq/api dev` starts locally with `GCP_PROJECT_ID` and `FIRESTORE_DATABASE` unset by running it on temporary port `18083` and checking `GET /health` (Firestore remains unconfigured but the API still runs).
+- Verified `pnpm --filter @portfolio-tq/api dev` starts locally with the current env contract and still exposes `GET /health`.
 
 Definition of done:
 
@@ -252,15 +253,17 @@ Verification note:
 
 - Confirmed on `dev`.
 - `GET /health` is implemented in `apps/api/src/handlers/system-handler.ts` and routed from `apps/api/src/routes/health.ts`.
-- `GET /ready` is implemented separately and returns dependency state for Firestore so unconfigured/degraded conditions can be represented cleanly.
+- `GET /health` and `GET /ready` both use the shared API success envelope from section 6: `{ ok: true, data, requestId? }`.
+- `GET /ready` is implemented separately and currently returns dependency state for Firestore based on configured runtime state so unconfigured/degraded conditions can be represented cleanly.
 - Version/build metadata now comes from `apps/api/src/config/runtime.ts`, including package version plus optional `GIT_COMMIT_SHA`/`COMMIT_SHA` and `BUILD_ID`.
 - The root service surface now advertises `/ready` alongside `/health`.
+- Temporary implementation note: before the shared API runtime milestone is considered fully closed, `GET /ready` should be upgraded to perform a real Firestore read probe instead of only reporting configured dependency state.
 - Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
 - Verified `pnpm --filter @portfolio-tq/api build` passes.
 - Verified `pnpm --filter @portfolio-tq/api lint` passes.
-- Verified `GET /health` on temporary port `18084` returns structured JSON with `status`, `service`, `environment`, `timestamp`, `version`, and `commitSha`.
-- Verified `GET /ready` on temporary port `18084` returns `503` with `status: "degraded"` and `dependencies.firestore.status: "unconfigured"` when Firestore env vars are absent.
-- Verified `GET /ready` on temporary port `18085` returns `200` with `status: "ready"` and `dependencies.firestore.status: "configured"` when Firestore env vars are present.
+- Verified `GET /health` on temporary port `18084` returns the shared success envelope with `data.status`, `data.service`, `data.environment`, `data.timestamp`, `data.version`, and `data.commitSha`.
+- Verified `GET /ready` on temporary port `18084` returns `503` with the shared success envelope and `data.status: "degraded"` plus `data.dependencies.firestore.status: "unconfigured"` when Firestore env vars are absent.
+- Verified `GET /ready` on temporary port `18085` returns `200` with the shared success envelope and `data.status: "ready"` plus `data.dependencies.firestore.status: "configured"` when Firestore env vars are present.
 
 Definition of done:
 
@@ -327,20 +330,49 @@ Reference docs:
 - `docs/specs/service-eval-console.md`
 - `docs/specs/technical-spec-overall.md`
 
-- [ ] Define request/response contracts for the shared runtime endpoints.
-- [ ] Wire validation to shared packages where appropriate.
-- [ ] Confirm `packages/schemas` and `packages/types` are used instead of duplicate local types where possible.
-- [ ] Add validation for:
-  - [ ] run creation payloads
-  - [ ] evaluation write payloads
-  - [ ] tool invocation request payloads
-  - [ ] seed data request/query payloads where needed
-- [ ] Ensure invalid input returns a stable validation error shape.
+- [x] Define request/response contracts for the shared runtime endpoints.
+- [x] Wire validation to shared packages where appropriate.
+- [x] Confirm `packages/schemas` and `packages/types` are used instead of duplicate local types where possible.
+- [x] Add validation for:
+  - [x] run creation payloads
+  - [x] evaluation write payloads
+  - [x] tool invocation request payloads
+  - [x] seed data request/query payloads where needed
+- [x] Ensure invalid input returns a stable validation error shape.
+
+Verification note:
+
+- Confirmed on `dev`.
+- Shared typed endpoint contracts now live in `packages/types/src/index.ts`, including request/query payloads and current response data shapes for health, readiness, service index, runs, evaluations, projects, namespaces, and the payment review demo.
+- Shared validators now live in `packages/schemas/src/index.ts` using `zod`, including:
+  - `paymentReviewDemoRequestSchema`
+  - `projectScopedListQuerySchema`
+  - `runCreateRequestSchema`
+  - `evaluationCreateRequestSchema`
+  - `toolInvocationCreateRequestSchema`
+  - `seedCasesQuerySchema`
+  - `seedDocumentsQuerySchema`
+- The API now consumes shared schemas instead of local one-off validation in:
+  - `apps/api/src/handlers/demo-handler.ts`
+  - `apps/api/src/handlers/observability-handler.ts`
+- Shared validation issue formatting lives in `packages/schemas/src/index.ts`, and API-side schema failures are mapped through `apps/api/src/lib/validation.ts` into the stable section 6 error envelope.
+- Verified `pnpm --filter @portfolio-tq/types typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/types lint` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes after updating the web API client to remain compatible with the shared envelope contracts.
+- Verified shared schema parsing for future run/eval/tool/seed payloads via a local `tsx` smoke import, with valid sample payloads succeeding.
+- Verified on temporary port `18090` that:
+  - invalid demo request payloads return `invalid_request` with schema-derived `issues`
+  - invalid `projectId` query values return `invalid_project_id` with schema-derived `issues`
 
 Definition of done:
 
-- implemented endpoints reject malformed input predictably
-- typed contracts are aligned between backend and future frontend consumers
+- [x] implemented endpoints reject malformed input predictably
+- [x] typed contracts are aligned between backend and future frontend consumers
 
 ---
 
@@ -352,32 +384,61 @@ Reference docs:
 - `docs/specs/service-eval-console.md`
 - `docs/architecture/observability-and-dashboards.md`
 
-- [ ] Define the run record model.
-- [ ] Implement endpoint to create a run record.
-- [ ] Implement endpoint to fetch a run by ID.
-- [ ] Implement endpoint to list runs with simple filters.
-- [ ] Include fields needed for later demos:
-  - [ ] id
-  - [ ] projectId
-  - [ ] status
-  - [ ] inputRef or input summary
-  - [ ] outputRef placeholder
-  - [ ] confidence placeholder
-  - [ ] latency placeholder
-  - [ ] estimated cost placeholder
-  - [ ] promptVersionId placeholder
-  - [ ] createdAt
-- [ ] Decide whether initial persistence is Firestore-backed or a thin local abstraction that already targets Firestore.
+- [x] Define the run record model.
+- [x] Implement endpoint to create a run record.
+- [x] Implement endpoint to fetch a run by ID.
+- [x] Implement endpoint to list runs with simple filters.
+- [x] Include fields needed for later demos:
+  - [x] id
+  - [x] projectId
+  - [x] status
+  - [x] inputRef or input summary
+  - [x] outputRef placeholder
+  - [x] confidence placeholder
+  - [x] latency placeholder
+  - [x] estimated cost placeholder
+  - [x] promptVersionId placeholder
+  - [x] createdAt
+- [x] Decide whether initial persistence is Firestore-backed or a thin local abstraction that already targets Firestore.
 
 Suggested endpoints:
 
-- [ ] `POST /runs`
-- [ ] `GET /runs`
-- [ ] `GET /runs/:id`
+- [x] `POST /runs`
+- [x] `GET /runs`
+- [x] `GET /runs/:id`
+
+Verification note:
+
+- Confirmed on `dev`.
+- The shared run ledger model remains centered on `RunRecord` in `packages/types/src/index.ts`, which already carries the section 8 fields needed by later demos and the eval console: `id`, `projectId`, `status`, `inputRef`, optional output/confidence/latency/cost/prompt metadata, and timestamps.
+- Added shared request/query contracts for section 8 in `packages/types/src/index.ts` and `packages/schemas/src/index.ts`, including `RunCreateRequest`, `RunListQuery`, `RunCreateResponseData`, `RunDetailResponseData`, `runCreateRequestSchema`, and `runListQuerySchema`.
+- Added a dedicated Firestore-backed run repository in `apps/api/src/repositories/run-repository.ts`.
+- Added a dedicated run service in `apps/api/src/services/runs.ts` so run creation/list/get logic is no longer hidden inside the observability handler path.
+- Added dedicated run handlers in `apps/api/src/handlers/run-handler.ts`.
+- `apps/api/src/routes/runs.ts` now exposes:
+  - `POST /api/runs`
+  - `GET /api/runs`
+  - `GET /api/runs/:id`
+- `GET /api/runs` now supports simple shared filters for `projectId`, `status`, and `limit`.
+- Initial persistence for the shared run ledger is now Firestore-backed behind a repository abstraction, not in-memory state.
+- Verified `pnpm --filter @portfolio-tq/types typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/types lint` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes.
+- Verified on temporary port `18091` with `GCP_PROJECT_ID=portfolio-tq-dev` and `FIRESTORE_DATABASE_ID=portfolio-tq-dev` that `GET /api/runs` returns Firestore-backed run records and `GET /api/projects` still returns seeded project metadata.
+- Verified on temporary port `18092` with the same Firestore target that:
+  - `POST /api/runs` creates a new queued run record
+  - `GET /api/runs/:id` returns the created run
+  - `GET /api/runs?projectId=payment-exception-review&status=queued&limit=5` returns the created run through the filtered list path
+- Verified on temporary port `18093` that invalid create payloads return `invalid_request` and missing run IDs return `not_found`.
 
 Definition of done:
 
-- the platform has a real run ledger that later demo flows can write into and the eval console can read from
+- [x] the platform has a real run ledger that later demo flows can write into and the eval console can read from
 
 ---
 
@@ -388,29 +449,63 @@ Reference docs:
 - `docs/specs/service-api.md`
 - `docs/architecture/observability-and-dashboards.md`
 
-- [ ] Define the tool invocation record model.
-- [ ] Implement endpoint to create a tool invocation log entry.
-- [ ] Implement endpoint to list tool invocations for a run.
-- [ ] Include fields needed later:
-  - [ ] id
-  - [ ] runId
-  - [ ] toolName
-  - [ ] input summary
-  - [ ] output summary
-  - [ ] success
-  - [ ] durationMs
-  - [ ] createdAt
-- [ ] Ensure the model is generic enough for all future demos.
+- [x] Define the tool invocation record model.
+- [x] Implement endpoint to create a tool invocation log entry.
+- [x] Implement endpoint to list tool invocations for a run.
+- [x] Include fields needed later:
+  - [x] id
+  - [x] runId
+  - [x] toolName
+  - [x] input summary
+  - [x] output summary
+  - [x] success
+  - [x] durationMs
+  - [x] createdAt
+- [x] Ensure the model is generic enough for all future demos.
 
 Suggested endpoints:
 
-- [ ] `POST /tools/invocations`
-- [ ] `GET /tools/invocations`
-- [ ] `GET /runs/:id/tools`
+- [x] `POST /tools/invocations`
+- [x] `GET /tools/invocations`
+- [x] `GET /runs/:id/tools`
+
+Verification note:
+
+- Confirmed on `dev`.
+- The shared tool invocation ledger model now lives in `packages/types/src/index.ts`, with `ToolInvocationRecord` expanded to include the generic fields section 9 needs: `inputSummary`, `outputSummary`, `success`, `durationMs`, and `createdAt`, while preserving the existing observability-friendly timing/status fields.
+- Added shared request/query contracts for section 9 in `packages/types/src/index.ts` and `packages/schemas/src/index.ts`, including `ToolInvocationCreateRequest`, `ToolInvocationListQuery`, `ToolInvocationCreateResponseData`, `ToolInvocationListResponseData`, `toolInvocationCreateRequestSchema`, and `toolInvocationListQuerySchema`.
+- Added a dedicated Firestore-backed tool invocation repository in `apps/api/src/repositories/tool-invocation-repository.ts`.
+- Added a dedicated tool invocation service in `apps/api/src/services/tool-invocations.ts`.
+- Added dedicated tool invocation handlers in `apps/api/src/handlers/tool-invocation-handler.ts`.
+- `apps/api/src/routes/tools.ts` now exposes:
+  - `POST /api/tools/invocations`
+  - `GET /api/tools/invocations`
+  - `GET /api/runs/:id/tools`
+- `GET /api/tools/invocations` now supports simple shared filters for `projectId`, `runId`, `toolName`, and `limit`.
+- New tool invocation writes now also update the parent run's `toolInvocationCount`, keeping the shared run ledger coherent with the trace ledger.
+- Existing Firestore tool invocation records without the new section 9 fields are normalized on read in `apps/api/src/repositories/tool-invocation-repository.ts`, so the shared API can read legacy trace documents without requiring an immediate reseed.
+- Updated `apps/api/src/services/demos/payment-review.ts` and `data/seed/tool-invocations/tool-invocations.json` so fresh demo writes and future reseeds use the expanded tool invocation model directly.
+- Verified `pnpm --filter @portfolio-tq/types typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/types lint` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes.
+- Verified on temporary port `18095` with `GCP_PROJECT_ID=portfolio-tq-dev` and `FIRESTORE_DATABASE_ID=portfolio-tq-dev` that:
+  - `GET /api/tools/invocations?runId=...` returns existing Firestore-backed tool traces
+  - `GET /api/runs/:id/tools` returns the same run-scoped trace list
+  - normalized legacy records expose `inputSummary`, `outputSummary`, `success`, `durationMs`, and `createdAt`
+- Verified on temporary port `18096` with the same Firestore target that:
+  - `POST /api/tools/invocations` creates a new tool invocation log entry for an existing run
+  - `GET /api/runs/:id/tools` returns the created tool invocation
+  - `GET /api/runs/:id` reflects the incremented `toolInvocationCount`
+- Verified on temporary port `18097` that invalid create payloads return `invalid_request` and missing run-scoped tool routes return `not_found`.
 
 Definition of done:
 
-- tool activity can be logged and retrieved independently from business-specific demo logic
+- [x] tool activity can be logged and retrieved independently from business-specific demo logic
 
 ---
 

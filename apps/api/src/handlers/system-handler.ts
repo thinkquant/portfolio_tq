@@ -1,5 +1,10 @@
 import { portfolioAgents } from '@portfolio-tq/agents';
 import { evaluationStatuses } from '@portfolio-tq/evals';
+import type {
+  HealthStatusData,
+  ReadyStatusData,
+  ServiceIndexData,
+} from '@portfolio-tq/types';
 
 import type { AppContext } from '../app/context.js';
 import type { RequestContext } from '../lib/http.js';
@@ -26,12 +31,14 @@ export function handleHealth(context: RequestContext, app: AppContext): void {
       vertexAiLocation: app.config.vertexAiLocation,
       projectId: app.config.firestoreProjectId ?? 'unknown',
       firestoreDatabaseId: app.config.firestoreDatabaseId ?? 'unconfigured',
-    },
+    } satisfies HealthStatusData,
     context.requestId,
   );
 }
 
 export function handleReady(context: RequestContext, app: AppContext): void {
+  // TODO(shared-api-runtime-foundation): upgrade readiness to perform a real
+  // Firestore read probe before this milestone is considered fully closed.
   const firestoreConfigured = Boolean(
     app.config.firestoreProjectId && app.config.firestoreDatabaseId,
   );
@@ -51,7 +58,7 @@ export function handleReady(context: RequestContext, app: AppContext): void {
           databaseId: app.config.firestoreDatabaseId ?? null,
         },
       },
-    },
+    } satisfies ReadyStatusData,
     context.requestId,
   );
 }
@@ -68,16 +75,19 @@ export function handleRoot(context: RequestContext, app: AppContext): void {
         '/api/observability/overview',
         '/api/projects',
         '/api/runs',
+        '/api/runs/:id',
+        '/api/runs/:id/tools',
         '/api/evals',
         '/api/evaluations',
         '/api/projects/:projectId/metrics',
         '/api/tools',
+        '/api/tools/invocations',
         '/api/seed',
         '/api/demo/payment-exception-review/run',
       ],
       agentCount: portfolioAgents.length,
       evaluationStatuses,
-    },
+    } satisfies ServiceIndexData,
     context.requestId,
   );
 }

@@ -16,6 +16,8 @@ import {
   type RunRecord,
   type ToolInvocationRecord,
 } from '@portfolio-tq/types';
+import { env } from '../config/env.js';
+import { normalizeToolInvocationRecord } from './tool-invocation-repository.js';
 
 export type ObservabilityOverview = {
   projects: ProjectRecord[];
@@ -118,6 +120,51 @@ async function readQuery<T>(
   return snapshot.docs.map((document) => document.data() as T);
 }
 
+async function listProjectToolInvocations(
+  firestore: Firestore,
+  projectId: ProjectId,
+  limit: number,
+): Promise<ToolInvocationRecord[]> {
+  const collectionNames = [
+    env.firestore.collections.toolInvocations,
+    firestoreCollections.toolInvocations,
+  ].filter(
+    (collectionName, index, allCollectionNames) =>
+      allCollectionNames.indexOf(collectionName) === index,
+  );
+
+  const toolInvocations = (
+    await Promise.all(
+      collectionNames.map((collectionName) =>
+        firestore
+          .collection(collectionName)
+          .orderBy('startedAt', 'desc')
+          .limit(Math.max(limit, 20))
+          .get()
+          .then((snapshot) =>
+            snapshot.docs.map((document) =>
+              normalizeToolInvocationRecord(
+                document.data() as Record<string, unknown>,
+              ),
+            ),
+          ),
+      ),
+    )
+  )
+    .flat()
+    .filter((toolInvocation) => toolInvocation.projectId === projectId)
+    .sort((left, right) => right.startedAt.localeCompare(left.startedAt));
+
+  return toolInvocations
+    .filter(
+      (toolInvocation, index, allToolInvocations) =>
+        allToolInvocations.findIndex(
+          (candidate) => candidate.id === toolInvocation.id,
+        ) === index,
+    )
+    .slice(0, limit);
+}
+
 export function isProjectId(value: string): value is ProjectId {
   return (projectIds as readonly string[]).includes(value);
 }
@@ -139,7 +186,7 @@ export async function listRuns(
   limit = 20,
 ): Promise<RunRecord[]> {
   const collection = requireFirestore(firestore).collection(
-    firestoreCollections.runs,
+    env.firestore.collections.runs,
   );
 
   const query = projectId
@@ -158,7 +205,7 @@ export async function listEvaluations(
   limit = 20,
 ): Promise<EvaluationRecord[]> {
   const collection = requireFirestore(firestore).collection(
-    firestoreCollections.evaluations,
+    env.firestore.collections.evaluations,
   );
 
   const query = projectId
@@ -191,7 +238,7 @@ export async function getProjectMetrics(
   ] = await Promise.all([
     readQuery<RunRecord>(
       client
-        .collection(firestoreCollections.runs)
+        .collection(env.firestore.collections.runs)
         .where('projectId', '==', projectId)
         .orderBy('createdAt', 'desc')
         .limit(10)
@@ -199,7 +246,7 @@ export async function getProjectMetrics(
     ),
     readQuery<EvaluationRecord>(
       client
-        .collection(firestoreCollections.evaluations)
+        .collection(env.firestore.collections.evaluations)
         .where('projectId', '==', projectId)
         .orderBy('createdAt', 'desc')
         .limit(10)
@@ -213,14 +260,7 @@ export async function getProjectMetrics(
         .limit(10)
         .get(),
     ),
-    readQuery<ToolInvocationRecord>(
-      client
-        .collection(firestoreCollections.toolInvocations)
-        .where('projectId', '==', projectId)
-        .orderBy('startedAt', 'desc')
-        .limit(10)
-        .get(),
-    ),
+    listProjectToolInvocations(client, projectId, 10),
     readQuery<PromptVersionRecord>(
       client
         .collection(firestoreCollections.promptVersions)
@@ -429,14 +469,17 @@ export async function persistDemoRun(
   const batch = client.batch();
   const seededAt = new Date().toISOString();
 
-  batch.set(client.collection(firestoreCollections.runs).doc(payload.run.id), {
-    ...payload.run,
-    observedAt: seededAt,
-  });
+  batch.set(
+    client.collection(env.firestore.collections.runs).doc(payload.run.id),
+    {
+      ...payload.run,
+      observedAt: seededAt,
+    },
+  );
 
   batch.set(
     client
-      .collection(firestoreCollections.evaluations)
+      .collection(env.firestore.collections.evaluations)
       .doc(payload.evaluation.id),
     {
       ...payload.evaluation,
@@ -447,7 +490,7 @@ export async function persistDemoRun(
   for (const toolInvocation of payload.toolInvocations) {
     batch.set(
       client
-        .collection(firestoreCollections.toolInvocations)
+        .collection(env.firestore.collections.toolInvocations)
         .doc(toolInvocation.id),
       {
         ...toolInvocation,

@@ -4,6 +4,8 @@ import type {
   Environment,
   EscalationRecord,
   EvaluationRecord,
+  PaymentReviewDemoRequest,
+  PaymentReviewDemoResult,
   RunRecord,
   ToolInvocationRecord,
 } from '@portfolio-tq/types';
@@ -11,24 +13,15 @@ import type {
 import type { Logger } from '../logs.js';
 import { persistDemoRun } from '../observability.js';
 
-export type DemoRequestPayload = {
-  caseId?: string;
-  note?: string;
-};
-
-export type PaymentReviewDemoResult = {
+export type PaymentReviewDemoExecutionResult = {
   run: RunRecord;
   evaluation: EvaluationRecord;
   toolInvocations: ToolInvocationRecord[];
   escalation?: EscalationRecord;
-  result: {
-    decision: string;
-    summary: string;
-    note: string;
-  };
+  result: PaymentReviewDemoResult;
 };
 
-function maybeEscalate(payload: DemoRequestPayload): boolean {
+function maybeEscalate(payload: PaymentReviewDemoRequest): boolean {
   return (
     payload.caseId === 'case-payment-bootstrap-002' ||
     payload.note?.toLowerCase().includes('escalate') === true
@@ -37,11 +30,11 @@ function maybeEscalate(payload: DemoRequestPayload): boolean {
 
 export async function runPaymentReviewDemo(config: {
   requestId: string;
-  payload: DemoRequestPayload;
+  payload: PaymentReviewDemoRequest;
   environment: Environment;
   firestore: Firestore | null;
   logger: Logger;
-}): Promise<PaymentReviewDemoResult> {
+}): Promise<PaymentReviewDemoExecutionResult> {
   const baseRun = createDemoRun('payment-exception-review', 'completed');
   const requiresEscalation = maybeEscalate(config.payload);
   const startedAt = new Date();
@@ -84,6 +77,12 @@ export async function runPaymentReviewDemo(config: {
       projectId: run.projectId,
       runId: run.id,
       toolName: 'case-loader',
+      inputSummary: `Loaded case context for ${run.inputRef}.`,
+      outputSummary:
+        'Payment case context loaded successfully for the exception review workflow.',
+      success: true,
+      durationMs: toolLatencyA,
+      createdAt: new Date(startedAt.getTime() + 40).toISOString(),
       status: 'completed',
       startedAt: new Date(startedAt.getTime() + 40).toISOString(),
       completedAt: new Date(
@@ -97,6 +96,11 @@ export async function runPaymentReviewDemo(config: {
       projectId: run.projectId,
       runId: run.id,
       toolName: 'policy-search',
+      inputSummary: `Retrieved policy guidance for ${run.inputRef}.`,
+      outputSummary: 'Synthetic payment review policy guidance retrieved.',
+      success: true,
+      durationMs: toolLatencyB,
+      createdAt: new Date(startedAt.getTime() + 310).toISOString(),
       status: 'completed',
       startedAt: new Date(startedAt.getTime() + 310).toISOString(),
       completedAt: new Date(
@@ -113,6 +117,12 @@ export async function runPaymentReviewDemo(config: {
       projectId: run.projectId,
       runId: run.id,
       toolName: 'review-router',
+      inputSummary: `Escalation routing requested for ${run.inputRef}.`,
+      outputSummary:
+        'Run was routed to reviewer follow-up because fallback handling was triggered.',
+      success: true,
+      durationMs: 120,
+      createdAt: new Date(startedAt.getTime() + 650).toISOString(),
       status: 'completed',
       startedAt: new Date(startedAt.getTime() + 650).toISOString(),
       completedAt: new Date(startedAt.getTime() + 770).toISOString(),

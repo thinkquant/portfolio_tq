@@ -360,10 +360,23 @@ module "cloud_run_service" {
   allow_unauthenticated = var.cloud_run_allow_unauthenticated
 
   env_vars = {
-    APP_ENV            = var.environment
-    FIRESTORE_DATABASE = var.firestore_database_id
-    FIRESTORE_LOCATION = var.firestore_location
-    GCP_PROJECT_ID     = var.project_id
+    NODE_ENV                              = "development"
+    PORT                                  = tostring(var.cloud_run_container_port)
+    APP_ENV                               = var.environment
+    SERVICE_NAME                          = "portfolio-tq-api"
+    API_BASE_PATH                         = "/api"
+    LOG_LEVEL                             = "debug"
+    GCP_PROJECT_ID                        = var.project_id
+    GOOGLE_CLOUD_PROJECT                  = var.project_id
+    FIRESTORE_DATABASE_ID                 = var.firestore_database_id
+    FIRESTORE_RUNS_COLLECTION             = "runs"
+    FIRESTORE_TOOL_INVOCATIONS_COLLECTION = "tool_invocations"
+    FIRESTORE_EVALS_COLLECTION            = "evaluations"
+    FIRESTORE_SEED_COLLECTION             = "seed_data"
+    WEB_ALLOWED_ORIGIN                    = "https://${var.firebase_site_id}.web.app"
+    VERTEX_AI_MODEL                       = ""
+    ENABLE_DEMO_GATES                     = "false"
+    ENABLE_SEED_ENDPOINTS                 = "true"
   }
 
   secret_env_vars = {

@@ -18,6 +18,7 @@
     "test": "node -e \"console.log('No tests yet for @portfolio-tq/schemas')\""
   },
   "dependencies": {
-    "@portfolio-tq/types": "workspace:*"
+    "@portfolio-tq/types": "workspace:*",
+    "zod": "^4.3.6"
   }
 }

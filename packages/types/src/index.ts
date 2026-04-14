@@ -10,6 +10,8 @@ export type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
+export type JsonObject = { [key: string]: JsonValue };
+
 export const firestoreCollections = {
   projects: 'projects',
   runs: 'runs',
@@ -25,8 +27,7 @@ export const firestoreCollections = {
 
 export const firestoreCollectionNames = Object.values(firestoreCollections);
 
-export type FirestoreCollectionName =
-  (typeof firestoreCollectionNames)[number];
+export type FirestoreCollectionName = (typeof firestoreCollectionNames)[number];
 
 export const projectIds = [
   'payment-exception-review',
@@ -93,6 +94,11 @@ export interface ToolInvocationRecord {
   projectId: ProjectId;
   runId: string;
   toolName: string;
+  inputSummary: string;
+  outputSummary: string;
+  success: boolean;
+  durationMs: number;
+  createdAt: string;
   status: ToolInvocationStatus;
   startedAt: string;
   completedAt: string;
@@ -171,4 +177,177 @@ export interface AccessCodeRecord {
   createdAt: string;
   expiresAt: string;
   notes: string;
+}
+
+export interface ApiSuccessEnvelope<T> {
+  ok: true;
+  data: T;
+  requestId?: string;
+}
+
+export interface ApiErrorPayload {
+  code: string;
+  message: string;
+  details?: JsonObject;
+}
+
+export interface ApiErrorEnvelope {
+  ok: false;
+  error: ApiErrorPayload;
+  requestId: string;
+}
+
+export interface ProjectScopedListQuery {
+  projectId?: ProjectId;
+}
+
+export interface RunListQuery extends ProjectScopedListQuery {
+  status?: DemoRunStatus;
+  limit?: number;
+}
+
+export interface ToolInvocationListQuery extends ProjectScopedListQuery {
+  runId?: string;
+  toolName?: string;
+  limit?: number;
+}
+
+export interface PaymentReviewDemoRequest {
+  caseId?: string;
+  note?: string;
+}
+
+export interface PaymentReviewDemoResult {
+  decision: string;
+  summary: string;
+  note: string;
+}
+
+export interface PaymentReviewDemoResponseData {
+  run: RunRecord;
+  evaluation: EvaluationRecord;
+  escalation: EscalationRecord | null;
+  result: PaymentReviewDemoResult;
+  agentCount: number;
+}
+
+export interface HealthStatusData {
+  status: 'ok';
+  service: string;
+  environment: Environment;
+  timestamp: string;
+  version: string;
+  commitSha: string | null;
+  buildId: string | null;
+  vertexAiLocation: string;
+  projectId: string;
+  firestoreDatabaseId: string;
+}
+
+export interface ReadyStatusData {
+  status: 'ready' | 'degraded';
+  service: string;
+  environment: Environment;
+  timestamp: string;
+  version: string;
+  commitSha: string | null;
+  buildId: string | null;
+  dependencies: {
+    firestore: {
+      status: 'configured' | 'unconfigured';
+      projectId: string | null;
+      databaseId: string | null;
+    };
+  };
+}
+
+export interface ServiceIndexData {
+  service: string;
+  environment: Environment;
+  timestamp: string;
+  version: string;
+  commitSha: string | null;
+  buildId: string | null;
+  routes: string[];
+  agentCount: number;
+  evaluationStatuses: DemoRunStatus[];
+}
+
+export interface ProjectListResponseData {
+  projects: ProjectRecord[];
+  count: number;
+}
+
+export interface RunListResponseData {
+  runs: RunRecord[];
+  count: number;
+}
+
+export interface EvaluationListResponseData {
+  evaluations: EvaluationRecord[];
+  count: number;
+}
+
+export interface NamespacePlaceholderData {
+  namespace: 'tools' | 'seed';
+  environment: Environment;
+  routes: string[];
+  status: 'reserved';
+}
+
+export interface RunCreateRequest {
+  projectId: ProjectId;
+  inputRef: string;
+  status?: DemoRunStatus;
+  promptVersionId?: string | null;
+  summary?: string | null;
+}
+
+export interface EvaluationCreateRequest {
+  runId: string;
+  projectId: ProjectId;
+  status: EvaluationStatus;
+  score: number;
+  schemaValid: boolean;
+  fallbackTriggered: boolean;
+  summary: string;
+}
+
+export interface ToolInvocationCreateRequest {
+  runId: string;
+  projectId: ProjectId;
+  toolName: string;
+  inputSummary: string;
+  outputSummary: string;
+  success: boolean;
+  durationMs: number;
+  createdAt?: string | null;
+}
+
+export interface SeedCasesQuery {
+  projectId?: ProjectId;
+  limit?: number;
+}
+
+export interface SeedDocumentsQuery {
+  projectId?: ProjectId;
+  kind?: DocumentRecord['kind'];
+  limit?: number;
+}
+
+export interface RunCreateResponseData {
+  run: RunRecord;
+}
+
+export interface RunDetailResponseData {
+  run: RunRecord;
+}
+
+export interface ToolInvocationCreateResponseData {
+  toolInvocation: ToolInvocationRecord;
+}
+
+export interface ToolInvocationListResponseData {
+  toolInvocations: ToolInvocationRecord[];
+  count: number;
 }

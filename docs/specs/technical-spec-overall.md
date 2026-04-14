@@ -1,6 +1,7 @@
 # Technical Spec — Overall System
 
 ## Architectural style
+
 - One public React web app
 - One backend API/orchestration service
 - Shared monorepo packages
@@ -13,9 +14,18 @@
 - Cloud Logging / Monitoring for infra telemetry
 - In-app dashboard pages for application telemetry
 
+## Runtime conventions
+
+- the API baseline currently uses a lightweight native `node:http` server rather than Express
+- shared API JSON surfaces use a consistent response envelope: success responses return `{ "ok": true, "data": ... }`
+- shared API JSON errors return `{ "ok": false, "error": { ... }, "requestId": "..." }`
+
 ## Major runtime components
+
 ### Frontend (`apps/web`)
+
 Responsibilities:
+
 - render content pages
 - host project detail pages
 - host interactive demos
@@ -23,7 +33,9 @@ Responsibilities:
 - auth gate demo pages if needed
 
 ### API (`apps/api`)
+
 Responsibilities:
+
 - receive demo requests
 - orchestrate tool-calling flows
 - call Vertex AI
@@ -33,6 +45,7 @@ Responsibilities:
 - expose observability endpoints and dashboard feeds
 
 ### Shared packages
+
 - `packages/ui`: reusable UI components
 - `packages/schemas`: zod/json schemas for inputs/outputs
 - `packages/agents`: model wrappers and orchestration helpers
@@ -42,13 +55,21 @@ Responsibilities:
 - `packages/config`: prompt versions, thresholds, routing, environment config
 
 ## Environments
+
 - `dev`
 - `prod`
 
 `dev` is the default daily environment. `prod` is the public portfolio environment.
 
+## Firestore environment baseline
+
+- the repo infrastructure is currently wired to existing environment-specific Firestore database IDs for `dev` and `prod`
+- shared runtime env/config should reflect the actual attached database IDs rather than assuming `(default)` if infra is already using named databases
+
 ## Data model
+
 ### Core collections
+
 - `projects`
 - `runs`
 - `toolInvocations`
@@ -61,11 +82,12 @@ Responsibilities:
 - `accessCodes`
 
 ### Shared run record
+
 ```ts
 type DemoRun = {
   id: string;
   projectId: string;
-  status: "queued" | "running" | "completed" | "failed" | "escalated";
+  status: 'queued' | 'running' | 'completed' | 'failed' | 'escalated';
   inputRef: string;
   outputRef?: string;
   confidence?: number;
@@ -78,6 +100,7 @@ type DemoRun = {
 ```
 
 ## Shared API patterns
+
 - `POST /api/demo/:project/run`
 - `GET /api/runs`
 - `GET /api/runs/:id`
@@ -86,6 +109,7 @@ type DemoRun = {
 - `POST /api/escalations`
 
 ## Security posture
+
 - no sensitive real user data
 - seeded and synthetic datasets only
 - secrets managed in GCP Secret Manager
@@ -94,12 +118,14 @@ type DemoRun = {
 - optional simple access gate for demos
 
 ## Performance targets
+
 - project content pages under ~2s interactive on broadband
 - demo API median response < 8s for standard run
 - each demo page should render usable state before demo execution
 - evaluation console query pages should remain usable on seeded dataset size
 
 ## Design standards
+
 - clean, modern, low-noise interface
 - strong information hierarchy
 - diagrams and traces are first-class
@@ -107,6 +133,7 @@ type DemoRun = {
 - charts for latency, cost, fallback, confidence, pass/fail
 
 ## Public repo standards
+
 - clear commit messages
 - docs near code
 - meaningful issues/milestones
