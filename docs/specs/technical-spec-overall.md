@@ -47,12 +47,12 @@ Responsibilities:
 ### Shared packages
 
 - `packages/ui`: reusable UI components
-- `packages/schemas`: zod/json schemas for inputs/outputs
+- `packages/types`: shared TypeScript domain types, DTOs, seed contracts, and controlled vocabularies
+- `packages/schemas`: zod/json schemas for runtime validation and parse helpers
+- `packages/config`: route metadata, feature flags, thresholds, prompt metadata, seed descriptors, and labels
+- `packages/tools`: deterministic mock tool contracts and seed-backed helper functions
+- `packages/evals`: evaluation helper contracts, scoring checks, flag vocabulary, and dashboard summaries
 - `packages/agents`: model wrappers and orchestration helpers
-- `packages/tools`: mock internal tool clients and contracts
-- `packages/evals`: scoring and evaluation utilities
-- `packages/types`: shared TypeScript domain types
-- `packages/config`: prompt versions, thresholds, routing, environment config
 
 ## Environments
 

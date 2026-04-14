@@ -4,13 +4,13 @@ import type {
   CaseRecord,
   DocumentRecord,
   ProjectId,
+  SeedCaseGroup,
   SeedCasesQuery,
+  SeedDataLoaderContract,
   SeedDocumentsQuery,
 } from '@portfolio-tq/types';
 
-type CaseSeedGroup = 'payment' | 'investing' | 'legacy';
-
-const seedCaseFileUrls: Record<CaseSeedGroup, URL> = {
+const seedCaseFileUrls: Record<SeedCaseGroup, URL> = {
   payment: new URL(
     '../../../../data/seed/payment-cases/cases.json',
     import.meta.url,
@@ -30,11 +30,17 @@ const seedDocumentsFileUrl = new URL(
   import.meta.url,
 );
 
-const caseCache = new Map<CaseSeedGroup, Promise<CaseRecord[]>>();
+const caseCache = new Map<SeedCaseGroup, Promise<CaseRecord[]>>();
 let documentCache: Promise<DocumentRecord[]> | null = null;
 
+export const fileSeedDataLoader: SeedDataLoaderContract = {
+  source: 'file_seed',
+  listCases: listSeedCases,
+  listDocuments: listSeedDocuments,
+};
+
 export async function listSeedCases(
-  group: CaseSeedGroup,
+  group: SeedCaseGroup,
   query: SeedCasesQuery = {},
 ): Promise<CaseRecord[]> {
   const cases = await loadSeedCases(group);
@@ -55,7 +61,7 @@ export async function listSeedDocuments(
     .slice(0, query.limit ?? documents.length);
 }
 
-async function loadSeedCases(group: CaseSeedGroup): Promise<CaseRecord[]> {
+async function loadSeedCases(group: SeedCaseGroup): Promise<CaseRecord[]> {
   let cachedCases = caseCache.get(group);
 
   if (!cachedCases) {

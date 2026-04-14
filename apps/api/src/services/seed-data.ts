@@ -1,35 +1,40 @@
 import type {
   CaseRecord,
   DocumentRecord,
+  SeedCaseGroup,
   SeedCasesQuery,
   SeedDocumentsQuery,
 } from '@portfolio-tq/types';
 
-import {
-  listSeedCases as listRepositorySeedCases,
-  listSeedDocuments as listRepositorySeedDocuments,
-} from '../repositories/seed-repository.js';
+import { fileSeedDataLoader } from '../repositories/seed-repository.js';
 
 export async function listPaymentCases(
   query: SeedCasesQuery = {},
 ): Promise<CaseRecord[]> {
-  return listRepositorySeedCases('payment', query);
+  return listSeedCasesByGroup('payment', query);
 }
 
 export async function listInvestingCases(
   query: SeedCasesQuery = {},
 ): Promise<CaseRecord[]> {
-  return listRepositorySeedCases('investing', query);
+  return listSeedCasesByGroup('investing', query);
 }
 
 export async function listLegacyIntakes(
   query: SeedCasesQuery = {},
 ): Promise<CaseRecord[]> {
-  return listRepositorySeedCases('legacy', query);
+  return listSeedCasesByGroup('legacy', query);
 }
 
 export async function listSeedDocuments(
   query: SeedDocumentsQuery = {},
 ): Promise<DocumentRecord[]> {
-  return listRepositorySeedDocuments(query);
+  return fileSeedDataLoader.listDocuments(query);
+}
+
+function listSeedCasesByGroup(
+  group: SeedCaseGroup,
+  query: SeedCasesQuery,
+): Promise<CaseRecord[]> {
+  return fileSeedDataLoader.listCases(group, query);
 }

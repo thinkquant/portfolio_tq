@@ -1,11 +1,8 @@
-import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
 import type {
   AccountProfileRecord,
   CustomerProfileRecord,
-  EscalationCreatePlaceholderRequest,
-  EscalationPreviewRecord,
   ProjectId,
   TimelineEventRecord,
   UserRecord,
@@ -36,17 +33,25 @@ let usersCache: Promise<UserRecord[]> | null = null;
 export async function getCustomerProfileById(
   customerId: string,
 ): Promise<CustomerProfileRecord | null> {
-  const customerProfiles = await loadCustomerProfiles();
+  const customerProfiles = await listCustomerProfiles();
 
   return customerProfiles.find((profile) => profile.id === customerId) ?? null;
+}
+
+export async function listCustomerProfiles(): Promise<CustomerProfileRecord[]> {
+  return loadCustomerProfiles();
 }
 
 export async function getAccountProfileById(
   accountId: string,
 ): Promise<AccountProfileRecord | null> {
-  const accountProfiles = await loadAccountProfiles();
+  const accountProfiles = await listAccountProfiles();
 
   return accountProfiles.find((profile) => profile.id === accountId) ?? null;
+}
+
+export async function listAccountProfiles(): Promise<AccountProfileRecord[]> {
+  return loadAccountProfiles();
 }
 
 export async function listTimelineEvents(
@@ -54,7 +59,7 @@ export async function listTimelineEvents(
   entityId: string,
   limit = 10,
 ): Promise<TimelineEventRecord[]> {
-  const timelineEvents = await loadTimelineEvents();
+  const timelineEvents = await listTimelineEventRecords();
 
   return timelineEvents
     .filter(
@@ -66,41 +71,20 @@ export async function listTimelineEvents(
     .slice(0, limit);
 }
 
+export async function listTimelineEventRecords(): Promise<
+  TimelineEventRecord[]
+> {
+  return loadTimelineEvents();
+}
+
 export async function getUserById(userId: string): Promise<UserRecord | null> {
-  const users = await loadUsers();
+  const users = await listUsers();
 
   return users.find((user) => user.id === userId) ?? null;
 }
 
-export function buildEscalationPreview(
-  payload: EscalationCreatePlaceholderRequest,
-): EscalationPreviewRecord {
-  const ownerId = payload.ownerId ?? 'user-reviewer-dev';
-  const hash = createHash('sha1')
-    .update(
-      JSON.stringify({
-        projectId: payload.projectId,
-        runId: payload.runId ?? null,
-        ownerId,
-        reason: payload.reason,
-        title: payload.title ?? null,
-      }),
-    )
-    .digest('hex')
-    .slice(0, 12);
-
-  return {
-    id: `escalation-preview-${hash}`,
-    projectId: payload.projectId,
-    runId: payload.runId ?? null,
-    ownerId,
-    status: 'draft',
-    createdAt: '2026-04-12T18:30:00.000Z',
-    reason: payload.reason,
-    summary:
-      payload.title?.trim() ||
-      `Synthetic escalation placeholder queued for ${payload.projectId}.`,
-  };
+export async function listUsers(): Promise<UserRecord[]> {
+  return loadUsers();
 }
 
 async function loadCustomerProfiles(): Promise<CustomerProfileRecord[]> {

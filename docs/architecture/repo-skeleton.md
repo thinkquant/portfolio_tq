@@ -50,12 +50,12 @@ portfolio_tq/
       tsconfig.json
   packages/
     ui/
+    types/
     schemas/
+    config/
     agents/
     tools/
     evals/
-    types/
-    config/
   infra/
     terraform/
       modules/
@@ -107,9 +107,20 @@ portfolio_tq/
 ```
 
 ## Monorepo decision
+
 There is one primary product surface: the web portfolio app. The demo projects are feature domains within that app, backed by one API service and shared packages.
 
+## Shared package handoff
+
+- Add shared TypeScript records, DTOs, vocabularies, seed contracts, and API envelope types in `packages/types`.
+- Add runtime validation schemas and parse helpers in `packages/schemas`; keep schemas aligned with `packages/types`.
+- Add environment-safe static metadata in `packages/config`, including project module routes, labels, feature flags, thresholds, prompt metadata, and seed descriptors.
+- Add deterministic mock tool contracts and seed-backed helper logic in `packages/tools`; app-specific loading and HTTP errors stay in `apps/api`.
+- Add evaluation checks, review flag vocabulary, and dashboard-ready summary helpers in `packages/evals`.
+- Keep UI components in `packages/ui` and model/orchestration wrappers in `packages/agents`; do not move demo-specific page components into the shared contract packages.
+
 ## Deployment decision
+
 - `apps/web` deploys to Firebase Hosting.
 - `apps/api` deploys to Google Cloud Run.
 - Shared packages are versioned only inside the monorepo.

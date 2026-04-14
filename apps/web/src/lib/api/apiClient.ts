@@ -1,3 +1,5 @@
+import type { ApiErrorEnvelope, ApiSuccessEnvelope } from '@portfolio-tq/types';
+
 type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 type ApiRequestJsonOptions = Omit<RequestInit, 'body' | 'method'> & {
@@ -6,22 +8,6 @@ type ApiRequestJsonOptions = Omit<RequestInit, 'body' | 'method'> & {
 };
 
 type ApiRouteBuilder = (...segments: string[]) => string;
-
-type ApiSuccessEnvelope<T> = {
-  ok: true;
-  data: T;
-  requestId?: string;
-};
-
-type ApiErrorEnvelope = {
-  ok: false;
-  error?: {
-    code?: string;
-    message?: string;
-    details?: Record<string, unknown>;
-  };
-  requestId?: string;
-};
 
 function trimSlashes(value: string): string {
   return value.replace(/^\/+|\/+$/g, '');

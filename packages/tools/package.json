@@ -15,9 +15,11 @@
     "build": "tsc -b tsconfig.json",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc -b tsconfig.json",
-    "test": "node -e \"console.log('No tests yet for @portfolio-tq/tools')\""
+    "test": "node --import tsx --test test/*.test.ts"
   },
   "dependencies": {
-    "@portfolio-tq/types": "workspace:*"
+    "@portfolio-tq/schemas": "workspace:*",
+    "@portfolio-tq/types": "workspace:*",
+    "zod": "^4.3.6"
   }
 }

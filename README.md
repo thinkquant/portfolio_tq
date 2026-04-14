@@ -163,7 +163,7 @@ Planned/active characteristics include:
 
 - monorepo structure
 - typed frontend and backend
-- shared packages for schemas, agents, tools, and evaluation logic
+- shared packages for types, schemas, config, tools, evaluation helpers, and agents
 - Terraform-managed infrastructure
 - separate dev/prod environments
 - CI/CD automation
@@ -186,12 +186,12 @@ portfolio_tq/
     api/        # backend/demo orchestration service
   packages/
     ui/         # shared UI components
-    schemas/    # shared validation and data contracts
+    types/      # shared TypeScript domain types and DTO contracts
+    schemas/    # shared runtime validation schemas and parse helpers
+    config/     # route metadata, feature flags, thresholds, prompt metadata
+    tools/      # deterministic mock tool contracts and seed-backed helpers
+    evals/      # evaluation helpers, flag vocabulary, dashboard summaries
     agents/     # model wrappers and orchestration logic
-    tools/      # internal mock tools and adapters
-    evals/      # evaluation helpers and scoring logic
-    types/      # shared types
-    config/     # prompts, thresholds, environment config
   docs/
     specs/
     architecture/

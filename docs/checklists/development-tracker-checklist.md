@@ -106,7 +106,7 @@ Reference docs:
 Detailed implementation checklist:
 - `docs/checklists/shared-schemas-tools-evals-checklist.md`
 
-- [ ] Create `docs/checklists/shared-schemas-tools-evals-checklist.md`
+- [x] Create `docs/checklists/shared-schemas-tools-evals-checklist.md`
 - [ ] Complete `docs/checklists/shared-schemas-tools-evals-checklist.md`
 
 Expected outcome:

@@ -50,6 +50,9 @@ importers:
       '@portfolio-tq/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
+      '@portfolio-tq/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
       '@portfolio-tq/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -150,6 +153,9 @@ importers:
 
   packages/evals:
     dependencies:
+      '@portfolio-tq/config':
+        specifier: workspace:*
+        version: link:../config
       '@portfolio-tq/schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -168,9 +174,15 @@ importers:
 
   packages/tools:
     dependencies:
+      '@portfolio-tq/schemas':
+        specifier: workspace:*
+        version: link:../schemas
       '@portfolio-tq/types':
         specifier: workspace:*
         version: link:../types
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
 
   packages/types: {}
 

@@ -37,13 +37,19 @@ export const projectIds = [
 ] as const;
 
 export type ProjectId = (typeof projectIds)[number];
+export const projectModuleIds = projectIds;
+export type ProjectModuleId = ProjectId;
+export type WorkflowModuleId = ProjectId;
 
-export type DemoRunStatus =
-  | 'queued'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'escalated';
+export const demoRunStatuses = [
+  'queued',
+  'running',
+  'completed',
+  'failed',
+  'escalated',
+] as const;
+
+export type DemoRunStatus = (typeof demoRunStatuses)[number];
 
 export interface DemoRun {
   id: string;
@@ -59,14 +65,153 @@ export interface DemoRun {
   updatedAt: string;
 }
 
-export type ProjectStatus = 'planned' | 'active' | 'live';
-export type EvaluationStatus = 'passed' | 'warning' | 'failed';
-export type ToolInvocationStatus = 'completed' | 'failed';
-export type EscalationStatus = 'open' | 'reviewed' | 'resolved';
-export type CaseStatus = 'open' | 'reviewed' | 'closed';
-export type CasePriority = 'low' | 'medium' | 'high';
-export type PromptVersionStatus = 'candidate' | 'active' | 'retired';
-export type AccessCodeStatus = 'inactive' | 'preview' | 'revoked';
+export const projectStatuses = ['planned', 'active', 'live'] as const;
+export type ProjectStatus = (typeof projectStatuses)[number];
+
+export const evaluationStatuses = ['passed', 'warning', 'failed'] as const;
+export type EvaluationStatus = (typeof evaluationStatuses)[number];
+
+export const evaluationFlagTypes = [
+  'low_confidence',
+  'schema_invalid',
+  'fallback_triggered',
+  'policy_review_required',
+  'missing_sources',
+  'latency_exceeded',
+] as const;
+
+export type EvaluationFlagType = (typeof evaluationFlagTypes)[number];
+
+export type EvaluationFlagSeverity = 'info' | 'warning' | 'critical';
+
+export interface EvaluationFlag {
+  type: EvaluationFlagType;
+  severity: EvaluationFlagSeverity;
+  message?: string;
+}
+
+export type FlaggedRunReason = EvaluationFlagType;
+
+export interface FlaggedRunSummary {
+  runId: string;
+  projectId: ProjectId;
+  evaluationStatus: EvaluationStatus;
+  flagged: boolean;
+  reasons: FlaggedRunReason[];
+  highestSeverity: EvaluationFlagSeverity | null;
+  fallbackTriggered: boolean;
+  score: number | null;
+  confidence: number | null;
+  latencyMs: number | null;
+  summary: string;
+}
+
+export const toolInvocationStatuses = ['completed', 'failed'] as const;
+export type ToolInvocationStatus = (typeof toolInvocationStatuses)[number];
+
+export const escalationStatuses = ['open', 'reviewed', 'resolved'] as const;
+export type EscalationStatus = (typeof escalationStatuses)[number];
+
+export const caseStatuses = ['open', 'reviewed', 'closed'] as const;
+export type CaseStatus = (typeof caseStatuses)[number];
+
+export const casePriorities = ['low', 'medium', 'high'] as const;
+export type CasePriority = (typeof casePriorities)[number];
+
+export const promptVersionStatuses = [
+  'candidate',
+  'active',
+  'retired',
+] as const;
+export type PromptVersionStatus = (typeof promptVersionStatuses)[number];
+
+export const accessCodeStatuses = ['inactive', 'preview', 'revoked'] as const;
+export type AccessCodeStatus = (typeof accessCodeStatuses)[number];
+
+export const paymentExceptionTypes = [
+  'settlement_mismatch',
+  'duplicate_charge',
+  'refund_delay',
+  'authorization_dispute',
+  'unknown',
+] as const;
+
+export type PaymentExceptionType = (typeof paymentExceptionTypes)[number];
+
+export const paymentReviewRecommendedActions = [
+  'approve_adjustment',
+  'request_more_info',
+  'escalate_to_human',
+  'close_case_no_action',
+] as const;
+
+export type PaymentReviewRecommendedAction =
+  (typeof paymentReviewRecommendedActions)[number];
+
+export const investingOpsIssueCategories = [
+  'missing_documents',
+  'suitability_review',
+  'allocation_question',
+  'pending_verification',
+  'general_ops',
+] as const;
+
+export type InvestingOpsIssueCategory =
+  (typeof investingOpsIssueCategories)[number];
+
+export const legacySubmissionStatuses = [
+  'accepted',
+  'rejected',
+  'needs_review',
+] as const;
+
+export type LegacySubmissionStatus = (typeof legacySubmissionStatuses)[number];
+
+export interface PaymentReviewOutput {
+  caseSummary: string;
+  exceptionType: PaymentExceptionType;
+  recommendedAction: PaymentReviewRecommendedAction;
+  rationale: string[];
+  confidence: number;
+  complianceFlags: string[];
+  humanReviewRequired: boolean;
+}
+
+export interface InvestingOpsOutput {
+  accountSummary: string;
+  issueCategory: InvestingOpsIssueCategory;
+  recommendedNextActions: string[];
+  citedSources: string[];
+  confidence: number;
+  humanReviewRequired: boolean;
+  internalCaseNote: string;
+}
+
+export interface LegacyAdapterOutput {
+  normalizedInput: JsonObject;
+  legacySubmissionStatus: LegacySubmissionStatus;
+  validationIssues: string[];
+  suggestedNextStep: string;
+  confidence: number;
+}
+
+export const moduleVisibilityStates = ['public', 'gated', 'hidden'] as const;
+
+export type ModuleVisibilityState = (typeof moduleVisibilityStates)[number];
+
+export const featureFlagKeys = [
+  'demo_access_gate',
+  'mock_tools_enabled',
+  'observability_live_data',
+] as const;
+
+export type FeatureFlagKey = (typeof featureFlagKeys)[number];
+
+export interface FeatureFlagConfig {
+  key: FeatureFlagKey;
+  enabled: boolean;
+  description?: string;
+}
 
 export interface ProjectRecord {
   id: ProjectId;
@@ -78,6 +223,18 @@ export interface ProjectRecord {
   surfacePath: string;
   environment: 'all';
   updatedAt: string;
+}
+
+export interface ProjectModuleSummary {
+  id: ProjectModuleId;
+  slug: ProjectId;
+  title: string;
+  shortSummary: string;
+  proofTags: string[];
+  demoRoute: string;
+  projectRoute: string;
+  status: ProjectStatus;
+  visibility: ModuleVisibilityState;
 }
 
 export interface RunRecord extends DemoRun {
@@ -105,6 +262,8 @@ export interface ToolInvocationRecord {
   latencyMs: number;
   summary: string;
 }
+
+export type ToolInvocation = ToolInvocationRecord;
 
 export type CustomerTier = 'standard' | 'priority';
 export type RiskBand = 'low' | 'medium' | 'high';
@@ -183,6 +342,7 @@ export interface EvaluationRecord {
   schemaValid: boolean;
   policyPass: boolean;
   fallbackTriggered: boolean;
+  flags?: EvaluationFlag[];
   groundednessScore: number | null;
   notes: string;
   summary: string;
@@ -208,6 +368,8 @@ export interface PromptVersionRecord {
   summary: string;
 }
 
+export type PromptVersion = PromptVersionRecord;
+
 export interface DocumentRecord {
   id: string;
   projectId: ProjectId;
@@ -219,6 +381,8 @@ export interface DocumentRecord {
   summary: string;
 }
 
+export type SeedDocument = DocumentRecord;
+
 export interface CaseRecord {
   id: string;
   projectId: ProjectId;
@@ -229,6 +393,37 @@ export interface CaseRecord {
   createdAt: string;
   updatedAt: string;
   summary: string;
+}
+
+export type SeedCase = CaseRecord;
+
+export const seedCaseGroups = ['payment', 'investing', 'legacy'] as const;
+
+export type SeedCaseGroup = (typeof seedCaseGroups)[number];
+
+export const seedDataGroupIds = [
+  'payment-cases',
+  'investing-cases',
+  'legacy-intakes',
+  'policy-documents',
+] as const;
+
+export type SeedDataGroupId = (typeof seedDataGroupIds)[number];
+
+export type SeedDataSourceKind = 'file_seed' | 'firestore_runtime';
+
+export interface SeedDataGroupDescriptor {
+  id: SeedDataGroupId;
+  recordKind: 'case' | 'document';
+  source: 'file_seed';
+  projectId?: ProjectId;
+  caseGroup?: SeedCaseGroup;
+}
+
+export interface SeedDataLoaderContract {
+  source: 'file_seed';
+  listCases(group: SeedCaseGroup, query?: SeedCasesQuery): Promise<SeedCase[]>;
+  listDocuments(query?: SeedDocumentsQuery): Promise<SeedDocument[]>;
 }
 
 export interface UserRecord {
@@ -267,8 +462,17 @@ export interface ApiErrorEnvelope {
   requestId: string;
 }
 
+export type ApiResponseEnvelope<T> = ApiSuccessEnvelope<T> | ApiErrorEnvelope;
+export type ErrorResponse = ApiErrorEnvelope;
+export type SuccessEnvelope<T> = ApiSuccessEnvelope<T>;
+
 export interface ProjectScopedListQuery {
   projectId?: ProjectId;
+}
+
+export interface ListResponse<T> {
+  items: T[];
+  count: number;
 }
 
 export interface RunListQuery extends ProjectScopedListQuery {
