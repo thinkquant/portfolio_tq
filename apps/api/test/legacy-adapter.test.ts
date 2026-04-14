@@ -316,6 +316,55 @@ test('legacy adapter demo routes return stable success and error envelopes', asy
     assert.ok(runPayload.data?.trace?.finalStatus);
     assert.ok(runPayload.requestId);
 
+    const reviewResponse = await fetch(
+      `${baseUrl}/api/demo/legacy-ai-adapter/run`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          sourceText:
+            'Legacy handoff note: likely beneficiary change for Evelyn Brooks on AC-77102, but the earlier email says document reissue for AC-77120. Please sort this out before sending anything downstream.',
+          metadata: {
+            sourceChannel: 'batch_note',
+            handoffId: 'legacy-review-44',
+          },
+        }),
+      },
+    );
+    const reviewPayload = (await reviewResponse.json()) as {
+      ok: boolean;
+      data?: {
+        escalation?: { status?: string };
+        evaluation?: {
+          status?: string;
+          flags?: Array<{ type?: string }>;
+          fallbackTriggered?: boolean;
+        };
+        result?: {
+          humanReviewRequired?: boolean;
+          legacySubmissionStatus?: string;
+        };
+      };
+    };
+
+    assert.equal(reviewResponse.status, 200);
+    assert.equal(reviewPayload.ok, true);
+    assert.equal(reviewPayload.data?.evaluation?.status, 'warning');
+    assert.equal(reviewPayload.data?.evaluation?.fallbackTriggered, true);
+    assert.equal(
+      reviewPayload.data?.result?.legacySubmissionStatus,
+      'needs_review',
+    );
+    assert.equal(reviewPayload.data?.result?.humanReviewRequired, true);
+    assert.equal(reviewPayload.data?.escalation?.status, 'open');
+    assert.ok(
+      reviewPayload.data?.evaluation?.flags?.some(
+        (flag) => flag.type === 'policy_review_required',
+      ),
+    );
+
     const invalidResponse = await fetch(
       `${baseUrl}/api/demo/legacy-ai-adapter/run`,
       {

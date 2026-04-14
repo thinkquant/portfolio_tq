@@ -77,6 +77,12 @@ function formatJson(value: unknown): string {
   return JSON.stringify(value, null, 2);
 }
 
+function formatTokenLabel(value: string): string {
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
 function formatValue(value: unknown): string {
   if (value === null || value === undefined || value === '') {
     return 'Not supplied';
@@ -201,9 +207,9 @@ function EvaluationFlagList({ flags }: { flags: EvaluationFlag[] }) {
         >
           <div className="flex flex-wrap items-center gap-2">
             <ProofTag tone={toneForFlagSeverity(flag.severity)}>
-              {flag.type.replace(/_/g, ' ')}
+              {formatTokenLabel(flag.type)}
             </ProofTag>
-            <ProofTag tone="neutral">{flag.severity}</ProofTag>
+            <ProofTag tone="neutral">{formatTokenLabel(flag.severity)}</ProofTag>
           </div>
           <p className="text-sm leading-6 text-foreground">
             {flag.message ?? 'No message recorded for this flag.'}
@@ -262,7 +268,7 @@ function ResultPanel({
     return [
       {
         label: 'Validation outcome',
-        value: response.trace.validation.outcome,
+        value: formatTokenLabel(response.trace.validation.outcome),
       },
       {
         label: 'Missing fields',
@@ -291,7 +297,7 @@ function ResultPanel({
     return [
       {
         label: content.finalResultFields[0] ?? 'Submission status',
-        value: response.result.legacySubmissionStatus,
+        value: formatTokenLabel(response.result.legacySubmissionStatus),
       },
       {
         label: content.finalResultFields[1] ?? 'Suggested next step',
@@ -324,7 +330,7 @@ function ResultPanel({
       },
       {
         label: content.evaluationMetrics[1] ?? 'Validation pass',
-        value: response.evaluation.status,
+        value: formatTokenLabel(response.evaluation.status),
         detail:
           response.trace.validation.outcome === 'trigger_review'
             ? 'The validator routed the run to reviewer follow-up.'
@@ -527,10 +533,10 @@ function ResultPanel({
                 value={draft.workflowType}
               >
                 <option value="">Unspecified</option>
-                <option value="beneficiary_change">beneficiary_change</option>
-                <option value="distribution_change">distribution_change</option>
-                <option value="document_reissue">document_reissue</option>
-                <option value="profile_update">profile_update</option>
+                <option value="beneficiary_change">Beneficiary change</option>
+                <option value="distribution_change">Distribution change</option>
+                <option value="document_reissue">Document reissue</option>
+                <option value="profile_update">Profile update</option>
               </select>
             </label>
           </div>
@@ -593,7 +599,7 @@ function ResultPanel({
               <div className="grid gap-4">
                 <div className="flex flex-wrap gap-2">
                   <ProofTag tone={toneForEvaluationStatus(response.evaluation.status)}>
-                    {response.evaluation.status}
+                    {formatTokenLabel(response.evaluation.status)}
                   </ProofTag>
                   <ProofTag
                     tone={
@@ -606,10 +612,10 @@ function ResultPanel({
                             : 'danger'
                     }
                   >
-                    {response.trace.validation.outcome.replace(/_/g, ' ')}
+                    {formatTokenLabel(response.trace.validation.outcome)}
                   </ProofTag>
                   <ProofTag tone={toneForStatus(response.result.legacySubmissionStatus)}>
-                    {response.result.legacySubmissionStatus}
+                    {formatTokenLabel(response.result.legacySubmissionStatus)}
                   </ProofTag>
                 </div>
 
@@ -668,7 +674,7 @@ function ResultPanel({
                       },
                       {
                         label: 'Review code',
-                        value: response.trace.transformation.reviewCode,
+                        value: formatTokenLabel(response.trace.transformation.reviewCode),
                       },
                     ]}
                   />
@@ -700,10 +706,10 @@ function ResultPanel({
                 <div className="grid gap-4">
                   <div className="flex flex-wrap gap-2">
                     <ProofTag tone={toneForStatus(response.result.legacySubmissionStatus)}>
-                      {response.result.legacySubmissionStatus}
+                      {formatTokenLabel(response.result.legacySubmissionStatus)}
                     </ProofTag>
                     <ProofTag tone={toneForEvaluationStatus(response.evaluation.status)}>
-                      eval {response.evaluation.status}
+                      Evaluation {formatTokenLabel(response.evaluation.status)}
                     </ProofTag>
                     {response.result.humanReviewRequired ? (
                       <ProofTag tone="warning">Review required</ProofTag>

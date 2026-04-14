@@ -29,38 +29,51 @@ As an internal operator, I want to submit messy input and receive a validated, n
 ## Output schema
 ```ts
 type LegacyAdapterOutput = {
-  normalizedInput: Record<string, unknown>;
+  normalizedInput: LegacyAdapterExtraction;
+  legacyPayload: LegacyAdapterPayload | null;
   legacySubmissionStatus: "accepted" | "rejected" | "needs_review";
   validationIssues: string[];
   suggestedNextStep: string;
   confidence: number;
+  humanReviewRequired: boolean;
 };
 ```
+
+The live demo response also returns:
+- persisted run metadata
+- evaluation record data
+- stage trace data for extraction, validation, transformation, and final status
+- optional escalation data when review is required
 
 ## Flow
 1. accept messy text or semi-structured form
 2. extract typed fields
 3. run deterministic validation
 4. transform into legacy payload
-5. submit to mock legacy service
-6. return typed, modern response
-7. log run and eval
+5. map deterministic status to accepted, rejected, or needs_review
+6. return typed, modern response plus reviewer-visible trace/evaluation data
+7. persist run, eval, tool trace, and escalation data through the shared runtime
 
 ## Demo UX
 - messy input area
 - extracted fields panel
 - validator panel
 - transformed legacy payload panel
-- legacy response panel
 - final human-readable response
+- evaluation flags / metrics panel
+- trace summary panel
 
 ## Seed data
-- ~15 intake examples
-- small legacy schema catalog
-- validation rules set
+- a compact seeded case set covering:
+  - one clean path
+  - one messy-but-recoverable path
+  - one missing-fields rejection path
+  - one ambiguous review-required path
+- deterministic validation rules for required-field and conflict handling
 
 ## Definition of done
 - before/after contrast is obvious
 - deterministic checks are visible
 - legacy translation is visible
 - failure path is demonstrable
+- review and flagged-run paths are visible

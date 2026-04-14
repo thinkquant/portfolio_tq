@@ -693,12 +693,28 @@ Definition of done:
 Reference docs:
 - `docs/checklists/build-checklist-definition-of-done.md`
 
-- [ ] Add tests for extraction logic.
-- [ ] Add tests for validation rules.
-- [ ] Add tests for payload transformation.
-- [ ] Add tests for final status/next-step logic.
-- [ ] Add at least one route-level success test.
-- [ ] Add at least one route-level failure/review test.
+- [x] Add tests for extraction logic.
+- [x] Add tests for validation rules.
+- [x] Add tests for payload transformation.
+- [x] Add tests for final status/next-step logic.
+- [x] Add at least one route-level success test.
+- [x] Add at least one route-level failure/review test.
+
+Testing notes:
+- Section 16 is now fully covered in `apps/api/test/legacy-adapter.test.ts`.
+- The module test suite now verifies:
+  - extraction against the seeded expected extractions
+  - deterministic validation against the seeded expected validation results
+  - payload transformation against the seeded expected payloads
+  - final status / next-step logic against the seeded expected outputs
+  - warning-path continuation behavior
+  - extraction failure behavior
+  - persisted run/eval/tool-trace behavior
+- Route-level coverage now includes:
+  - live success envelope verification for accepted runs
+  - live review-path verification for `needs_review` runs with escalation + warning evaluation state
+  - live invalid-request failure envelope verification
+- Verification completed with `pnpm --filter @portfolio-tq/api test` and later reconfirmed during root `pnpm test`.
 
 Definition of done:
 - the first demo module is protected by real tests before later modules copy its patterns
@@ -711,15 +727,35 @@ Reference docs:
 - `docs/architecture/iac-and-cicd.md`
 - `docs/checklists/build-checklist-definition-of-done.md`
 
-- [ ] Deploy updated API to dev.
-- [ ] Deploy updated web app to dev.
-- [ ] Verify `/projects/legacy-ai-adapter` renders correctly in dev.
-- [ ] Verify `/demo/legacy-ai-adapter` renders correctly in dev.
-- [ ] Verify sample loading works.
-- [ ] Verify run execution works.
+- [x] Deploy updated API to dev.
+- [x] Deploy updated web app to dev.
+- [x] Verify `/projects/legacy-ai-adapter` renders correctly in dev.
+- [x] Verify `/demo/legacy-ai-adapter` renders correctly in dev.
+- [x] Verify sample loading works.
+- [x] Verify run execution works.
 - [ ] Verify output rendering works.
-- [ ] Verify evaluation/run logging works.
+- [x] Verify evaluation/run logging works.
 - [ ] Verify the dev surface is stable and reviewable.
+
+Dev deployment notes:
+- Deployed the API to `dev` by building and publishing image `us-central1-docker.pkg.dev/portfolio-tq-dev/portfolio-tq-api/portfolio-tq-api:legacy-adapter-20260414-094844` through `gcloud builds submit ... --config=cloudbuild.api.yaml`, then applying `infra/terraform/environments/dev` with that image URI.
+- Deployed the web app to `https://portfolio-tq-dev.web.app` with `pnpm deploy:web:dev` while explicitly setting `VITE_API_BASE_PATH=https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app/api`, matching the dev workflow convention in `.github/workflows/deploy-dev.yml`.
+- Shared dev smoke verification passed after deployment:
+  - `pnpm smoke:web:dev`
+  - `pnpm smoke:observability:web:dev`
+  - `pnpm smoke:api:dev`
+  - `pnpm smoke:firestore:dev`
+- Legacy-adapter-specific dev verification completed with live requests against the deployed API:
+  - `GET /api/demo/legacy-ai-adapter/samples` returned the seeded module cases
+  - `POST /api/demo/legacy-ai-adapter/run` succeeded for both review-required and rejected cases
+  - `GET /api/runs/{id}`, `GET /api/runs/{id}/evals`, and `GET /api/runs/{id}/tools` confirmed run/evaluation/tool-trace persistence for a live review-required run
+- Browser-rendered route verification completed for:
+  - `https://portfolio-tq-dev.web.app/projects/legacy-ai-adapter`
+  - `https://portfolio-tq-dev.web.app/demo/legacy-ai-adapter`
+  via Playwright screenshot checks that waited for module-specific rendered text before capture.
+- Current verification boundary:
+  - I verified the deployed routes render and the deployed API returns correct live results, but I did not complete a browser-driven interaction script that submits the demo form on the hosted page and inspects the post-submit rendered output panels.
+  - Because of that, `Verify output rendering works` and `Verify the dev surface is stable and reviewable` remain intentionally unchecked even though deploy, routing, live samples, run execution, and observability checks all passed.
 
 Definition of done:
 - the first complete demo module is live in dev end-to-end
@@ -733,16 +769,35 @@ Reference docs:
 - `docs/specs/service-legacy-ai-adapter.md`
 - `docs/checklists/build-checklist-definition-of-done.md`
 
-- [ ] Confirm copy is concise and strong.
-- [ ] Confirm no redundant or confusing UI labels remain.
-- [ ] Confirm code/comments/docs use the final module vocabulary consistently.
-- [ ] Update any spec/docs that diverged materially from the final implementation.
-- [ ] Confirm `pnpm lint` passes.
-- [ ] Confirm `pnpm typecheck` passes.
-- [ ] Confirm `pnpm test` passes.
-- [ ] Confirm `pnpm build` passes.
+- [x] Confirm copy is concise and strong.
+- [x] Confirm no redundant or confusing UI labels remain.
+- [x] Confirm code/comments/docs use the final module vocabulary consistently.
+- [x] Update any spec/docs that diverged materially from the final implementation.
+- [x] Confirm `pnpm lint` passes.
+- [x] Confirm `pnpm typecheck` passes.
+- [x] Confirm `pnpm test` passes.
+- [x] Confirm `pnpm build` passes.
 - [ ] Confirm CI passes on pushed branch.
-- [ ] Write a clean milestone commit message.
+- [x] Write a clean milestone commit message.
+
+Final polish notes:
+- Polished the live demo UI labels in `apps/web/src/features/demos/LegacyAdapterDemoPage.tsx` so reviewer-facing status, validation outcome, review code, and workflow labels no longer surface raw underscore-delimited code values.
+- Confirmed the final module vocabulary remains coherent across shared types, API runtime, frontend labels, and checklist wording: `Raw intake`, `Normalized structure`, deterministic validation, `Legacy payload`, `Final result`, evaluation flags, and trace data now read as one consistent proof piece.
+- Updated `docs/specs/service-legacy-ai-adapter.md` to match the real implementation rather than the early placeholder state:
+  - richer output contract
+  - trace/evaluation visibility
+  - current live flow
+  - current seeded scenario set
+- Final local verification completed successfully with:
+  - `pnpm lint`
+  - `pnpm typecheck`
+  - `pnpm test`
+  - `pnpm build`
+- Suggested milestone commit message:
+  - `feat: finish legacy ai adapter end-to-end module`
+- Remaining boundary:
+  - `Confirm CI passes on pushed branch` is still unchecked because I did not push this branch or trigger the GitHub workflow from this turn.
+  - The two unchecked section 17 items remain the practical reason the overall checklist is not yet fully closed in this pass.
 
 Definition of done:
 - the module is complete, documented, verified, and ready to stand as the first major proof piece in the portfolio
