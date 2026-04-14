@@ -265,6 +265,13 @@ Verified on April 12, 2026:
 - The observability smoke script was adjusted to verify the public page shell and live API response without depending on browser-only module-script execution in `jsdom`.
 - During section 8 verification, the `dev` Hosting site briefly served an older `404` release. Rerunning `pnpm deploy:web:dev` corrected it.
 
+## Shared runtime closeout notes
+
+- The shared API runtime is now live in `dev` with Firestore-backed persistence for runs, evaluations, and tool invocations, plus seed-backed observability reads and mock tools.
+- Temporary bootstrap limitation: `GET /ready` still reports configured dependency state instead of performing a Firestore read probe.
+- Temporary bootstrap limitation: a small number of manual smoke records may remain in the `dev` Firestore database after verification runs.
+- Future milestone work can remove or refine these bootstrap notes once the readiness probe and later demo-specific flows are fully standardized.
+
 ## GitHub Actions workflow bootstrap
 
 - Workflow files added:

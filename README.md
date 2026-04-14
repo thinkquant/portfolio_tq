@@ -173,6 +173,8 @@ Planned/active characteristics include:
 
 This is deliberate. Even though the product is a portfolio, it is also meant to reflect how I would approach a real system build.
 
+The shared API runtime is already live in `dev` and backed by Firestore for runs, evaluations, tool invocations, and seed-driven dashboard reads. The current API surface includes health/readiness, observability feeds, shared runtime record routes, mock tools, and seed data routes, so later demo modules can plug into a working backend instead of a placeholder.
+
 ---
 
 ## Monorepo structure

@@ -69,6 +69,7 @@ Operational evaluation console.
   - `timestamp`
   - optional `latencyMs`
   - optional `promptVersionId`
+- Verified request lifecycle logging now includes `request.received`, `request.completed`, and `request.failed` events with correlated `requestId` values so browser and backend debugging can be matched up across Cloud Run logs.
 - Verified lifecycle events now emitted by demo runs:
   - `run.created`
   - `run.started`
@@ -87,6 +88,7 @@ Operational evaluation console.
   - `GET /api/runs`
   - `GET /api/evaluations`
   - `GET /api/projects/:projectId/metrics`
+- The current shared runtime also exposes Firestore-backed route surfaces for runs, evaluations, tool invocations, seed data, and mock internal tools, so the observability console can read from real shared records rather than process-local state.
 - The public web route `/observability` now renders a live observability shell backed by the environment-specific API.
 - Monitoring resources currently provisioned:
   - `portfolio_tq dev overview`

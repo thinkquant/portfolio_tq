@@ -39,6 +39,16 @@ Backend execution layer for demos, orchestration, retrieval, evaluation, and log
 - `GET /ready` currently reports configured dependency state for Firestore using the standard success envelope
 - temporary implementation note: before the shared API runtime milestone is fully closed, `GET /ready` should be upgraded to perform a real Firestore read probe
 
+## Current deployed route surface
+
+- health and readiness: `GET /health`, `GET /ready`
+- shared runtime records: `GET /api/runs`, `POST /api/runs`, `GET /api/runs/:id`
+- evaluation records: `GET /api/evals`, `POST /api/evals`, `GET /api/runs/:runId/evals`
+- tool invocation records: `GET /api/tools/invocations`, `POST /api/tools/invocations`, `GET /api/runs/:runId/tools`
+- observability feeds: `GET /api/observability/overview`, `GET /api/projects`, `GET /api/projects/:projectId/metrics`
+- seed data surfaces: `GET /api/seed`, `GET /api/seed/payment-cases`, `GET /api/seed/investing-cases`, `GET /api/seed/legacy-intakes`, `GET /api/seed/documents`
+- mock internal tools: `GET /api/tools`, `POST /api/tools/customer-profile`, `POST /api/tools/payment-case`, `POST /api/tools/account-profile`, `POST /api/tools/policy-search`, `POST /api/tools/event-timeline`, `POST /api/tools/escalation`
+
 ## Internal modules
 
 - `routes`

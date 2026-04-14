@@ -814,15 +814,35 @@ Reference docs:
 - `docs/specs/service-api.md`
 - `docs/specs/service-eval-console.md`
 
-- [ ] Decide the persistence mode for this milestone.
-- [ ] Recommended: use Firestore now for real shared runtime records.
-- [ ] Implement repositories for:
-  - [ ] runs
-  - [ ] tool invocations
-  - [ ] evaluations
-  - [ ] optional seed metadata if needed
-- [ ] Keep repository interfaces clean enough to swap storage strategy later if required.
-- [ ] Ensure Firestore collection naming is explicit and environment-safe.
+- [x] Decide the persistence mode for this milestone.
+- [x] Recommended: use Firestore now for real shared runtime records.
+- [x] Implement repositories for:
+  - [x] runs
+  - [x] tool invocations
+  - [x] evaluations
+  - [x] optional seed metadata if needed
+- [x] Keep repository interfaces clean enough to swap storage strategy later if required.
+- [x] Ensure Firestore collection naming is explicit and environment-safe.
+
+Verification note:
+
+- Confirmed on `dev`.
+- Firestore is the persistence mode for this milestone, and the shared runtime already stores the core records outside process memory:
+  - `apps/api/src/repositories/run-repository.ts` persists and queries runs.
+  - `apps/api/src/repositories/evaluation-repository.ts` persists and queries evaluations.
+  - `apps/api/src/repositories/tool-invocation-repository.ts` persists and queries tool invocations.
+  - `apps/api/src/repositories/observability-repository.ts` keeps the dashboard and demo-run persistence paths aligned with the same Firestore-backed storage model.
+- Firestore collection naming stays explicit and environment-aware through runtime config and Terraform:
+  - `infra/terraform/environments/dev/main.tf`
+  - `infra/terraform/environments/prod/main.tf`
+  - `apps/api/src/config/env.ts`
+  - `apps/api/.env.example`
+- The dev API is configured to use named Firestore databases, and the shared runtime collections are set to `runs`, `tool_invocations`, `evaluations`, and `seed_data`.
+- No separate seed-metadata repository was required for this milestone; the `seed_data` collection name remains reserved for future bootstrap metadata if a later feature needs it.
+- Verified `npx -y firebase-tools@latest --version` and `npx -y firebase-tools@latest use`, which showed the active Firebase project as `portfolio-tq-dev`.
+- Verified live dev runtime persistence by creating a run, evaluation, and tool invocation against the deployed dev API, then reading them back through `/api/runs/{id}`, `/api/runs/{id}/evals`, `/api/runs/{id}/tools`, and `/api/runs?projectId=investing-ops-copilot`.
+- One smoke retry initially failed because `createdAt` must be sent in the strict UTC `...Z` format expected by the schema; the successful retry used a valid UTC timestamp and confirmed request validation is enforced before persistence.
+- The smoke runs left a few temporary test records in the dev Firestore database. I left them in place because this is the shared `dev` datastore; if you want them pruned, that would be a manual cleanup step.
 
 Definition of done:
 
@@ -838,13 +858,20 @@ Reference docs:
 - `docs/architecture/iac-and-cicd.md`
 - `docs/checklists/build-checklist-definition-of-done.md`
 
-- [ ] Confirm Terraform or deployment config for the API service is current.
-- [ ] Build and deploy the API to the dev environment.
-- [ ] Verify health endpoint from the deployed service.
-- [ ] Verify at least one run creation request works against the deployed service.
-- [ ] Verify at least one evaluation write/read flow works against the deployed service.
-- [ ] Verify at least one seeded data endpoint works against the deployed service.
-- [ ] Verify logs are visible and usable in dev.
+- [x] Confirm Terraform or deployment config for the API service is current.
+- [x] Build and deploy the API to the dev environment.
+- [x] Verify health endpoint from the deployed service.
+- [x] Verify at least one run creation request works against the deployed service.
+- [x] Verify at least one evaluation write/read flow works against the deployed service.
+- [x] Verify at least one seeded data endpoint works against the deployed service.
+- [x] Verify logs are visible and usable in dev.
+
+Verification note:
+
+- Confirmed on `dev`.
+- Terraform and deployment config are current in `infra/terraform/environments/dev/main.tf` and `.github/workflows/deploy-dev.yml`, with the API and web deploy flows using the shared env-driven runtime settings.
+- The deployed `dev` API was verified live through `/health`, `/api/runs`, `/api/evals`, `/api/projects`, `/api/projects/payment-exception-review/metrics`, and the live Cloud Logging stream for `portfolio-tq-api-dev`.
+- Logs are visible and usable in dev because the request lifecycle and demo runtime events now appear in Cloud Logging with correlated request IDs and run IDs.
 
 Definition of done:
 
@@ -858,18 +885,30 @@ Reference docs:
 
 - `docs/checklists/build-checklist-definition-of-done.md`
 
-- [ ] Add unit or lightweight integration coverage for core shared runtime paths.
-- [ ] Test validation failures.
-- [ ] Test success path for health endpoint.
-- [ ] Test success path for run creation and retrieval.
-- [ ] Test success path for evaluation creation and retrieval.
-- [ ] Test success path for seeded data retrieval.
-- [ ] Test success path for at least one mock tool.
-- [ ] Confirm `pnpm lint` passes.
-- [ ] Confirm `pnpm typecheck` passes.
-- [ ] Confirm `pnpm test` passes.
-- [ ] Confirm `pnpm build` passes.
+- [x] Add unit or lightweight integration coverage for core shared runtime paths.
+- [x] Test validation failures.
+- [x] Test success path for health endpoint.
+- [x] Test success path for run creation and retrieval.
+- [x] Test success path for evaluation creation and retrieval.
+- [x] Test success path for seeded data retrieval.
+- [x] Test success path for at least one mock tool.
+- [x] Confirm `pnpm lint` passes.
+- [x] Confirm `pnpm typecheck` passes.
+- [x] Confirm `pnpm test` passes.
+- [x] Confirm `pnpm build` passes.
 - [ ] Confirm CI passes on pushed branch.
+
+Verification note:
+
+- Confirmed on `dev`.
+- Added lightweight API coverage in `apps/api/test/runtime.test.ts`, including:
+  - Firestore-backed run, evaluation, and tool-invocation persistence/readback
+  - validation failure paths for missing runs and project mismatches
+  - seed fixture reads plus mock tool success paths
+- Verified `pnpm --filter @portfolio-tq/api typecheck`, `lint`, `test`, and `build` all pass.
+- Verified root `pnpm build` and `pnpm test` pass across the workspace.
+- `pnpm test` still includes placeholder no-op scripts for packages that do not yet have dedicated tests, but the shared API package now has real coverage and the workspace test gate succeeds.
+- CI on a pushed branch has not been re-run in this turn, so that remaining verification is still pending.
 
 Definition of done:
 
@@ -885,10 +924,16 @@ Reference docs:
 - `docs/specs/service-api.md`
 - `docs/architecture/observability-and-dashboards.md`
 
-- [ ] Update docs if the final route set or data model differs materially from the original spec.
-- [ ] Add a short note describing the deployed shared runtime capability.
-- [ ] Document any temporary bootstrap exceptions.
-- [ ] Document any known limitations intentionally left for later demo milestones.
+- [x] Update docs if the final route set or data model differs materially from the original spec.
+- [x] Add a short note describing the deployed shared runtime capability.
+- [x] Document any temporary bootstrap exceptions.
+- [x] Document any known limitations intentionally left for later demo milestones.
+
+Verification note:
+
+- Confirmed on `dev`.
+- Updated `README.md`, `docs/specs/service-api.md`, `docs/architecture/observability-and-dashboards.md`, and `docs/architecture/adr-bootstrapping-notes.md` so the live shared runtime, route surface, Firestore-backed persistence, and remaining bootstrap caveats are legible to future agents and reviewers.
+- The docs now call out the deployed shared runtime capability, the current route surface, and the remaining limitations around the readiness probe and temporary smoke records.
 
 Definition of done:
 
