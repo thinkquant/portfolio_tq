@@ -8,20 +8,33 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '../..');
 
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '@portfolio-tq/config': path.resolve(
-        repoRoot,
-        'packages/config/src/index.ts',
-      ),
-      '@portfolio-tq/types': path.resolve(
-        repoRoot,
-        'packages/types/src/index.ts',
-      ),
-      '@portfolio-tq/ui': path.resolve(repoRoot, 'packages/ui/src/index.ts'),
+export default defineConfig(() => {
+  const proxyTarget =
+    process.env.VITE_DEV_API_PROXY_TARGET ?? 'http://127.0.0.1:8080';
+
+  return {
+    plugins: [react(), tailwindcss()],
+    server: {
+      proxy: {
+        '/api': {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
+      },
     },
-  },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+        '@portfolio-tq/config': path.resolve(
+          repoRoot,
+          'packages/config/src/index.ts',
+        ),
+        '@portfolio-tq/types': path.resolve(
+          repoRoot,
+          'packages/types/src/index.ts',
+        ),
+        '@portfolio-tq/ui': path.resolve(repoRoot, 'packages/ui/src/index.ts'),
+      },
+    },
+  };
 });

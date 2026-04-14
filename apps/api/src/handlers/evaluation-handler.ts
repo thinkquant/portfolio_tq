@@ -31,6 +31,22 @@ export async function handleCreateEvaluation(
 
   const evaluation = await createEvaluation(app.firestore, payload);
 
+  app.logger.info(
+    'evaluation.recorded',
+    {
+      requestId: context.requestId,
+      projectId: evaluation.projectId,
+      runId: evaluation.runId,
+    },
+    {
+      evaluationId: evaluation.id,
+      status: evaluation.status,
+      schemaValid: evaluation.schemaValid,
+      policyPass: evaluation.policyPass,
+      fallbackTriggered: evaluation.fallbackTriggered,
+    },
+  );
+
   sendSuccess(
     context.response,
     201,

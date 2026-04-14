@@ -14,6 +14,8 @@ const firestore = createFirestoreClient({
 const logger = createLogger({
   serviceName: config.serviceName,
   environment: config.environment,
+  nodeEnv: config.nodeEnv,
+  logLevel: config.logLevel,
 });
 const app = {
   config,

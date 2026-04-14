@@ -31,12 +31,19 @@ export async function handleCreateRun(
 
   const run = await createRun(app.firestore, payload, app.config.environment);
 
-  app.logger.runLifecycle('run.created', {
-    requestId: context.requestId,
-    projectId: run.projectId,
-    runId: run.id,
-    promptVersionId: run.promptVersionId ?? null,
-  });
+  app.logger.runLifecycle(
+    'run.created',
+    {
+      requestId: context.requestId,
+      projectId: run.projectId,
+      runId: run.id,
+      promptVersionId: run.promptVersionId ?? null,
+    },
+    {
+      status: run.status,
+      inputRef: run.inputRef,
+    },
+  );
 
   sendSuccess(
     context.response,

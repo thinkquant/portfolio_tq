@@ -132,6 +132,8 @@ jobs:
     environment:
       name: prod
       url: https://${{ vars.FIREBASE_SITE_ID }}.web.app
+    env:
+      VITE_API_BASE_PATH: https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api
 
     steps:
       - name: Check out repository

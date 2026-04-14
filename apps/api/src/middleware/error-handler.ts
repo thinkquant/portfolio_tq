@@ -16,17 +16,19 @@ export function handleRouteError(
   context: RequestContext,
   app: AppContext,
 ): void {
-  app.logger.error(
-    'request.failed',
+  const statusCode = error instanceof ApiError ? error.statusCode : 500;
+
+  app.logger.requestFailed(
     error,
     {
       requestId: context.requestId,
       latencyMs: Date.now() - context.startedAt,
-    },
-    {
       method: context.method,
       path: context.path,
-      projectId: null,
+      statusCode,
+    },
+    {
+      errorCode: error instanceof ApiError ? error.code : 'internal_error',
     },
   );
 
@@ -49,7 +51,7 @@ export function handleRouteError(
   if (error instanceof ApiError) {
     sendError(
       context.response,
-      error.statusCode,
+      statusCode,
       context.requestId,
       error.code,
       error.message,
@@ -60,7 +62,7 @@ export function handleRouteError(
 
   sendError(
     context.response,
-    500,
+    statusCode,
     context.requestId,
     'internal_error',
     'An unexpected API error occurred.',

@@ -34,6 +34,22 @@ export async function handleCreateToolInvocation(
 
   const toolInvocation = await createToolInvocation(app.firestore, payload);
 
+  app.logger.info(
+    'tool.invocation.recorded',
+    {
+      requestId: context.requestId,
+      projectId: toolInvocation.projectId,
+      runId: toolInvocation.runId,
+      latencyMs: toolInvocation.durationMs,
+    },
+    {
+      toolInvocationId: toolInvocation.id,
+      toolName: toolInvocation.toolName,
+      success: toolInvocation.success,
+      status: toolInvocation.status,
+    },
+  );
+
   sendSuccess(
     context.response,
     201,

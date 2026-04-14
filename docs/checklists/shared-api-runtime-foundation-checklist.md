@@ -738,13 +738,37 @@ Reference docs:
 - `docs/architecture/observability-and-dashboards.md`
 - `docs/specs/service-api.md`
 
-- [ ] Add structured request logging.
-- [ ] Add request IDs or correlation IDs.
-- [ ] Add basic latency measurement per request.
-- [ ] Log endpoint errors in a consistent format.
+- [x] Add structured request logging.
+- [x] Add request IDs or correlation IDs.
+- [x] Add basic latency measurement per request.
+- [x] Log endpoint errors in a consistent format.
 - [ ] Ensure logs are readable locally and in dev deployment.
-- [ ] Add lightweight internal logging helpers if needed.
-- [ ] Make sure future run/eval/tool events can be correlated from logs.
+- [x] Add lightweight internal logging helpers if needed.
+- [x] Make sure future run/eval/tool events can be correlated from logs.
+
+Verification note:
+
+- Confirmed on `dev`.
+- Structured request observability now lives in the shared runtime path instead of being scattered across handlers:
+  - `apps/api/src/lib/http.ts` now accepts propagated `X-Request-Id` / `X-Correlation-Id` values when present, generates a UUID otherwise, records the request ID source, and returns both headers on every response.
+  - `apps/api/src/services/logs.ts` now centralizes request lifecycle logging helpers, consistent error log formatting, log-level filtering, and local pretty-print vs production JSON log rendering.
+  - `apps/api/src/app/server.ts` now emits shared `request.received` and `request.completed` events with method, path, status, request ID source, and latency.
+  - `apps/api/src/middleware/error-handler.ts` now emits shared `request.failed` events with stable HTTP status and API error code fields.
+- Added request-ID header exposure to CORS in `apps/api/src/middleware/cors.ts` so browser clients can read the propagated request IDs during local/frontend debugging.
+- Added correlation-friendly write events for the shared ledgers:
+  - `apps/api/src/handlers/run-handler.ts` now enriches `run.created` with request-linked status/input fields.
+  - `apps/api/src/handlers/evaluation-handler.ts` now emits `evaluation.recorded`.
+  - `apps/api/src/handlers/tool-invocation-handler.ts` now emits `tool.invocation.recorded`.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified on temporary port `18113` with the dev Firestore target that:
+  - `GET /health` echoes caller-supplied `X-Request-Id: section13-health-req` in both the response headers and shared success envelope
+  - `GET /api/not-real` returns `404` plus the shared error envelope while logging `request.failed` with `errorCode: "not_found"`
+  - `POST /api/runs`, `POST /api/evals`, and `POST /api/tools/invocations` succeed with caller-supplied request IDs and emit correlated `run.created`, `evaluation.recorded`, and `tool.invocation.recorded` log events for the same run ID
+  - local development logs are now human-readable single-line entries that still preserve the structured fields needed for later correlation
+- Verified on temporary port `18114` with `NODE_ENV=production` that the same request lifecycle emits JSON log lines suitable for Cloud Run / Cloud Logging ingestion.
+- Not yet verified against the live deployed dev Cloud Run service in this section because section 16 deploy/verification has not been re-run after these observability changes. That remaining check should be completed when the updated API is deployed to `dev`.
 
 Definition of done:
 
@@ -759,10 +783,23 @@ Reference docs:
 - `docs/specs/service-web.md`
 - `docs/specs/service-api.md`
 
-- [ ] Configure allowed frontend origin handling for local development and dev deployment.
-- [ ] Confirm the web app can call the API in local development without cross-origin failure.
+- [x] Configure allowed frontend origin handling for local development and dev deployment.
+- [x] Confirm the web app can call the API in local development without cross-origin failure.
 - [ ] Confirm the dev deployed web app can call the dev deployed API.
-- [ ] Keep origin configuration explicit and environment-aware.
+- [x] Keep origin configuration explicit and environment-aware.
+
+Verification note:
+
+- Confirmed on `dev`.
+- Local web development now uses an explicit Vite proxy in `apps/web/vite.config.ts` so `/api` requests from `apps/web` can reach the local API server without browser CORS issues.
+- `apps/web/src/lib/api/apiClient.ts` now supports both relative `/api` base paths and absolute deployed API URLs, so the same client works for local development and environment-specific deploys.
+- `apps/web/.env.example` documents the local proxy target and the default API base path shape for developers.
+- Dev and prod deploy workflows now inject `VITE_API_BASE_PATH` explicitly before building the web app, so the deployed bundle points at the correct Cloud Run API URL for each environment.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/web lint` passes.
+- Verified `pnpm --filter @portfolio-tq/web build` passes with `VITE_API_BASE_PATH=https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app/api`.
+- Verified local proxy behavior by running the API and web dev servers together and observing a browser-facing `/api/seed` request from the web dev server reaching the API successfully.
+- Not yet verified against the live deployed `dev` web app and `dev` Cloud Run API pair after these changes. That final environment check still needs a deployment pass in section 16.
 
 Definition of done:
 

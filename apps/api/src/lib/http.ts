@@ -13,6 +13,7 @@ export type RequestContext = {
   request: IncomingMessage;
   response: ServerResponse;
   requestId: string;
+  requestIdSource: 'generated' | 'x-request-id' | 'x-correlation-id';
   method: string;
   url: URL;
   path: string;
@@ -24,16 +25,69 @@ export function createRequestContext(
   response: ServerResponse,
 ): RequestContext {
   const url = new URL(request.url ?? '/', 'http://localhost');
+  const { requestId, requestIdSource } = resolveRequestId(request);
+
+  applyRequestHeaders(response, requestId);
 
   return {
     request,
     response,
-    requestId: randomUUID(),
+    requestId,
+    requestIdSource,
     method: request.method ?? 'GET',
     url,
     path: url.pathname,
     startedAt: Date.now(),
   };
+}
+
+function resolveRequestId(request: IncomingMessage): {
+  requestId: string;
+  requestIdSource: RequestContext['requestIdSource'];
+} {
+  const headerCandidates = [
+    ['x-request-id', request.headers['x-request-id']],
+    ['x-correlation-id', request.headers['x-correlation-id']],
+  ] as const;
+
+  for (const [headerName, headerValue] of headerCandidates) {
+    const requestId = normalizeRequestId(headerValue);
+
+    if (requestId) {
+      return {
+        requestId,
+        requestIdSource: headerName,
+      };
+    }
+  }
+
+  return {
+    requestId: randomUUID(),
+    requestIdSource: 'generated',
+  };
+}
+
+function normalizeRequestId(
+  headerValue: string | string[] | undefined,
+): string | null {
+  const candidate = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+  const normalized = candidate?.split(',')[0]?.trim();
+
+  if (!normalized || normalized.length > 128) {
+    return null;
+  }
+
+  return /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$/.test(normalized)
+    ? normalized
+    : null;
+}
+
+function applyRequestHeaders(
+  response: ServerResponse,
+  requestId: string,
+): void {
+  response.setHeader('X-Request-Id', requestId);
+  response.setHeader('X-Correlation-Id', requestId);
 }
 
 export function sendJson(

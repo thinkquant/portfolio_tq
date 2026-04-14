@@ -43,7 +43,7 @@ function joinPath(basePath: string, path: string): string {
 }
 
 function buildApiRoute(path: string): string {
-  return joinPath(resolveApiBasePath(), path);
+  return joinApiBase(resolveApiBasePath(), path);
 }
 
 function buildSegmentRoute(prefix: string): ApiRouteBuilder {
@@ -56,6 +56,19 @@ export function resolveApiBasePath(): string {
   return typeof envBase === 'string' && envBase.trim()
     ? joinPath(envBase, '')
     : '/api';
+}
+
+function joinApiBase(basePath: string, path: string): string {
+  if (/^https?:\/\//i.test(basePath)) {
+    const baseUrl = new URL(basePath);
+    const normalizedPath = trimSlashes(path);
+
+    baseUrl.pathname = joinPath(baseUrl.pathname, normalizedPath);
+
+    return baseUrl.toString().replace(/\/$/, '');
+  }
+
+  return joinPath(basePath, path);
 }
 
 export const apiRoutes = {
