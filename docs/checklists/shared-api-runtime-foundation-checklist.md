@@ -896,7 +896,7 @@ Reference docs:
 - [x] Confirm `pnpm typecheck` passes.
 - [x] Confirm `pnpm test` passes.
 - [x] Confirm `pnpm build` passes.
-- [ ] Confirm CI passes on pushed branch.
+- [x] Confirm CI passes on pushed branch.
 
 Verification note:
 

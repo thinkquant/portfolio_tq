@@ -86,7 +86,7 @@ Detailed implementation checklist:
 - `docs/checklists/shared-api-runtime-foundation-checklist.md`
 
 - [x] Create `docs/checklists/shared-api-runtime-foundation-checklist.md`
-- [ ] Complete `docs/checklists/shared-api-runtime-foundation-checklist.md`
+- [x] Complete `docs/checklists/shared-api-runtime-foundation-checklist.md`
 
 Expected outcome:
 - `apps/api` exposes working endpoints for health, run logging, trace retrieval, evaluation logging, and seeded data/tool access

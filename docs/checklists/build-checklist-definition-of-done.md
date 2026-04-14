@@ -14,20 +14,20 @@ A release is done when:
 - the repo shows engineering discipline, not just output
 
 ## Web app — done
-- [ ] Responsive nav/layout complete
-- [ ] Home/About/Projects/Architecture/Observability/Repo Workflow pages complete
-- [ ] All project detail pages complete
-- [ ] Demo pages navigable and polished
-- [ ] Error/loading/empty states handled
-- [ ] Mobile/tablet/desktop checked
+- [x] Responsive nav/layout complete
+- [x] Home/About/Projects/Architecture/Observability/Repo Workflow pages complete
+- [x] All project detail pages complete
+- [x] Demo pages navigable and polished
+- [x] Error/loading/empty states handled
+- [x] Mobile/tablet/desktop checked
 
 ## API — done
-- [ ] Health route working
-- [ ] Shared wrappers used consistently
-- [ ] Structured outputs validated
-- [ ] Trace logging working
-- [ ] Eval persistence working
-- [ ] Failure/fallback paths tested
+- [x] Health route working
+- [x] Shared wrappers used consistently
+- [x] Structured outputs validated
+- [x] Trace logging working
+- [x] Eval persistence working
+- [x] Failure/fallback paths tested
 
 ## Payment Exception Review Agent — done
 - [ ] Works with structured + unstructured input
@@ -58,16 +58,16 @@ A release is done when:
 - [ ] Prompt version or run comparison exists
 
 ## Terraform / CI/CD — done
-- [ ] Terraform fmt/validate pass
-- [ ] Deploy path automated
-- [ ] Secrets not hardcoded
-- [ ] Ignore files reviewed for env files, Terraform state/plans, `.tfvars`, service-account keys, and deployment artifacts
+- [x] Terraform fmt/validate pass
+- [x] Deploy path automated
+- [x] Secrets not hardcoded
+- [x] Ignore files reviewed for env files, Terraform state/plans, `.tfvars`, service-account keys, and deployment artifacts
 - [ ] GitHub Actions badges present
-- [ ] OIDC-based auth working or clearly staged next
+- [x] OIDC-based auth working or clearly staged next
 
 ## Documentation — done
-- [ ] README explains repo fast
-- [ ] PRD and specs exist
-- [ ] Infra docs exist
-- [ ] Project docs exist
-- [ ] Architecture diagrams exist
+- [x] README explains repo fast
+- [x] PRD and specs exist
+- [x] Infra docs exist
+- [x] Project docs exist
+- [x] Architecture diagrams exist
