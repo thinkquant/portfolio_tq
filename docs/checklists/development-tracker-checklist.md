@@ -107,7 +107,7 @@ Detailed implementation checklist:
 - `docs/checklists/shared-schemas-tools-evals-checklist.md`
 
 - [x] Create `docs/checklists/shared-schemas-tools-evals-checklist.md`
-- [ ] Complete `docs/checklists/shared-schemas-tools-evals-checklist.md`
+- [x] Complete `docs/checklists/shared-schemas-tools-evals-checklist.md`
 
 Expected outcome:
 - shared typed contracts exist in `packages/schemas` and `packages/types`
@@ -128,7 +128,7 @@ Reference docs:
 Detailed implementation checklist:
 - `docs/checklists/legacy-ai-adapter-checklist.md`
 
-- [ ] Create `docs/checklists/legacy-ai-adapter-checklist.md`
+- [x] Create `docs/checklists/legacy-ai-adapter-checklist.md`
 - [ ] Complete `docs/checklists/legacy-ai-adapter-checklist.md`
 
 Expected outcome:

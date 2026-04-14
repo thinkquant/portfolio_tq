@@ -1,0 +1,272 @@
+[
+  {
+    "id": "sample-legacy-clean-001",
+    "projectId": "legacy-ai-adapter",
+    "title": "Clean beneficiary change intake",
+    "scenario": "clean",
+    "summary": "A straightforward intake that should move through extraction, validation, and transformation without friction.",
+    "input": {
+      "sourceText": "Beneficiary change request for account AC-20418. Client Nora Patel wants the primary beneficiary updated to Liam Patel effective 2026-04-18. Please route through the beneficiary change workflow.",
+      "metadata": {
+        "ingestBatch": "legacy-demo-batch-01",
+        "sourceChannel": "ops_portal"
+      },
+      "workflowType": "beneficiary_change"
+    },
+    "expectedExtraction": {
+      "workflowType": "beneficiary_change",
+      "requesterName": "Nora Patel",
+      "accountId": "AC-20418",
+      "requestSummary": "Update the primary beneficiary to Liam Patel.",
+      "effectiveDate": "2026-04-18",
+      "amountUsd": null,
+      "targetEntity": "Liam Patel",
+      "sourceChannel": "ops_portal"
+    },
+    "expectedValidation": {
+      "isValid": true,
+      "missingFields": [],
+      "issues": [],
+      "humanReviewRequired": false,
+      "canTransformPayload": true
+    },
+    "expectedPayload": {
+      "legacyWorkflowCode": "BENE_CHG",
+      "legacyAccountId": "AC-20418",
+      "operatorDisplayName": "Nora Patel",
+      "normalizedSummary": "Update beneficiary to Liam Patel effective 2026-04-18.",
+      "effectiveDate": "2026-04-18",
+      "amountCents": null,
+      "reviewCode": "auto_accept"
+    },
+    "expectedOutput": {
+      "normalizedInput": {
+        "workflowType": "beneficiary_change",
+        "requesterName": "Nora Patel",
+        "accountId": "AC-20418",
+        "requestSummary": "Update the primary beneficiary to Liam Patel.",
+        "effectiveDate": "2026-04-18",
+        "amountUsd": null,
+        "targetEntity": "Liam Patel",
+        "sourceChannel": "ops_portal"
+      },
+      "legacyPayload": {
+        "legacyWorkflowCode": "BENE_CHG",
+        "legacyAccountId": "AC-20418",
+        "operatorDisplayName": "Nora Patel",
+        "normalizedSummary": "Update beneficiary to Liam Patel effective 2026-04-18.",
+        "effectiveDate": "2026-04-18",
+        "amountCents": null,
+        "reviewCode": "auto_accept"
+      },
+      "legacySubmissionStatus": "accepted",
+      "validationIssues": [],
+      "suggestedNextStep": "Submit directly to the beneficiary change queue.",
+      "confidence": 0.97,
+      "humanReviewRequired": false
+    }
+  },
+  {
+    "id": "sample-legacy-messy-002",
+    "projectId": "legacy-ai-adapter",
+    "title": "Messy but recoverable document request",
+    "scenario": "partially_messy",
+    "summary": "Abbreviated operator text still carries enough signal for a clean normalized payload.",
+    "input": {
+      "sourceText": "Need old stmt re-send pls.\nacct ac 99017 // client=Marco Ruiz.\nWant 2026 Q1 statement mailed + pdf.\nOk to use doc rqst flow.",
+      "metadata": {
+        "sourceChannel": "email_forward",
+        "attachmentCount": 1
+      },
+      "workflowType": "document_reissue"
+    },
+    "expectedExtraction": {
+      "workflowType": "document_reissue",
+      "requesterName": "Marco Ruiz",
+      "accountId": "AC-99017",
+      "requestSummary": "Reissue the 2026 Q1 statement by mail and PDF.",
+      "effectiveDate": null,
+      "amountUsd": null,
+      "targetEntity": "2026 Q1 statement",
+      "sourceChannel": "email_forward"
+    },
+    "expectedValidation": {
+      "isValid": true,
+      "missingFields": [],
+      "issues": [],
+      "humanReviewRequired": false,
+      "canTransformPayload": true
+    },
+    "expectedPayload": {
+      "legacyWorkflowCode": "DOC_REISSUE",
+      "legacyAccountId": "AC-99017",
+      "operatorDisplayName": "Marco Ruiz",
+      "normalizedSummary": "Reissue the 2026 Q1 statement by mail and PDF.",
+      "effectiveDate": null,
+      "amountCents": null,
+      "reviewCode": "auto_accept"
+    },
+    "expectedOutput": {
+      "normalizedInput": {
+        "workflowType": "document_reissue",
+        "requesterName": "Marco Ruiz",
+        "accountId": "AC-99017",
+        "requestSummary": "Reissue the 2026 Q1 statement by mail and PDF.",
+        "effectiveDate": null,
+        "amountUsd": null,
+        "targetEntity": "2026 Q1 statement",
+        "sourceChannel": "email_forward"
+      },
+      "legacyPayload": {
+        "legacyWorkflowCode": "DOC_REISSUE",
+        "legacyAccountId": "AC-99017",
+        "operatorDisplayName": "Marco Ruiz",
+        "normalizedSummary": "Reissue the 2026 Q1 statement by mail and PDF.",
+        "effectiveDate": null,
+        "amountCents": null,
+        "reviewCode": "auto_accept"
+      },
+      "legacySubmissionStatus": "accepted",
+      "validationIssues": [],
+      "suggestedNextStep": "Submit to the document request queue and return the typed confirmation.",
+      "confidence": 0.88,
+      "humanReviewRequired": false
+    }
+  },
+  {
+    "id": "sample-legacy-missing-003",
+    "projectId": "legacy-ai-adapter",
+    "title": "Missing required account details",
+    "scenario": "missing_fields",
+    "summary": "The note is understandable, but it lacks the identifiers required for a deterministic legacy submission.",
+    "input": {
+      "sourceText": "Please switch the standing distribution to monthly and rush it. This came in from Tasha Green after her call. I do not have the account number yet.",
+      "metadata": {
+        "sourceChannel": "call_note"
+      },
+      "workflowType": "distribution_change"
+    },
+    "expectedExtraction": {
+      "workflowType": "distribution_change",
+      "requesterName": "Tasha Green",
+      "accountId": null,
+      "requestSummary": "Change the standing distribution schedule to monthly.",
+      "effectiveDate": null,
+      "amountUsd": null,
+      "targetEntity": "monthly distribution schedule",
+      "sourceChannel": "call_note"
+    },
+    "expectedValidation": {
+      "isValid": false,
+      "missingFields": [
+        "accountId",
+        "effectiveDate"
+      ],
+      "issues": [
+        {
+          "code": "missing_required_field",
+          "message": "The accountId field is required before a distribution change can be transformed.",
+          "field": "accountId",
+          "severity": "error"
+        },
+        {
+          "code": "missing_required_field",
+          "message": "The effectiveDate field is required before a distribution change can be submitted.",
+          "field": "effectiveDate",
+          "severity": "error"
+        }
+      ],
+      "humanReviewRequired": false,
+      "canTransformPayload": false
+    },
+    "expectedPayload": null,
+    "expectedOutput": {
+      "normalizedInput": {
+        "workflowType": "distribution_change",
+        "requesterName": "Tasha Green",
+        "accountId": null,
+        "requestSummary": "Change the standing distribution schedule to monthly.",
+        "effectiveDate": null,
+        "amountUsd": null,
+        "targetEntity": "monthly distribution schedule",
+        "sourceChannel": "call_note"
+      },
+      "legacyPayload": null,
+      "legacySubmissionStatus": "rejected",
+      "validationIssues": [
+        "The accountId field is required before a distribution change can be transformed.",
+        "The effectiveDate field is required before a distribution change can be submitted."
+      ],
+      "suggestedNextStep": "Collect the account ID and effective date, then retry the legacy submission.",
+      "confidence": 0.41,
+      "humanReviewRequired": false
+    }
+  },
+  {
+    "id": "sample-legacy-ambiguous-004",
+    "projectId": "legacy-ai-adapter",
+    "title": "Conflicting request details require review",
+    "scenario": "ambiguous_review",
+    "summary": "Two conflicting workflow interpretations appear in the same handoff note and should be routed to human review.",
+    "input": {
+      "sourceText": "Legacy handoff note: likely beneficiary change for Evelyn Brooks on AC-77102, but the earlier email says document reissue for AC-77120. Please sort this out before sending anything downstream.",
+      "metadata": {
+        "sourceChannel": "batch_note",
+        "handoffId": "legacy-review-44"
+      }
+    },
+    "expectedExtraction": {
+      "workflowType": null,
+      "requesterName": "Evelyn Brooks",
+      "accountId": null,
+      "requestSummary": "Possible beneficiary change or document reissue referenced across two account IDs.",
+      "effectiveDate": null,
+      "amountUsd": null,
+      "targetEntity": "Evelyn Brooks / statement reissue",
+      "sourceChannel": "batch_note"
+    },
+    "expectedValidation": {
+      "isValid": false,
+      "missingFields": [
+        "workflowType",
+        "accountId"
+      ],
+      "issues": [
+        {
+          "code": "conflicting_values",
+          "message": "Conflicting workflow and account references were detected in the same intake note.",
+          "severity": "error"
+        },
+        {
+          "code": "ambiguous_request",
+          "message": "The intake should be routed to a reviewer before any legacy payload is produced.",
+          "severity": "error"
+        }
+      ],
+      "humanReviewRequired": true,
+      "canTransformPayload": false
+    },
+    "expectedPayload": null,
+    "expectedOutput": {
+      "normalizedInput": {
+        "workflowType": null,
+        "requesterName": "Evelyn Brooks",
+        "accountId": null,
+        "requestSummary": "Possible beneficiary change or document reissue referenced across two account IDs.",
+        "effectiveDate": null,
+        "amountUsd": null,
+        "targetEntity": "Evelyn Brooks / statement reissue",
+        "sourceChannel": "batch_note"
+      },
+      "legacyPayload": null,
+      "legacySubmissionStatus": "needs_review",
+      "validationIssues": [
+        "Conflicting workflow and account references were detected in the same intake note.",
+        "The intake should be routed to a reviewer before any legacy payload is produced."
+      ],
+      "suggestedNextStep": "Route the case to human review to resolve the conflicting workflow and account references.",
+      "confidence": 0.63,
+      "humanReviewRequired": true
+    }
+  }
+]

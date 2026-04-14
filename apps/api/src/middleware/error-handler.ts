@@ -8,6 +8,8 @@ import { sendError } from '../lib/http.js';
 function failedRunProject(path: string): ProjectId | null {
   return path === '/api/demo/payment-exception-review/run'
     ? 'payment-exception-review'
+    : path === '/api/demo/legacy-ai-adapter/run'
+      ? 'legacy-ai-adapter'
     : null;
 }
 

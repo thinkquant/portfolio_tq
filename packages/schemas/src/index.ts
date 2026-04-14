@@ -16,7 +16,12 @@ import {
   evaluationStatuses,
   featureFlagKeys,
   investingOpsIssueCategories,
+  legacyAdapterFieldNames,
+  legacyAdapterSampleScenarios,
+  legacyAdapterValidationIssueCodes,
+  legacyReviewCodes,
   legacySubmissionStatuses,
+  legacyWorkflowTypes,
   moduleVisibilityStates,
   paymentExceptionTypes,
   paymentReviewRecommendedActions,
@@ -43,7 +48,13 @@ import {
   type InvestingOpsOutput,
   type JsonObject,
   type JsonValue,
+  type LegacyAdapterExtraction,
+  type LegacyAdapterInput,
   type LegacyAdapterOutput,
+  type LegacyAdapterPayload,
+  type LegacyAdapterSampleCase,
+  type LegacyAdapterValidationIssue,
+  type LegacyAdapterValidationResult,
   type PaymentReviewOutput,
   type PaymentReviewDemoRequest,
   type PolicySearchRequest,
@@ -109,6 +120,9 @@ const idSchema = z.string().min(1);
 const summarySchema = z.string().min(1);
 const confidenceScoreSchema = z.number().finite().min(0).max(1);
 const durationMsSchema = z.number().int().nonnegative();
+const calendarDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD date');
 
 export const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
   z.union([
@@ -152,6 +166,15 @@ export const paymentReviewRecommendedActionSchema = z.enum(
 );
 export const investingOpsIssueCategorySchema = z.enum(
   investingOpsIssueCategories,
+);
+export const legacyWorkflowTypeSchema = z.enum(legacyWorkflowTypes);
+export const legacyAdapterFieldNameSchema = z.enum(legacyAdapterFieldNames);
+export const legacyAdapterValidationIssueCodeSchema = z.enum(
+  legacyAdapterValidationIssueCodes,
+);
+export const legacyReviewCodeSchema = z.enum(legacyReviewCodes);
+export const legacyAdapterSampleScenarioSchema = z.enum(
+  legacyAdapterSampleScenarios,
 );
 export const legacySubmissionStatusSchema = z.enum(legacySubmissionStatuses);
 export const moduleVisibilityStateSchema = z.enum(moduleVisibilityStates);
@@ -464,15 +487,84 @@ export const investingOpsOutputSchema = z
   })
   .strict() satisfies z.ZodType<InvestingOpsOutput>;
 
+export const legacyAdapterInputSchema = z
+  .object({
+    sourceText: summarySchema,
+    metadata: jsonObjectSchema.optional(),
+    workflowType: legacyWorkflowTypeSchema.nullable().optional(),
+  })
+  .strict() satisfies z.ZodType<LegacyAdapterInput>;
+
+export const legacyAdapterExtractionSchema = z
+  .object({
+    workflowType: legacyWorkflowTypeSchema.nullable(),
+    requesterName: summarySchema.nullable(),
+    accountId: idSchema.nullable(),
+    requestSummary: summarySchema.nullable(),
+    effectiveDate: calendarDateSchema.nullable(),
+    amountUsd: z.number().finite().nonnegative().nullable(),
+    targetEntity: summarySchema.nullable(),
+    sourceChannel: summarySchema.nullable(),
+  })
+  .strict() satisfies z.ZodType<LegacyAdapterExtraction>;
+
+export const legacyAdapterValidationIssueSchema = z
+  .object({
+    code: legacyAdapterValidationIssueCodeSchema,
+    message: summarySchema,
+    field: legacyAdapterFieldNameSchema.optional(),
+    severity: z.enum(['warning', 'error']),
+  })
+  .strict() satisfies z.ZodType<LegacyAdapterValidationIssue>;
+
+export const legacyAdapterValidationResultSchema = z
+  .object({
+    isValid: z.boolean(),
+    missingFields: z.array(legacyAdapterFieldNameSchema),
+    issues: z.array(legacyAdapterValidationIssueSchema),
+    humanReviewRequired: z.boolean(),
+    canTransformPayload: z.boolean(),
+  })
+  .strict() satisfies z.ZodType<LegacyAdapterValidationResult>;
+
+export const legacyAdapterPayloadSchema = z
+  .object({
+    legacyWorkflowCode: idSchema,
+    legacyAccountId: idSchema,
+    operatorDisplayName: summarySchema,
+    normalizedSummary: summarySchema,
+    effectiveDate: calendarDateSchema.nullable(),
+    amountCents: z.number().int().nonnegative().nullable(),
+    reviewCode: legacyReviewCodeSchema,
+  })
+  .strict() satisfies z.ZodType<LegacyAdapterPayload>;
+
 export const legacyAdapterOutputSchema = z
   .object({
-    normalizedInput: jsonObjectSchema,
+    normalizedInput: legacyAdapterExtractionSchema,
+    legacyPayload: legacyAdapterPayloadSchema.nullable(),
     legacySubmissionStatus: legacySubmissionStatusSchema,
     validationIssues: z.array(summarySchema),
     suggestedNextStep: summarySchema,
     confidence: confidenceScoreSchema,
+    humanReviewRequired: z.boolean(),
   })
   .strict() satisfies z.ZodType<LegacyAdapterOutput>;
+
+export const legacyAdapterSampleCaseSchema = z
+  .object({
+    id: idSchema,
+    projectId: z.literal('legacy-ai-adapter'),
+    title: summarySchema,
+    scenario: legacyAdapterSampleScenarioSchema,
+    summary: summarySchema,
+    input: legacyAdapterInputSchema,
+    expectedExtraction: legacyAdapterExtractionSchema,
+    expectedValidation: legacyAdapterValidationResultSchema,
+    expectedPayload: legacyAdapterPayloadSchema.nullable(),
+    expectedOutput: legacyAdapterOutputSchema,
+  })
+  .strict() satisfies z.ZodType<LegacyAdapterSampleCase>;
 
 export const projectScopedListQuerySchema = z
   .object({
@@ -655,6 +747,26 @@ export function parseProjectScopedListQuery(input: unknown) {
  */
 export function parseProjectId(input: unknown) {
   return projectIdSchema.safeParse(input);
+}
+
+/**
+ * Safely parses a legacy adapter intake request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the intake schema.
+ */
+export function parseLegacyAdapterInput(input: unknown) {
+  return legacyAdapterInputSchema.safeParse(input);
+}
+
+/**
+ * Safely parses a legacy adapter sample case.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the sample case schema.
+ */
+export function parseLegacyAdapterSampleCase(input: unknown) {
+  return legacyAdapterSampleCaseSchema.safeParse(input);
 }
 
 /**

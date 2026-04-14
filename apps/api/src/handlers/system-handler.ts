@@ -95,6 +95,8 @@ export function handleRoot(context: RequestContext, app: AppContext): void {
         '/api/seed/legacy-intakes',
         '/api/seed/documents',
         '/api/demo/payment-exception-review/run',
+        '/api/demo/legacy-ai-adapter/run',
+        '/api/demo/legacy-ai-adapter/samples',
       ],
       agentCount: portfolioAgents.length,
       evaluationStatuses,

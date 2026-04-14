@@ -12,7 +12,7 @@
     "typecheck": "tsc -b tsconfig.json",
     "smoke": "tsx scripts/smoke-check.ts",
     "smoke:firestore": "tsx scripts/smoke-firestore.ts",
-    "test": "node --import tsx --test test/runtime.test.ts"
+    "test": "node --import tsx --test test/*.test.ts"
   },
   "dependencies": {
     "@google-cloud/firestore": "^8.0.0",

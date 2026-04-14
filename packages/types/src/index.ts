@@ -171,6 +171,79 @@ export const legacySubmissionStatuses = [
 
 export type LegacySubmissionStatus = (typeof legacySubmissionStatuses)[number];
 
+export const legacyWorkflowTypes = [
+  'beneficiary_change',
+  'distribution_change',
+  'document_reissue',
+  'profile_update',
+] as const;
+
+export type LegacyWorkflowType = (typeof legacyWorkflowTypes)[number];
+
+export const legacyAdapterFieldNames = [
+  'workflowType',
+  'requesterName',
+  'accountId',
+  'requestSummary',
+  'effectiveDate',
+  'amountUsd',
+  'targetEntity',
+  'sourceChannel',
+] as const;
+
+export type LegacyAdapterFieldName =
+  (typeof legacyAdapterFieldNames)[number];
+
+export const legacyAdapterValidationIssueCodes = [
+  'missing_required_field',
+  'invalid_format',
+  'conflicting_values',
+  'ambiguous_request',
+  'unsupported_workflow_type',
+] as const;
+
+export type LegacyAdapterValidationIssueCode =
+  (typeof legacyAdapterValidationIssueCodes)[number];
+
+export type LegacyAdapterValidationIssueSeverity = 'warning' | 'error';
+
+export const legacyAdapterExtractionStrategies = [
+  'deterministic_parsing',
+  'model_backed',
+  'hybrid',
+] as const;
+
+export type LegacyAdapterExtractionStrategy =
+  (typeof legacyAdapterExtractionStrategies)[number];
+
+export const legacyAdapterValidationOutcomes = [
+  'proceed',
+  'continue_with_warnings',
+  'stop_workflow',
+  'trigger_review',
+] as const;
+
+export type LegacyAdapterValidationOutcome =
+  (typeof legacyAdapterValidationOutcomes)[number];
+
+export const legacyReviewCodes = [
+  'auto_accept',
+  'auto_reject',
+  'manual_review',
+] as const;
+
+export type LegacyReviewCode = (typeof legacyReviewCodes)[number];
+
+export const legacyAdapterSampleScenarios = [
+  'clean',
+  'partially_messy',
+  'missing_fields',
+  'ambiguous_review',
+] as const;
+
+export type LegacyAdapterSampleScenario =
+  (typeof legacyAdapterSampleScenarios)[number];
+
 export interface PaymentReviewOutput {
   caseSummary: string;
   exceptionType: PaymentExceptionType;
@@ -191,12 +264,116 @@ export interface InvestingOpsOutput {
   internalCaseNote: string;
 }
 
+export interface LegacyAdapterInput {
+  sourceText: string;
+  metadata?: JsonObject;
+  workflowType?: LegacyWorkflowType | null;
+}
+
+export interface LegacyAdapterExtraction {
+  workflowType: LegacyWorkflowType | null;
+  requesterName: string | null;
+  accountId: string | null;
+  requestSummary: string | null;
+  effectiveDate: string | null;
+  amountUsd: number | null;
+  targetEntity: string | null;
+  sourceChannel: string | null;
+}
+
+export interface LegacyAdapterValidationIssue {
+  code: LegacyAdapterValidationIssueCode;
+  message: string;
+  field?: LegacyAdapterFieldName;
+  severity: LegacyAdapterValidationIssueSeverity;
+}
+
+export interface LegacyAdapterValidationResult {
+  isValid: boolean;
+  missingFields: LegacyAdapterFieldName[];
+  issues: LegacyAdapterValidationIssue[];
+  humanReviewRequired: boolean;
+  canTransformPayload: boolean;
+}
+
+export interface LegacyAdapterPayload {
+  legacyWorkflowCode: string;
+  legacyAccountId: string;
+  operatorDisplayName: string;
+  normalizedSummary: string;
+  effectiveDate: string | null;
+  amountCents: number | null;
+  reviewCode: LegacyReviewCode;
+}
+
 export interface LegacyAdapterOutput {
-  normalizedInput: JsonObject;
+  normalizedInput: LegacyAdapterExtraction;
+  legacyPayload: LegacyAdapterPayload | null;
   legacySubmissionStatus: LegacySubmissionStatus;
   validationIssues: string[];
   suggestedNextStep: string;
   confidence: number;
+  humanReviewRequired: boolean;
+}
+
+export interface LegacyAdapterSampleCase {
+  id: string;
+  projectId: 'legacy-ai-adapter';
+  title: string;
+  scenario: LegacyAdapterSampleScenario;
+  summary: string;
+  input: LegacyAdapterInput;
+  expectedExtraction: LegacyAdapterExtraction;
+  expectedValidation: LegacyAdapterValidationResult;
+  expectedPayload: LegacyAdapterPayload | null;
+  expectedOutput: LegacyAdapterOutput;
+}
+
+export interface LegacyAdapterSampleListResponseData {
+  samples: LegacyAdapterSampleCase[];
+  count: number;
+}
+
+export interface LegacyAdapterTraceData {
+  extraction: {
+    strategy: LegacyAdapterExtractionStrategy;
+    recoveredFields: LegacyAdapterFieldName[];
+    workflowHints: LegacyWorkflowType[];
+    accountCandidates: string[];
+    extractionFailed: boolean;
+    failureReason: string | null;
+    conflictSignals: string[];
+  };
+  validation: {
+    requiredFieldsChecked: LegacyAdapterFieldName[];
+    missingFields: LegacyAdapterFieldName[];
+    blockingIssueCodes: LegacyAdapterValidationIssueCode[];
+    warningIssueCodes: LegacyAdapterValidationIssueCode[];
+    outcome: LegacyAdapterValidationOutcome;
+  };
+  transformation: {
+    legacyWorkflowCode: string | null;
+    reviewCode: LegacyReviewCode;
+    transformSkipped: boolean;
+    skipReason: string | null;
+  };
+  finalStatus: {
+    legacySubmissionStatus: LegacySubmissionStatus;
+    validationIssueCount: number;
+    confidence: number;
+    suggestedNextStep: string;
+    humanReviewRequired: boolean;
+  };
+}
+
+export interface LegacyAdapterDemoResponseData {
+  run: RunRecord;
+  evaluation: EvaluationRecord;
+  escalation: EscalationRecord | null;
+  toolInvocations: ToolInvocationRecord[];
+  result: LegacyAdapterOutput;
+  trace: LegacyAdapterTraceData;
+  agentCount: number;
 }
 
 export const moduleVisibilityStates = ['public', 'gated', 'hidden'] as const;

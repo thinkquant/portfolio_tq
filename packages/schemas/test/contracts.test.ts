@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
   evaluationRecordSchema,
+  legacyAdapterOutputSchema,
+  legacyAdapterSampleCaseSchema,
   seedDataGroupDescriptorSchema,
   seedDocumentSchema,
   toolInvocationRecordSchema,
@@ -89,4 +92,72 @@ test('seed schemas enforce supported seed descriptors and documents', () => {
     }).success,
     false,
   );
+});
+
+test('legacy adapter schemas accept the strengthened output contract', () => {
+  assert.equal(
+    legacyAdapterOutputSchema.safeParse({
+      normalizedInput: {
+        workflowType: 'beneficiary_change',
+        requesterName: 'Nora Patel',
+        accountId: 'AC-20418',
+        requestSummary: 'Update the primary beneficiary to Liam Patel.',
+        effectiveDate: '2026-04-18',
+        amountUsd: null,
+        targetEntity: 'Liam Patel',
+        sourceChannel: 'ops_portal',
+      },
+      legacyPayload: {
+        legacyWorkflowCode: 'BENE_CHG',
+        legacyAccountId: 'AC-20418',
+        operatorDisplayName: 'Nora Patel',
+        normalizedSummary:
+          'Update beneficiary to Liam Patel effective 2026-04-18.',
+        effectiveDate: '2026-04-18',
+        amountCents: null,
+        reviewCode: 'auto_accept',
+      },
+      legacySubmissionStatus: 'accepted',
+      validationIssues: [],
+      suggestedNextStep: 'Submit directly to the beneficiary change queue.',
+      confidence: 0.97,
+      humanReviewRequired: false,
+    }).success,
+    true,
+  );
+
+  assert.equal(
+    legacyAdapterOutputSchema.safeParse({
+      normalizedInput: {
+        workflowType: 'beneficiary_change',
+        requesterName: 'Nora Patel',
+        accountId: 'AC-20418',
+        requestSummary: 'Update the primary beneficiary to Liam Patel.',
+        effectiveDate: '2026-04-18',
+        amountUsd: null,
+        targetEntity: 'Liam Patel',
+        sourceChannel: 'ops_portal',
+      },
+      legacySubmissionStatus: 'accepted',
+      validationIssues: [],
+      suggestedNextStep: 'Submit directly to the beneficiary change queue.',
+      confidence: 0.97,
+    }).success,
+    false,
+  );
+});
+
+test('legacy adapter sample fixtures stay aligned with shared schemas', async () => {
+  const fileUrl = new URL(
+    '../../../data/seed/legacy-cases/intake-examples.json',
+    import.meta.url,
+  );
+  const content = await readFile(fileUrl, 'utf8');
+  const samples = JSON.parse(content) as unknown[];
+
+  assert.equal(samples.length >= 4, true);
+
+  for (const sample of samples) {
+    assert.equal(legacyAdapterSampleCaseSchema.safeParse(sample).success, true);
+  }
 });
