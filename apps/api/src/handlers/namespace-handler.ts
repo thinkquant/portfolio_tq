@@ -14,25 +14,17 @@ export function handleToolsNamespace(
     {
       namespace: 'tools',
       environment: app.config.environment,
-      routes: ['/api/tools/invocations', '/api/runs/:runId/tools'],
-      status: 'reserved',
-    } satisfies NamespacePlaceholderData,
-    context.requestId,
-  );
-}
-
-export function handleSeedNamespace(
-  context: RequestContext,
-  app: AppContext,
-): void {
-  sendSuccess(
-    context.response,
-    200,
-    {
-      namespace: 'seed',
-      environment: app.config.environment,
-      routes: [],
-      status: 'reserved',
+      routes: [
+        '/api/tools/customer-profile',
+        '/api/tools/payment-case',
+        '/api/tools/account-profile',
+        '/api/tools/policy-search',
+        '/api/tools/event-timeline',
+        '/api/tools/escalation',
+        '/api/tools/invocations',
+        '/api/runs/:runId/tools',
+      ],
+      status: 'active',
     } satisfies NamespacePlaceholderData,
     context.requestId,
   );

@@ -7,13 +7,19 @@ import {
   type DemoRunStatus,
   type EvaluationCreateRequest,
   type EvaluationListQuery,
+  type EventTimelineRequest,
+  type EscalationCreatePlaceholderRequest,
   type PaymentReviewDemoRequest,
+  type PolicySearchRequest,
   type ProjectId,
   type ProjectScopedListQuery,
   type RunCreateRequest,
   type RunListQuery,
   type SeedCasesQuery,
   type SeedDocumentsQuery,
+  type AccountProfileLookupRequest,
+  type CustomerProfileLookupRequest,
+  type PaymentCaseLookupRequest,
   type ToolInvocationCreateRequest,
   type ToolInvocationListQuery,
 } from '@portfolio-tq/types';
@@ -123,6 +129,50 @@ export const toolInvocationCreateRequestSchema = z
   })
   .strict() satisfies z.ZodType<ToolInvocationCreateRequest>;
 
+export const customerProfileLookupRequestSchema = z
+  .object({
+    customerId: z.string().min(1),
+  })
+  .strict() satisfies z.ZodType<CustomerProfileLookupRequest>;
+
+export const paymentCaseLookupRequestSchema = z
+  .object({
+    caseId: z.string().min(1),
+  })
+  .strict() satisfies z.ZodType<PaymentCaseLookupRequest>;
+
+export const accountProfileLookupRequestSchema = z
+  .object({
+    accountId: z.string().min(1),
+  })
+  .strict() satisfies z.ZodType<AccountProfileLookupRequest>;
+
+export const policySearchRequestSchema = z
+  .object({
+    projectId: projectIdSchema,
+    query: z.string().min(1),
+    limit: z.coerce.number().int().positive().max(20).optional(),
+  })
+  .strict() satisfies z.ZodType<PolicySearchRequest>;
+
+export const eventTimelineRequestSchema = z
+  .object({
+    projectId: projectIdSchema,
+    entityId: z.string().min(1),
+    limit: z.coerce.number().int().positive().max(50).optional(),
+  })
+  .strict() satisfies z.ZodType<EventTimelineRequest>;
+
+export const escalationCreatePlaceholderRequestSchema = z
+  .object({
+    projectId: projectIdSchema,
+    runId: z.string().min(1).nullable().optional(),
+    ownerId: z.string().min(1).nullable().optional(),
+    reason: z.string().min(1),
+    title: z.string().min(1).nullable().optional(),
+  })
+  .strict() satisfies z.ZodType<EscalationCreatePlaceholderRequest>;
+
 export const seedCasesQuerySchema = z
   .object({
     projectId: projectIdSchema.optional(),
@@ -188,6 +238,30 @@ export function parseToolInvocationListQuery(input: unknown) {
 
 export function parseToolInvocationCreateRequest(input: unknown) {
   return toolInvocationCreateRequestSchema.safeParse(input);
+}
+
+export function parseCustomerProfileLookupRequest(input: unknown) {
+  return customerProfileLookupRequestSchema.safeParse(input);
+}
+
+export function parsePaymentCaseLookupRequest(input: unknown) {
+  return paymentCaseLookupRequestSchema.safeParse(input);
+}
+
+export function parseAccountProfileLookupRequest(input: unknown) {
+  return accountProfileLookupRequestSchema.safeParse(input);
+}
+
+export function parsePolicySearchRequest(input: unknown) {
+  return policySearchRequestSchema.safeParse(input);
+}
+
+export function parseEventTimelineRequest(input: unknown) {
+  return eventTimelineRequestSchema.safeParse(input);
+}
+
+export function parseEscalationCreatePlaceholderRequest(input: unknown) {
+  return escalationCreatePlaceholderRequestSchema.safeParse(input);
 }
 
 export function parseSeedCasesQuery(input: unknown) {

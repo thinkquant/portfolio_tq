@@ -106,6 +106,73 @@ export interface ToolInvocationRecord {
   summary: string;
 }
 
+export type CustomerTier = 'standard' | 'priority';
+export type RiskBand = 'low' | 'medium' | 'high';
+export type AccountType = 'individual' | 'joint' | 'trust';
+export type OnboardingStatus = 'pending' | 'active' | 'restricted';
+export type SuitabilityStatus = 'current' | 'review_required' | 'missing';
+export type TimelineEventCategory =
+  | 'created'
+  | 'status'
+  | 'note'
+  | 'policy'
+  | 'review'
+  | 'escalation';
+
+export interface CustomerProfileRecord {
+  id: string;
+  projectId: 'payment-exception-review';
+  displayName: string;
+  email: string;
+  region: string;
+  tier: CustomerTier;
+  riskBand: RiskBand;
+  priorDisputeCount: number;
+  linkedCaseIds: string[];
+  summary: string;
+}
+
+export interface AccountProfileRecord {
+  id: string;
+  projectId: 'investing-ops-copilot';
+  householdName: string;
+  accountType: AccountType;
+  onboardingStatus: OnboardingStatus;
+  suitabilityStatus: SuitabilityStatus;
+  baseCurrency: string;
+  linkedCaseIds: string[];
+  summary: string;
+}
+
+export interface TimelineEventRecord {
+  id: string;
+  projectId: ProjectId;
+  entityId: string;
+  timestamp: string;
+  category: TimelineEventCategory;
+  summary: string;
+}
+
+export interface PolicySearchMatch {
+  id: string;
+  projectId: ProjectId;
+  title: string;
+  kind: DocumentRecord['kind'];
+  summary: string;
+  score: number;
+}
+
+export interface EscalationPreviewRecord {
+  id: string;
+  projectId: ProjectId;
+  runId: string | null;
+  ownerId: string | null;
+  status: 'draft';
+  createdAt: string;
+  reason: string;
+  summary: string;
+}
+
 export interface EvaluationRecord {
   id: string;
   projectId: ProjectId;
@@ -215,6 +282,18 @@ export interface ToolInvocationListQuery extends ProjectScopedListQuery {
   limit?: number;
 }
 
+export interface PolicySearchRequest {
+  projectId: ProjectId;
+  query: string;
+  limit?: number;
+}
+
+export interface EventTimelineRequest {
+  projectId: ProjectId;
+  entityId: string;
+  limit?: number;
+}
+
 export interface EvaluationListQuery extends ProjectScopedListQuery {
   runId?: string;
   status?: EvaluationStatus;
@@ -297,11 +376,21 @@ export interface EvaluationListResponseData {
   count: number;
 }
 
+export interface SeedCaseListResponseData {
+  cases: CaseRecord[];
+  count: number;
+}
+
+export interface SeedDocumentListResponseData {
+  documents: DocumentRecord[];
+  count: number;
+}
+
 export interface NamespacePlaceholderData {
   namespace: 'tools' | 'seed';
   environment: Environment;
   routes: string[];
-  status: 'reserved';
+  status: 'reserved' | 'active';
 }
 
 export interface RunCreateRequest {
@@ -337,6 +426,26 @@ export interface ToolInvocationCreateRequest {
   createdAt?: string | null;
 }
 
+export interface CustomerProfileLookupRequest {
+  customerId: string;
+}
+
+export interface PaymentCaseLookupRequest {
+  caseId: string;
+}
+
+export interface AccountProfileLookupRequest {
+  accountId: string;
+}
+
+export interface EscalationCreatePlaceholderRequest {
+  projectId: ProjectId;
+  runId?: string | null;
+  ownerId?: string | null;
+  reason: string;
+  title?: string | null;
+}
+
 export interface SeedCasesQuery {
   projectId?: ProjectId;
   limit?: number;
@@ -367,4 +476,30 @@ export interface ToolInvocationCreateResponseData {
 export interface ToolInvocationListResponseData {
   toolInvocations: ToolInvocationRecord[];
   count: number;
+}
+
+export interface CustomerProfileLookupResponseData {
+  customerProfile: CustomerProfileRecord;
+}
+
+export interface PaymentCaseLookupResponseData {
+  paymentCase: CaseRecord;
+}
+
+export interface AccountProfileLookupResponseData {
+  accountProfile: AccountProfileRecord;
+}
+
+export interface PolicySearchResponseData {
+  matches: PolicySearchMatch[];
+  count: number;
+}
+
+export interface EventTimelineResponseData {
+  events: TimelineEventRecord[];
+  count: number;
+}
+
+export interface EscalationCreatePlaceholderResponseData {
+  escalation: EscalationPreviewRecord;
 }

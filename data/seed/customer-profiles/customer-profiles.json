@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cust-payment-001",
+    "projectId": "payment-exception-review",
+    "displayName": "Avery Stone",
+    "email": "avery.stone@example.test",
+    "region": "US",
+    "tier": "priority",
+    "riskBand": "low",
+    "priorDisputeCount": 1,
+    "linkedCaseIds": ["case-payment-bootstrap-001"],
+    "summary": "Synthetic long-tenured payments customer with one prior dispute and a clean recent review history."
+  },
+  {
+    "id": "cust-payment-002",
+    "projectId": "payment-exception-review",
+    "displayName": "Jordan Lee",
+    "email": "jordan.lee@example.test",
+    "region": "US",
+    "tier": "standard",
+    "riskBand": "medium",
+    "priorDisputeCount": 3,
+    "linkedCaseIds": ["case-payment-bootstrap-002"],
+    "summary": "Synthetic payments customer with repeated note mismatches that make reviewer follow-up more likely."
+  }
+]

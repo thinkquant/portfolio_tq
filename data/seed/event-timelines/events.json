@@ -1,0 +1,74 @@
+[
+  {
+    "id": "timeline-payment-001-created",
+    "projectId": "payment-exception-review",
+    "entityId": "case-payment-bootstrap-001",
+    "timestamp": "2026-04-12T17:40:00.000Z",
+    "category": "created",
+    "summary": "Payment exception case was opened after a duplicate beneficiary warning."
+  },
+  {
+    "id": "timeline-payment-001-policy",
+    "projectId": "payment-exception-review",
+    "entityId": "case-payment-bootstrap-001",
+    "timestamp": "2026-04-12T17:46:00.000Z",
+    "category": "policy",
+    "summary": "Synthetic payment review policy guidance was attached for reviewer comparison."
+  },
+  {
+    "id": "timeline-payment-002-review",
+    "projectId": "payment-exception-review",
+    "entityId": "case-payment-bootstrap-002",
+    "timestamp": "2026-04-12T17:44:00.000Z",
+    "category": "review",
+    "summary": "Conflicting memo text triggered additional reviewer scrutiny."
+  },
+  {
+    "id": "timeline-payment-002-escalation",
+    "projectId": "payment-exception-review",
+    "entityId": "case-payment-bootstrap-002",
+    "timestamp": "2026-04-12T17:45:31.000Z",
+    "category": "escalation",
+    "summary": "Case was escalated after fallback handling detected conflicting evidence."
+  },
+  {
+    "id": "timeline-investing-001-created",
+    "projectId": "investing-ops-copilot",
+    "entityId": "acct-investing-001",
+    "timestamp": "2026-04-12T16:40:00.000Z",
+    "category": "created",
+    "summary": "Investing operations support case was opened for dividend reinvestment clarification."
+  },
+  {
+    "id": "timeline-investing-001-note",
+    "projectId": "investing-ops-copilot",
+    "entityId": "acct-investing-001",
+    "timestamp": "2026-04-12T16:52:00.000Z",
+    "category": "note",
+    "summary": "Internal ops note confirmed the household requested written confirmation before processing."
+  },
+  {
+    "id": "timeline-investing-002-status",
+    "projectId": "investing-ops-copilot",
+    "entityId": "acct-investing-002",
+    "timestamp": "2026-04-12T16:30:00.000Z",
+    "category": "status",
+    "summary": "Suitability review was marked pending due to a missing source-of-funds document."
+  },
+  {
+    "id": "timeline-legacy-001-created",
+    "projectId": "legacy-ai-adapter",
+    "entityId": "case-legacy-bootstrap-001",
+    "timestamp": "2026-04-12T16:00:00.000Z",
+    "category": "created",
+    "summary": "Legacy batch intake was received for deterministic normalization."
+  },
+  {
+    "id": "timeline-legacy-001-review",
+    "projectId": "legacy-ai-adapter",
+    "entityId": "case-legacy-bootstrap-001",
+    "timestamp": "2026-04-12T16:19:00.000Z",
+    "category": "review",
+    "summary": "Adapter output was reviewed against the expected typed handoff contract."
+  }
+]

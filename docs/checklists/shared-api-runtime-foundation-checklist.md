@@ -585,23 +585,60 @@ Reference docs:
 - `docs/specs/service-api.md`
 - `docs/specs/service-web.md`
 
-- [ ] Define how seeded data will be stored for the current stage.
-- [ ] Implement a repository/service layer for reading seeded cases and mock documents.
-- [ ] Keep this layer generic and reusable.
-- [ ] Avoid hard-coding data directly into route files.
-- [ ] Support simple retrieval for:
-  - [ ] sample payment cases
-  - [ ] sample investing ops cases
-  - [ ] legacy intake examples
-  - [ ] policy documents or source docs placeholders
-- [ ] Return data in a format usable by frontend demo pages immediately.
+- [x] Define how seeded data will be stored for the current stage.
+- [x] Implement a repository/service layer for reading seeded cases and mock documents.
+- [x] Keep this layer generic and reusable.
+- [x] Avoid hard-coding data directly into route files.
+- [x] Support simple retrieval for:
+  - [x] sample payment cases
+  - [x] sample investing ops cases
+  - [x] legacy intake examples
+  - [x] policy documents or source docs placeholders
+- [x] Return data in a format usable by frontend demo pages immediately.
 
 Suggested endpoints:
 
-- [ ] `GET /seed/payment-cases`
-- [ ] `GET /seed/investing-cases`
-- [ ] `GET /seed/legacy-intakes`
-- [ ] `GET /seed/documents`
+- [x] `GET /seed/payment-cases`
+- [x] `GET /seed/investing-cases`
+- [x] `GET /seed/legacy-intakes`
+- [x] `GET /seed/documents`
+
+Verification note:
+
+- Confirmed on `dev`.
+- Seeded demo inputs for the current stage remain file-backed under `data/seed/` rather than being hard-coded inside handlers or moved into a second temporary storage system.
+- Added shared seed response contracts in `packages/types/src/index.ts` for case and document list payloads.
+- Added a dedicated file-backed seed repository in `apps/api/src/repositories/seed-repository.ts`.
+- Added a dedicated seed service in `apps/api/src/services/seed-data.ts`.
+- Added dedicated seed handlers in `apps/api/src/handlers/seed-handler.ts`.
+- `apps/api/src/routes/seed.ts` now exposes:
+  - `GET /api/seed`
+  - `GET /api/seed/payment-cases`
+  - `GET /api/seed/investing-cases`
+  - `GET /api/seed/legacy-intakes`
+  - `GET /api/seed/documents`
+- The seed namespace surface now reports active routes instead of staying a placeholder-only reservation.
+- Route files only wire handlers; seed file lookup, filtering, and query behavior now live in shared repository/service modules.
+- Seed case routes enforce their project boundary while still supporting the shared `limit` query pattern, and the documents route supports shared `projectId`, `kind`, and `limit` filters.
+- Verified `pnpm --filter @portfolio-tq/types typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/types lint` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes.
+- Verified targeted Prettier checks on the section 11 files and this checklist.
+- Verified on temporary port `18111` that:
+  - `GET /api/seed` advertises the active seed routes
+  - `GET /api/seed/payment-cases` returns the seeded payment exception cases
+  - `GET /api/seed/payment-cases?limit=1` applies the shared list limit
+  - `GET /api/seed/investing-cases` returns the seeded investing ops case set
+  - `GET /api/seed/legacy-intakes` returns the seeded legacy intake example set
+  - `GET /api/seed/documents?kind=policy` returns filtered policy documents
+  - `GET /api/seed/documents?projectId=legacy-ai-adapter&limit=1` returns project-scoped document data
+  - route/project mismatches such as `GET /api/seed/payment-cases?projectId=legacy-ai-adapter` return `invalid_request`
+  - invalid document query values such as `GET /api/seed/documents?kind=unknown` return `invalid_request`
 
 Definition of done:
 
@@ -618,26 +655,75 @@ Reference docs:
 - `docs/specs/service-investing-ops-copilot.md`
 - `docs/specs/service-payment-exception-review.md`
 
-- [ ] Define the first shared mock tools.
-- [ ] Implement tool handlers or service functions for:
-  - [ ] customer profile lookup
-  - [ ] transaction or payment case lookup
-  - [ ] account profile lookup
-  - [ ] policy search
-  - [ ] event timeline lookup
-  - [ ] escalation creation placeholder
-- [ ] Keep tools deterministic and inspectable.
-- [ ] Return stable typed outputs.
-- [ ] Do not yet add real third-party integration.
+- [x] Define the first shared mock tools.
+- [x] Implement tool handlers or service functions for:
+  - [x] customer profile lookup
+  - [x] transaction or payment case lookup
+  - [x] account profile lookup
+  - [x] policy search
+  - [x] event timeline lookup
+  - [x] escalation creation placeholder
+- [x] Keep tools deterministic and inspectable.
+- [x] Return stable typed outputs.
+- [x] Do not yet add real third-party integration.
 
 Suggested endpoints:
 
-- [ ] `POST /tools/customer-profile`
-- [ ] `POST /tools/payment-case`
-- [ ] `POST /tools/account-profile`
-- [ ] `POST /tools/policy-search`
-- [ ] `POST /tools/event-timeline`
-- [ ] `POST /tools/escalation`
+- [x] `POST /tools/customer-profile`
+- [x] `POST /tools/payment-case`
+- [x] `POST /tools/account-profile`
+- [x] `POST /tools/policy-search`
+- [x] `POST /tools/event-timeline`
+- [x] `POST /tools/escalation`
+
+Verification note:
+
+- Confirmed on `dev`.
+- The shared mock tool layer now exposes deterministic internal-tool style surfaces for payment and investing demo flows without adding any real third-party integration.
+- Added shared tool request/response contracts in `packages/types/src/index.ts` for customer profile lookup, payment case lookup, account profile lookup, policy search, event timeline lookup, and escalation placeholder creation.
+- Added shared validators in `packages/schemas/src/index.ts` for all section 12 tool request payloads.
+- Expanded the shared tool catalog in `packages/tools/src/index.ts` so the rest of the monorepo reflects the active tool layer instead of the old two-entry bootstrap placeholder.
+- Added file-backed mock tool data under:
+  - `data/seed/customer-profiles/customer-profiles.json`
+  - `data/seed/account-profiles/account-profiles.json`
+  - `data/seed/event-timelines/events.json`
+- Added a dedicated file-backed mock tool repository in `apps/api/src/repositories/mock-tool-repository.ts`.
+- Added a dedicated mock tool service in `apps/api/src/services/mock-tools.ts`.
+- Added dedicated mock tool handlers in `apps/api/src/handlers/mock-tool-handler.ts`.
+- `apps/api/src/routes/tools.ts` now exposes:
+  - `POST /api/tools/customer-profile`
+  - `POST /api/tools/payment-case`
+  - `POST /api/tools/account-profile`
+  - `POST /api/tools/policy-search`
+  - `POST /api/tools/event-timeline`
+  - `POST /api/tools/escalation`
+- The tools namespace surface now reports active routes instead of staying a placeholder-only reservation.
+- Policy search is deterministic and inspectable: it searches seeded documents for the requested project and ranks matches with a simple explicit score derived from title/summary hits plus policy-kind weighting.
+- Escalation creation remains a placeholder only: it validates reviewer ownership against seeded users and returns a deterministic draft preview ID instead of calling any external system.
+- Verified `pnpm --filter @portfolio-tq/types typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/types lint` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas lint` passes.
+- Verified `pnpm --filter @portfolio-tq/tools typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/tools lint` passes.
+- Verified `pnpm --filter @portfolio-tq/agents typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/agents lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes.
+- Verified targeted Prettier checks on the section 12 files and this checklist.
+- Verified on temporary port `18112` that:
+  - `GET /api/tools` advertises the active mock tool routes
+  - `POST /api/tools/customer-profile` returns seeded customer profile data
+  - `POST /api/tools/payment-case` returns seeded payment case data
+  - `POST /api/tools/account-profile` returns seeded account profile data
+  - `POST /api/tools/policy-search` returns project-scoped deterministic policy matches
+  - `POST /api/tools/event-timeline` returns seeded timeline events for the requested entity
+  - `POST /api/tools/escalation` returns a deterministic draft escalation placeholder for the same input payload
+  - invalid tool payloads return `invalid_request`
+  - missing customer profiles return `not_found`
+  - missing escalation owners return `not_found`
 
 Definition of done:
 

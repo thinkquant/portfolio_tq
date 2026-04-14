@@ -1,0 +1,24 @@
+[
+  {
+    "id": "acct-investing-001",
+    "projectId": "investing-ops-copilot",
+    "householdName": "Riverside Family Office",
+    "accountType": "joint",
+    "onboardingStatus": "active",
+    "suitabilityStatus": "current",
+    "baseCurrency": "USD",
+    "linkedCaseIds": ["case-investing-bootstrap-001"],
+    "summary": "Synthetic household account with current suitability records and a recently completed ops review."
+  },
+  {
+    "id": "acct-investing-002",
+    "projectId": "investing-ops-copilot",
+    "householdName": "North Harbor Trust",
+    "accountType": "trust",
+    "onboardingStatus": "pending",
+    "suitabilityStatus": "review_required",
+    "baseCurrency": "USD",
+    "linkedCaseIds": [],
+    "summary": "Synthetic trust account with pending onboarding checkpoints and a flagged suitability refresh."
+  }
+]
