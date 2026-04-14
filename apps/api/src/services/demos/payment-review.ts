@@ -140,7 +140,12 @@ export async function runPaymentReviewDemo(config: {
     createdAt: finishedAt.toISOString(),
     score: requiresEscalation ? 0.74 : 0.98,
     schemaValid: true,
+    policyPass: !requiresEscalation,
     fallbackTriggered: requiresEscalation,
+    groundednessScore: requiresEscalation ? 0.76 : 0.97,
+    notes: requiresEscalation
+      ? 'Fallback handling routed the run to reviewer follow-up because the evidence set was conflicted.'
+      : 'The run stayed within the expected approval band and remained grounded in the synthetic case context.',
     summary: requiresEscalation
       ? 'Schema remained valid, but the run required a reviewer escalation.'
       : 'Schema validation passed and the run remained within the approval confidence band.',

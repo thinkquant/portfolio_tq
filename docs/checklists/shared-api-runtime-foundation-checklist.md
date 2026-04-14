@@ -517,26 +517,60 @@ Reference docs:
 - `docs/specs/service-api.md`
 - `docs/architecture/observability-and-dashboards.md`
 
-- [ ] Define the evaluation record model.
-- [ ] Implement endpoint to create an evaluation record.
-- [ ] Implement endpoint to fetch evaluations by run.
-- [ ] Implement endpoint to list evaluations.
+- [x] Define the evaluation record model.
+- [x] Implement endpoint to create an evaluation record.
+- [x] Implement endpoint to fetch evaluations by run.
+- [x] Implement endpoint to list evaluations.
 - [ ] Include fields needed later:
-  - [ ] id
-  - [ ] runId
-  - [ ] schemaValid
-  - [ ] policyPass
-  - [ ] fallbackTriggered
-  - [ ] groundednessScore placeholder
-  - [ ] notes
-  - [ ] createdAt
-- [ ] Ensure the evaluation model supports future extension without breaking callers.
+  - [x] id
+  - [x] runId
+  - [x] schemaValid
+  - [x] policyPass
+  - [x] fallbackTriggered
+  - [x] groundednessScore placeholder
+  - [x] notes
+  - [x] createdAt
+- [x] Ensure the evaluation model supports future extension without breaking callers.
 
 Suggested endpoints:
 
-- [ ] `POST /evals`
-- [ ] `GET /evals`
-- [ ] `GET /runs/:id/evals`
+- [x] `POST /evals`
+- [x] `GET /evals`
+- [x] `GET /runs/:id/evals`
+
+Verification note:
+
+- Confirmed on `dev`.
+- The shared evaluation ledger model now lives in `packages/types/src/index.ts`, with `EvaluationRecord` expanded to carry the section 10 fields the eval console will need: `schemaValid`, `policyPass`, `fallbackTriggered`, `groundednessScore`, `notes`, `summary`, and timestamps.
+- Added shared request/query contracts for section 10 in `packages/types/src/index.ts` and `packages/schemas/src/index.ts`, including `EvaluationCreateRequest`, `EvaluationListQuery`, `EvaluationCreateResponseData`, `evaluationCreateRequestSchema`, and `evaluationListQuerySchema`.
+- Added a dedicated Firestore-backed evaluation service in `apps/api/src/services/evaluations.ts` and reused a dedicated repository in `apps/api/src/repositories/evaluation-repository.ts`.
+- Added dedicated evaluation handlers in `apps/api/src/handlers/evaluation-handler.ts`.
+- `apps/api/src/routes/evals.ts` now exposes:
+  - `POST /api/evals`
+  - `GET /api/evals`
+  - `GET /api/runs/:id/evals`
+- Preserved `/api/evaluations` as a compatibility alias for both list and create flows while the shared `/api/evals` namespace becomes the primary route group.
+- New evaluation writes now also update the parent run's `evaluationStatus` and `fallbackTriggered` fields, keeping the shared run ledger coherent with the evaluation ledger.
+- Existing Firestore evaluation records without the new section 10 fields are normalized on read in `apps/api/src/repositories/evaluation-repository.ts`, so the API can read legacy evaluation documents without requiring an immediate reseed.
+- Updated `apps/api/src/services/demos/payment-review.ts` and `data/seed/evaluations/evaluations.json` so fresh demo writes and future reseeds use the expanded evaluation model directly.
+- During live verification, `POST /api/runs` exposed a Firestore write issue caused by `undefined` optional fields; fixed `apps/api/src/repositories/run-repository.ts` to omit undefined values so the shared run-plus-eval flow works against Firestore cleanly.
+- Verified `pnpm --filter @portfolio-tq/types typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/types lint` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/schemas lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api typecheck` passes.
+- Verified `pnpm --filter @portfolio-tq/api lint` passes.
+- Verified `pnpm --filter @portfolio-tq/api build` passes.
+- Verified `pnpm --filter @portfolio-tq/web typecheck` passes.
+- Verified on temporary port `18110` with `GCP_PROJECT_ID=portfolio-tq-dev` and `FIRESTORE_DATABASE_ID=portfolio-tq-dev` that:
+  - `POST /api/runs` creates a fresh Firestore-backed run for section 10 verification
+  - `GET /api/runs/:id/evals` returns an empty list before evaluation creation and the created record afterward
+  - `POST /api/evals` creates a new evaluation record with `policyPass`, `groundednessScore`, and `notes`
+  - `GET /api/evals?runId=...&status=passed&limit=5` returns the created evaluation through the shared filtered list path
+  - `GET /api/evals?runId=run-payment-20260412-001&limit=5` returns legacy evaluation data normalized with the new section 10 fields
+  - invalid evaluation create payloads return `invalid_request`
+  - missing run-scoped evaluation routes return `not_found`
+  - `GET /api/runs/:id` reflects the updated `evaluationStatus` after evaluation creation
 
 Definition of done:
 

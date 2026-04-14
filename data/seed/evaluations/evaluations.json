@@ -7,7 +7,10 @@
     "createdAt": "2026-04-12T17:52:20.000Z",
     "score": 0.98,
     "schemaValid": true,
+    "policyPass": true,
     "fallbackTriggered": false,
+    "groundednessScore": 0.97,
+    "notes": "Synthetic review output stayed grounded in the payment case context and policy guidance.",
     "summary": "Synthetic review output matched the expected schema and decision band."
   },
   {
@@ -18,7 +21,10 @@
     "createdAt": "2026-04-12T17:45:31.000Z",
     "score": 0.74,
     "schemaValid": true,
+    "policyPass": false,
     "fallbackTriggered": true,
+    "groundednessScore": 0.76,
+    "notes": "Synthetic escalation case stayed schema-valid but required reviewer follow-up because the evidence set conflicted.",
     "summary": "Synthetic escalation case triggered fallback handling due to conflicting evidence."
   },
   {
@@ -29,7 +35,10 @@
     "createdAt": "2026-04-12T16:59:15.000Z",
     "score": 0.95,
     "schemaValid": true,
+    "policyPass": true,
     "fallbackTriggered": false,
+    "groundednessScore": 0.94,
+    "notes": "Synthetic investing guidance stayed grounded in the retrieved policy snippets.",
     "summary": "Synthetic investing guidance remained grounded and concise."
   },
   {
@@ -40,7 +49,10 @@
     "createdAt": "2026-04-12T16:21:39.000Z",
     "score": 0.93,
     "schemaValid": true,
+    "policyPass": true,
     "fallbackTriggered": false,
+    "groundednessScore": 0.92,
+    "notes": "Synthetic adapter output preserved deterministic controls and stayed within the supported claim set.",
     "summary": "Synthetic adapter output preserved deterministic controls."
   }
 ]

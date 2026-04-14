@@ -17,6 +17,7 @@ import {
   type ToolInvocationRecord,
 } from '@portfolio-tq/types';
 import { env } from '../config/env.js';
+import { normalizeEvaluationRecord } from './evaluation-repository.js';
 import { normalizeToolInvocationRecord } from './tool-invocation-repository.js';
 
 export type ObservabilityOverview = {
@@ -215,7 +216,11 @@ export async function listEvaluations(
         .limit(limit)
     : collection.orderBy('createdAt', 'desc').limit(limit);
 
-  return readQuery<EvaluationRecord>(query.get());
+  const snapshot = await query.get();
+
+  return snapshot.docs.map((document) =>
+    normalizeEvaluationRecord(document.data() as Record<string, unknown>),
+  );
 }
 
 export async function getProjectMetrics(
@@ -244,14 +249,17 @@ export async function getProjectMetrics(
         .limit(10)
         .get(),
     ),
-    readQuery<EvaluationRecord>(
-      client
-        .collection(env.firestore.collections.evaluations)
-        .where('projectId', '==', projectId)
-        .orderBy('createdAt', 'desc')
-        .limit(10)
-        .get(),
-    ),
+    client
+      .collection(env.firestore.collections.evaluations)
+      .where('projectId', '==', projectId)
+      .orderBy('createdAt', 'desc')
+      .limit(10)
+      .get()
+      .then((snapshot) =>
+        snapshot.docs.map((document) =>
+          normalizeEvaluationRecord(document.data() as Record<string, unknown>),
+        ),
+      ),
     readQuery<EscalationRecord>(
       client
         .collection(firestoreCollections.escalations)

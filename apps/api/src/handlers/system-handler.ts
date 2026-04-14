@@ -77,6 +77,7 @@ export function handleRoot(context: RequestContext, app: AppContext): void {
         '/api/runs',
         '/api/runs/:id',
         '/api/runs/:id/tools',
+        '/api/runs/:id/evals',
         '/api/evals',
         '/api/evaluations',
         '/api/projects/:projectId/metrics',

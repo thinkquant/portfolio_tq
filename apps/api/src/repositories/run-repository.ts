@@ -40,10 +40,12 @@ export async function saveRun(
   await requireFirestore(firestore)
     .collection(env.firestore.collections.runs)
     .doc(run.id)
-    .set({
-      ...run,
-      observedAt: new Date().toISOString(),
-    });
+    .set(
+      withoutUndefined({
+        ...run,
+        observedAt: new Date().toISOString(),
+      }),
+    );
 
   return run;
 }
@@ -92,4 +94,10 @@ function matchesStatus(
   status?: RunListQuery['status'],
 ): boolean {
   return !status || run.status === status;
+}
+
+function withoutUndefined<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
+  ) as T;
 }
