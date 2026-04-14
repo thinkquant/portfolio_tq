@@ -298,7 +298,7 @@ test('legacy adapter demo routes return stable success and error envelopes', asy
       ok: boolean;
       data?: {
         run?: { projectId?: string };
-        evaluation?: { status?: string };
+        evaluation?: { flags?: unknown[]; status?: string };
         result?: { legacySubmissionStatus?: string };
         trace?: { extraction?: unknown; validation?: unknown; transformation?: unknown; finalStatus?: unknown };
       };
@@ -309,6 +309,13 @@ test('legacy adapter demo routes return stable success and error envelopes', asy
     assert.equal(runPayload.ok, true);
     assert.equal(runPayload.data?.run?.projectId, 'legacy-ai-adapter');
     assert.equal(runPayload.data?.evaluation?.status, 'passed');
+    assert.equal(
+      runPayload.data?.evaluation
+        ? 'flags' in runPayload.data.evaluation
+        : true,
+      false,
+      'Clean accepted route responses should omit evaluation flags.',
+    );
     assert.equal(runPayload.data?.result?.legacySubmissionStatus, 'accepted');
     assert.ok(runPayload.data?.trace?.extraction);
     assert.ok(runPayload.data?.trace?.validation);

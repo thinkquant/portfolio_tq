@@ -777,7 +777,7 @@ Reference docs:
 - [x] Confirm `pnpm typecheck` passes.
 - [x] Confirm `pnpm test` passes.
 - [x] Confirm `pnpm build` passes.
-- [ ] Confirm CI passes on pushed branch.
+- [x] Confirm CI passes on pushed branch.
 - [x] Write a clean milestone commit message.
 
 Final polish notes:

@@ -609,7 +609,7 @@ export async function runLegacyAdapterDemo(config: {
     schemaValid,
     policyPass,
     fallbackTriggered,
-    flags: evaluationFlags.length > 0 ? evaluationFlags : undefined,
+    ...(evaluationFlags.length > 0 ? { flags: evaluationFlags } : {}),
     groundednessScore: outputStage.output.confidence,
     notes: buildEvaluationNotes(
       outputStage.output,

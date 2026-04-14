@@ -9,8 +9,23 @@ type ApiRequestJsonOptions = Omit<RequestInit, 'body' | 'method'> & {
 
 type ApiRouteBuilder = (...segments: string[]) => string;
 
+const hostedApiBasePaths: Record<string, string> = {
+  'portfolio-tq-dev.firebaseapp.com':
+    'https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app/api',
+  'portfolio-tq-dev.web.app':
+    'https://portfolio-tq-api-dev-twgxaiygta-uc.a.run.app/api',
+  'portfolio-tq-prod.firebaseapp.com':
+    'https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api',
+  'portfolio-tq-prod.web.app':
+    'https://portfolio-tq-api-prod-gl2p3fjrxa-uc.a.run.app/api',
+};
+
 function trimSlashes(value: string): string {
   return value.replace(/^\/+|\/+$/g, '');
+}
+
+function trimTrailingSlashes(value: string): string {
+  return value.replace(/\/+$/g, '');
 }
 
 function joinPath(basePath: string, path: string): string {
@@ -39,9 +54,25 @@ function buildSegmentRoute(prefix: string): ApiRouteBuilder {
 export function resolveApiBasePath(): string {
   const envBase = import.meta.env.VITE_API_BASE_PATH;
 
-  return typeof envBase === 'string' && envBase.trim()
-    ? joinPath(envBase, '')
-    : '/api';
+  if (typeof envBase === 'string' && envBase.trim()) {
+    return normalizeApiBasePath(envBase);
+  }
+
+  if (typeof window !== 'undefined') {
+    return hostedApiBasePaths[window.location.hostname] ?? '/api';
+  }
+
+  return '/api';
+}
+
+function normalizeApiBasePath(value: string): string {
+  const trimmed = value.trim();
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimTrailingSlashes(trimmed);
+  }
+
+  return joinPath(trimmed, '');
 }
 
 function joinApiBase(basePath: string, path: string): string {
@@ -139,7 +170,16 @@ export async function apiRequestJson<T>(
     );
   }
 
-  const payload = (await response.json()) as ApiSuccessEnvelope<T> | T;
+  const responseBody = await response.text();
+  const contentType = response.headers.get('Content-Type') ?? '';
+
+  if (!contentType.toLowerCase().includes('application/json')) {
+    throw new Error(
+      `API request expected JSON but received ${contentType || 'an unknown content type'} from ${path}.`,
+    );
+  }
+
+  const payload = JSON.parse(responseBody) as ApiSuccessEnvelope<T> | T;
 
   if (
     typeof payload === 'object' &&

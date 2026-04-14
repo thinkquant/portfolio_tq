@@ -49,6 +49,8 @@ export function DemoAccessShell({ children }: DemoAccessShellProps) {
               <input
                 className="min-h-11 rounded-[var(--radius)] border border-border bg-background px-4 py-2 text-sm text-foreground"
                 disabled
+                id="demo-access-code"
+                name="demo-access-code"
                 placeholder="Enter access code"
                 type="text"
               />

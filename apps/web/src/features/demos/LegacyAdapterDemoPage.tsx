@@ -494,6 +494,8 @@ function ResultPanel({
             {content.inputFields[0]}
             <textarea
               className="min-h-44 rounded-[var(--radius)] border border-border/80 bg-background px-4 py-3 text-sm leading-6 text-foreground"
+              id="legacy-adapter-source-text"
+              name="legacy-adapter-source-text"
               onChange={(event) =>
                 setDraft((currentDraft) => ({
                   ...currentDraft,
@@ -509,6 +511,8 @@ function ResultPanel({
               {content.inputFields[1]}
               <textarea
                 className="min-h-32 rounded-[var(--radius)] border border-border/80 bg-background px-4 py-3 text-sm leading-6 text-foreground"
+                id="legacy-adapter-metadata"
+                name="legacy-adapter-metadata"
                 onChange={(event) =>
                   setDraft((currentDraft) => ({
                     ...currentDraft,
@@ -524,6 +528,8 @@ function ResultPanel({
               {content.inputFields[2]}
               <select
                 className="min-h-11 rounded-[var(--radius)] border border-border/80 bg-background px-4 py-2 text-sm text-foreground"
+                id="legacy-adapter-workflow-type"
+                name="legacy-adapter-workflow-type"
                 onChange={(event) =>
                   setDraft((currentDraft) => ({
                     ...currentDraft,

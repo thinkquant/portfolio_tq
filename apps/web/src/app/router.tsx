@@ -27,6 +27,18 @@ function NotFoundPage() {
   );
 }
 
+function RouteHydrateFallback() {
+  return (
+    <div className="grid gap-8">
+      <PageHeading
+        eyebrow="Loading"
+        lead="Preparing the portfolio view and its shared runtime data."
+        title="Loading portfolio module."
+      />
+    </div>
+  );
+}
+
 async function loadHomeRoute() {
   const { HomePage } = await import('../features/home/HomePage');
 
@@ -203,6 +215,7 @@ async function loadEvalConsoleRoute() {
 export const appRouter = createBrowserRouter([
   {
     element: <RootLayout />,
+    HydrateFallback: RouteHydrateFallback,
     children: [
       {
         index: true,
