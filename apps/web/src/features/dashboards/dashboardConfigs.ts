@@ -1,4 +1,5 @@
-import { siteCopy } from '@/content/textCopy';
+import { evalConsoleDemoCopy } from '@/content/demoCopy';
+import { shellCopy } from '@/content/sharedCopy';
 
 import type { DashboardShellConfig } from './DashboardShell';
 
@@ -160,24 +161,24 @@ export const observabilityDashboardConfig: DashboardShellConfig = {
 
 export const evalConsoleDashboardConfig: DashboardShellConfig = {
   eyebrow: 'Demo',
-  title: siteCopy.demos.evalConsole.title,
-  lead: siteCopy.demos.evalConsole.subhead,
+  title: evalConsoleDemoCopy.title,
+  lead: evalConsoleDemoCopy.subhead,
   tags: [
-    { label: siteCopy.shell.states.loadingLabel, tone: 'accent' },
-    { label: siteCopy.shell.states.flaggedLabel, tone: 'warning' },
+    { label: shellCopy.states.loadingLabel, tone: 'accent' },
+    { label: shellCopy.states.flaggedLabel, tone: 'warning' },
     { label: 'Comparison' },
   ],
-  metrics: siteCopy.demos.evalConsole.metricLabels.map((label, index) => ({
+  metrics: evalConsoleDemoCopy.metricLabels.map((label, index) => ({
     label,
     value: '--',
-    detail: siteCopy.shell.states.noDataBody,
+    detail: shellCopy.states.noDataBody,
     tone: index === 4 ? 'success' : index === 5 ? 'warning' : 'neutral',
   })),
   charts: [
     ...sharedCharts,
     {
-      title: siteCopy.demos.evalConsole.comparisonTitle,
-      description: siteCopy.demos.evalConsole.comparisonBody,
+      title: evalConsoleDemoCopy.comparisonTitle,
+      description: evalConsoleDemoCopy.comparisonBody,
       bars: [
         {
           label: 'active prompt',
@@ -198,47 +199,47 @@ export const evalConsoleDashboardConfig: DashboardShellConfig = {
     {
       id: 'eval-run-001',
       project: 'Payment Exception Review Agent',
-      status: siteCopy.shell.states.loadingLabel,
-      signal: siteCopy.demos.evalConsole.recentRunsColumns.join(', '),
+      status: shellCopy.states.loadingLabel,
+      signal: evalConsoleDemoCopy.recentRunsColumns.join(', '),
     },
     {
       id: 'eval-run-002',
       project: 'Investing Operations Copilot',
-      status: siteCopy.shell.states.loadingLabel,
-      signal: siteCopy.demos.evalConsole.recentRunsEmpty,
+      status: shellCopy.states.loadingLabel,
+      signal: evalConsoleDemoCopy.recentRunsEmpty,
     },
     {
       id: 'eval-run-003',
       project: 'Legacy AI Adapter',
-      status: siteCopy.shell.states.loadingLabel,
-      signal: siteCopy.demos.evalConsole.recentRunsEmpty,
+      status: shellCopy.states.loadingLabel,
+      signal: evalConsoleDemoCopy.recentRunsEmpty,
     },
   ],
   flaggedRuns: [
     {
       id: 'flag-low-confidence',
       project: 'Cross-demo',
-      status: siteCopy.shell.states.flaggedLabel,
-      signal: siteCopy.demos.evalConsole.flaggedRunsBody,
+      status: shellCopy.states.flaggedLabel,
+      signal: evalConsoleDemoCopy.flaggedRunsBody,
     },
     {
       id: 'flag-fallback',
       project: 'Cross-demo',
-      status: siteCopy.shell.states.flaggedLabel,
-      signal: siteCopy.demos.evalConsole.flaggedRunsBody,
+      status: shellCopy.states.flaggedLabel,
+      signal: evalConsoleDemoCopy.flaggedRunsBody,
     },
   ],
   detail: {
-    title: siteCopy.demos.evalConsole.runDetailTitle,
-    rows: siteCopy.demos.evalConsole.runDetailFields.map((field) => ({
+    title: evalConsoleDemoCopy.runDetailTitle,
+    rows: evalConsoleDemoCopy.runDetailFields.map((field) => ({
       label: field,
-      value: siteCopy.shell.states.noDataBody,
+      value: shellCopy.states.noDataBody,
     })),
   },
-  recentRunsTitle: siteCopy.demos.evalConsole.recentRunsTitle,
-  recentRunsLead: siteCopy.demos.evalConsole.recentRunsColumns.join(', '),
-  flaggedRunsTitle: siteCopy.demos.evalConsole.flaggedRunsTitle,
-  flaggedRunsLead: siteCopy.demos.evalConsole.flaggedRunsBody,
-  detailLead: siteCopy.demos.evalConsole.runDetailFields.join(', '),
-  footerNote: siteCopy.demos.evalConsole.footerNote,
+  recentRunsTitle: evalConsoleDemoCopy.recentRunsTitle,
+  recentRunsLead: evalConsoleDemoCopy.recentRunsColumns.join(', '),
+  flaggedRunsTitle: evalConsoleDemoCopy.flaggedRunsTitle,
+  flaggedRunsLead: evalConsoleDemoCopy.flaggedRunsBody,
+  detailLead: evalConsoleDemoCopy.runDetailFields.join(', '),
+  footerNote: evalConsoleDemoCopy.footerNote,
 };

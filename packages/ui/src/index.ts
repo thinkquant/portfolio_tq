@@ -1,3 +1,7 @@
+/**
+ * Re-exports UI primitives and shared navigation metadata.
+ */
+
 import { repositoryMetadata } from '@portfolio-tq/config';
 
 export {

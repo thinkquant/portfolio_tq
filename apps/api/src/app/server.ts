@@ -1,3 +1,7 @@
+/**
+ * Builds the Node HTTP server for API request handling.
+ */
+
 import { createServer } from 'node:http';
 
 import { NotFoundError } from '../errors/api-error.js';
@@ -7,6 +11,16 @@ import { handleOptions } from '../middleware/cors.js';
 import type { Router } from '../routes/router.js';
 import type { AppContext } from './context.js';
 
+/**
+ * Creates an HTTP server that routes requests through the API router.
+ *
+ * The server logs request start and completion, handles CORS preflight
+ * requests, and converts unhandled routes into the shared not-found error.
+ *
+ * @param app Application context containing config, logging, and services.
+ * @param router Router used to resolve incoming request contexts.
+ * @returns A Node HTTP server ready to be listened on by the caller.
+ */
 export function createApiServer(app: AppContext, router: Router) {
   return createServer(async (request, response) => {
     const context = createRequestContext(request, response);
@@ -60,6 +74,12 @@ export function createApiServer(app: AppContext, router: Router) {
   });
 }
 
+/**
+ * Normalizes a request header into a comma-delimited string.
+ *
+ * @param value Header value from Node's parsed request headers.
+ * @returns The joined header string, or undefined when no value is present.
+ */
 function getHeaderValue(
   value: string | string[] | undefined,
 ): string | undefined {

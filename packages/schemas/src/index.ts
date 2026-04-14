@@ -1,3 +1,7 @@
+/**
+ * Defines shared Zod schemas and parser helpers for portfolio contracts.
+ */
+
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
@@ -69,6 +73,16 @@ import {
   type ToolInvocationRecord,
 } from '@portfolio-tq/types';
 
+/**
+ * Creates a synthetic demo run for a project and status.
+ *
+ * The generated run uses a new UUID and current timestamp, so repeated calls
+ * intentionally produce distinct demo records.
+ *
+ * @param projectId Project that owns the generated demo run.
+ * @param status Initial demo run status.
+ * @returns A populated demo run record with synthetic telemetry fields.
+ */
 export function createDemoRun(
   projectId: ProjectId,
   status: DemoRunStatus,
@@ -158,6 +172,12 @@ export const apiErrorEnvelopeSchema = z
   })
   .strict() satisfies z.ZodType<ApiErrorEnvelope>;
 
+/**
+ * Creates a strict success envelope schema around a data schema.
+ *
+ * @param dataSchema Zod schema for the envelope data payload.
+ * @returns A strict API success envelope schema for that payload.
+ */
 export function apiSuccessEnvelopeSchema<T extends z.ZodType>(dataSchema: T) {
   return z
     .object({
@@ -600,6 +620,12 @@ export type SchemaIssue = {
   message: string;
 };
 
+/**
+ * Formats Zod issue paths for API-facing error payloads.
+ *
+ * @param issues Issues containing path segments and messages.
+ * @returns Issues with dot-joined paths, using root for empty paths.
+ */
 export function formatSchemaIssues(
   issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; message: string }>,
 ): SchemaIssue[] {
@@ -611,70 +637,172 @@ export function formatSchemaIssues(
   }));
 }
 
+/**
+ * Safely parses a project-scoped list query.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the query schema.
+ */
 export function parseProjectScopedListQuery(input: unknown) {
   return projectScopedListQuerySchema.safeParse(input);
 }
 
+/**
+ * Safely parses a portfolio project id.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the project id schema.
+ */
 export function parseProjectId(input: unknown) {
   return projectIdSchema.safeParse(input);
 }
 
+/**
+ * Safely parses a payment review demo request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the demo request schema.
+ */
 export function parsePaymentReviewDemoRequest(input: unknown) {
   return paymentReviewDemoRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses a run list query.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the run list query schema.
+ */
 export function parseRunListQuery(input: unknown) {
   return runListQuerySchema.safeParse(input);
 }
 
+/**
+ * Safely parses a run creation request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the run create schema.
+ */
 export function parseRunCreateRequest(input: unknown) {
   return runCreateRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses an evaluation creation request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the evaluation create schema.
+ */
 export function parseEvaluationCreateRequest(input: unknown) {
   return evaluationCreateRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses an evaluation list query.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the evaluation list schema.
+ */
 export function parseEvaluationListQuery(input: unknown) {
   return evaluationListQuerySchema.safeParse(input);
 }
 
+/**
+ * Safely parses a tool invocation list query.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the tool list schema.
+ */
 export function parseToolInvocationListQuery(input: unknown) {
   return toolInvocationListQuerySchema.safeParse(input);
 }
 
+/**
+ * Safely parses a tool invocation creation request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the tool create schema.
+ */
 export function parseToolInvocationCreateRequest(input: unknown) {
   return toolInvocationCreateRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses a customer profile lookup request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the customer lookup schema.
+ */
 export function parseCustomerProfileLookupRequest(input: unknown) {
   return customerProfileLookupRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses a payment case lookup request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the payment case schema.
+ */
 export function parsePaymentCaseLookupRequest(input: unknown) {
   return paymentCaseLookupRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses an account profile lookup request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the account lookup schema.
+ */
 export function parseAccountProfileLookupRequest(input: unknown) {
   return accountProfileLookupRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses a policy search request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the policy search schema.
+ */
 export function parsePolicySearchRequest(input: unknown) {
   return policySearchRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses an event timeline request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the event timeline schema.
+ */
 export function parseEventTimelineRequest(input: unknown) {
   return eventTimelineRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses an escalation placeholder request.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the escalation schema.
+ */
 export function parseEscalationCreatePlaceholderRequest(input: unknown) {
   return escalationCreatePlaceholderRequestSchema.safeParse(input);
 }
 
+/**
+ * Safely parses a seed cases query.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the seed cases schema.
+ */
 export function parseSeedCasesQuery(input: unknown) {
   return seedCasesQuerySchema.safeParse(input);
 }
 
+/**
+ * Safely parses a seed documents query.
+ *
+ * @param input Unknown value to validate.
+ * @returns The Zod safe-parse result for the seed documents schema.
+ */
 export function parseSeedDocumentsQuery(input: unknown) {
   return seedDocumentsQuerySchema.safeParse(input);
 }

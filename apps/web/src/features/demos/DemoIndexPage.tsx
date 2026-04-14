@@ -8,7 +8,8 @@ import {
 import { Link, useLoaderData } from 'react-router-dom';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
-import { siteCopy } from '../../content/textCopy';
+import { demoIndexCopy } from '../../content/demoCopy';
+import { shellCopy } from '../../content/sharedCopy';
 import type { DemoIndexPageData } from './demoLoaders';
 
 export function DemoIndexPage() {
@@ -19,25 +20,22 @@ export function DemoIndexPage() {
       {({ projects }) => (
         <div className={designTokens.pageSection}>
           <PageHeading
-            eyebrow={siteCopy.demoIndex.eyebrow}
-            lead={siteCopy.demoIndex.body}
-            title={siteCopy.demoIndex.title}
+            eyebrow={demoIndexCopy.eyebrow}
+            lead={demoIndexCopy.body}
+            title={demoIndexCopy.title}
           />
 
           <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-10">
             <Card className="grid content-start gap-4 p-6 sm:p-8">
               <SectionHeading
                 eyebrow="Availability"
-                lead={siteCopy.demoIndex.accessBody}
-                title={siteCopy.demoIndex.accessTitle}
+                lead={demoIndexCopy.accessBody}
+                title={demoIndexCopy.accessTitle}
               />
             </Card>
 
-            <Callout
-              title={siteCopy.shell.states.comingSoonTitle}
-              tone="warning"
-            >
-              {siteCopy.shell.states.comingSoonBody}
+            <Callout title={shellCopy.states.comingSoonTitle} tone="warning">
+              {shellCopy.states.comingSoonBody}
             </Callout>
           </section>
 
@@ -50,10 +48,10 @@ export function DemoIndexPage() {
                 <div className="grid gap-3">
                   <p className={designTokens.label}>Demo {index + 1}</p>
                   <h3 className="max-w-[18ch] font-serif text-[1.5rem] font-semibold leading-tight text-foreground [text-wrap:balance]">
-                    {siteCopy.demoIndex.cards[index]?.title ?? project.title}
+                    {demoIndexCopy.cards[index]?.title ?? project.title}
                   </h3>
                   <p className={designTokens.bodyTextTight}>
-                    {siteCopy.demoIndex.cards[index]?.body ?? project.summary}
+                    {demoIndexCopy.cards[index]?.body ?? project.summary}
                   </p>
                 </div>
 
@@ -62,8 +60,7 @@ export function DemoIndexPage() {
                     className={designTokens.buttonPrimary}
                     to={project.demoHref}
                   >
-                    {siteCopy.demoIndex.cards[index]?.cta ??
-                      siteCopy.shell.ctas.tertiary}
+                    {demoIndexCopy.cards[index]?.cta ?? shellCopy.ctas.tertiary}
                   </Link>
                   <Link
                     className={designTokens.buttonSecondary}

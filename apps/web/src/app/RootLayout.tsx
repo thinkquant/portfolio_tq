@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation, useNavigation } from 'react-router-dom';
 
 import { ProtectedEmailLink } from '@/components/ProtectedEmail';
-import { siteCopy } from '@/content/textCopy';
+import { shellCopy } from '@/content/sharedCopy';
 
 function isNavigationActive(href: string, pathname: string): boolean {
   if (href === '/') {
@@ -23,7 +23,7 @@ export function RootLayout() {
   const { pathname } = useLocation();
   const navigation = useNavigation();
   const isNavigating = navigation.state !== 'idle';
-  const shellNavigation = siteCopy.shell.navigation;
+  const shellNavigation = shellCopy.navigation;
 
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -44,16 +44,16 @@ export function RootLayout() {
                 to="/"
               >
                 <span className="text-[0.75rem] font-semibold uppercase tracking-[0.11em] text-primary/80">
-                  {siteCopy.shell.brand}
+                  {shellCopy.brand}
                 </span>
                 <span className="font-serif text-[2rem] font-semibold leading-none tracking-normal text-foreground transition group-hover:text-primary sm:text-[2.35rem]">
-                  {siteCopy.shell.primaryLockup}
+                  {shellCopy.primaryLockup}
                 </span>
                 <span className="max-w-[56ch] text-[0.9375rem] leading-6 text-muted-foreground [text-wrap:pretty]">
-                  {siteCopy.shell.secondaryLine}
+                  {shellCopy.secondaryLine}
                 </span>
                 <span className="text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  {siteCopy.shell.utilityLine}
+                  {shellCopy.utilityLine}
                 </span>
               </Link>
 
@@ -97,7 +97,7 @@ export function RootLayout() {
                 className="rounded-[var(--radius)] border border-primary/20 bg-accent px-4 py-3 text-sm text-accent-foreground"
                 role="status"
               >
-                {siteCopy.shell.states.loadingLabel}...
+                {shellCopy.states.loadingLabel}...
               </div>
             ) : null}
             <Outlet />
@@ -108,19 +108,19 @@ export function RootLayout() {
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
             <div className="grid gap-3">
               <p className="font-semibold text-foreground">
-                {siteCopy.shell.footer.line1}
+                {shellCopy.footer.line1}
               </p>
               <p className="max-w-[60ch] leading-6">
-                {siteCopy.shell.footer.line2}
+                {shellCopy.footer.line2}
               </p>
               <p className="text-[0.75rem] uppercase tracking-[0.1em] text-muted-foreground">
-                {siteCopy.shell.footer.note}
+                {shellCopy.footer.note}
               </p>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-[auto_auto]">
               <div className="flex flex-wrap gap-2" aria-label="Footer links">
-                {siteCopy.shell.footer.navigation.map((item) =>
+                {shellCopy.footer.navigation.map((item) =>
                   item.href.startsWith('http') ? (
                     <a
                       className="inline-flex min-h-11 items-center rounded-[var(--radius)] border border-transparent px-3 py-2 text-muted-foreground transition hover:border-border/80 hover:bg-card hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
@@ -144,7 +144,7 @@ export function RootLayout() {
               </div>
 
               <div className="grid gap-2">
-                {siteCopy.shell.footer.contacts.map((contact) =>
+                {shellCopy.footer.contacts.map((contact) =>
                   contact.label === 'Email' ? (
                     <ProtectedEmailLink
                       className="w-fit border-0 bg-transparent p-0 text-left text-muted-foreground transition hover:text-foreground"

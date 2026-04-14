@@ -7,7 +7,7 @@ import {
 } from '@portfolio-tq/ui';
 import { Link, useLoaderData } from 'react-router-dom';
 
-import { siteCopy } from '@/content/textCopy';
+import { shellCopy } from '@/content/sharedCopy';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
 import type { DemoShellPageData } from './demoLoaders';
@@ -39,11 +39,7 @@ function PanelList({ items }: { items: string[] }) {
 function DemoShellPageContent({ content, project }: DemoShellPageContentProps) {
   return (
     <div className="grid gap-10 lg:gap-12">
-      <PageHeading
-        eyebrow="Demo"
-        lead={content.subhead}
-        title={content.title}
-      />
+      <PageHeading eyebrow="Demo" lead={content.subhead} title={content.title} />
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         <Card>
@@ -84,16 +80,14 @@ function DemoShellPageContent({ content, project }: DemoShellPageContentProps) {
       <section className="grid gap-6 border-y border-border/80 py-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         <Card>
           <SectionHeading
-            title={
-              content.detailPanelTitle ?? siteCopy.shell.states.noDataTitle
-            }
+            title={content.detailPanelTitle ?? shellCopy.states.noDataTitle}
           />
           {content.detailLabels?.length ? (
             <PanelList items={content.detailLabels} />
           ) : (
             <EmptyState
-              message={content.emptyState ?? siteCopy.shell.states.noDataBody}
-              title={siteCopy.shell.states.noDataTitle}
+              message={content.emptyState ?? shellCopy.states.noDataBody}
+              title={shellCopy.states.noDataTitle}
             />
           )}
         </Card>
@@ -107,7 +101,7 @@ function DemoShellPageContent({ content, project }: DemoShellPageContentProps) {
                   {signal}
                 </p>
                 <p className="text-base leading-7 text-muted-foreground">
-                  {siteCopy.shell.states.noDataBody}
+                  {shellCopy.states.noDataBody}
                 </p>
               </Card>
             ))}
@@ -121,8 +115,8 @@ function DemoShellPageContent({ content, project }: DemoShellPageContentProps) {
             {content.noteBody}
           </Callout>
         ) : (
-          <Callout title={siteCopy.shell.states.comingSoonTitle} tone="warning">
-            {siteCopy.shell.states.comingSoonBody}
+          <Callout title={shellCopy.states.comingSoonTitle} tone="warning">
+            {shellCopy.states.comingSoonBody}
           </Callout>
         )}
 
@@ -130,11 +124,11 @@ function DemoShellPageContent({ content, project }: DemoShellPageContentProps) {
           <SectionHeading title="State model" />
           <div className="grid gap-3">
             <EmptyState
-              message={content.emptyState ?? siteCopy.shell.states.noDataBody}
-              title={siteCopy.shell.states.noDataTitle}
+              message={content.emptyState ?? shellCopy.states.noDataBody}
+              title={shellCopy.states.noDataTitle}
             />
             <div className="rounded-[var(--radius)] border border-border bg-muted p-4 text-base leading-7 text-muted-foreground">
-              {siteCopy.shell.states.loadingLabel}
+              {shellCopy.states.loadingLabel}
             </div>
             {content.stateTitle && content.stateBody ? (
               <Callout title={content.stateTitle} tone="warning">

@@ -1,3 +1,7 @@
+/**
+ * Bootstraps the API service and starts the HTTP listener.
+ */
+
 import { createApiServer } from './app/server.js';
 import { env, getRuntimeConfig } from './config/index.js';
 import { createApiRouter } from './routes/index.js';

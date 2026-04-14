@@ -1,3 +1,7 @@
+/**
+ * Publishes shared portfolio metadata, labels, routes, and defaults.
+ */
+
 import {
   demoRunStatuses,
   environments,

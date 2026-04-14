@@ -1,3 +1,7 @@
+/**
+ * Exports portfolio agent metadata derived from shared tool coverage.
+ */
+
 import { repositoryMetadata } from '@portfolio-tq/config';
 import { createDemoRun } from '@portfolio-tq/schemas';
 import { toolCatalog } from '@portfolio-tq/tools';

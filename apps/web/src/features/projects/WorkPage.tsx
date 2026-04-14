@@ -9,7 +9,8 @@ import { useState } from 'react';
 import { Link, useLoaderData } from 'react-router-dom';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
-import { siteCopy } from '../../content/textCopy';
+import { shellCopy } from '../../content/sharedCopy';
+import { workCopy } from '../../content/workCopy';
 import { type PortfolioProject } from './projectCatalog';
 import type { WorkPageData } from './projectLoaders';
 
@@ -44,9 +45,7 @@ function ProjectCard({ project }: { project: PortfolioProject }) {
 
 export function WorkPage() {
   const state = useLoaderData() as WorkPageData;
-  const [activeFilter, setActiveFilter] = useState(
-    siteCopy.work.filterOptions[0],
-  );
+  const [activeFilter, setActiveFilter] = useState(workCopy.filterOptions[0]);
 
   return (
     <RouteDataStateView state={state}>
@@ -61,17 +60,15 @@ export function WorkPage() {
         return (
           <div className={designTokens.pageSection}>
             <PageHeading
-              eyebrow={siteCopy.work.eyebrow}
-              lead={siteCopy.work.body}
-              title={siteCopy.work.title}
+              eyebrow={workCopy.eyebrow}
+              lead={workCopy.body}
+              title={workCopy.title}
             />
 
             <section className="grid gap-7">
               <div className="grid gap-4 border-b border-border/80 pb-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                 <div className="grid gap-2">
-                  <p className={designTokens.label}>
-                    {siteCopy.work.filterLabel}
-                  </p>
+                  <p className={designTokens.label}>{workCopy.filterLabel}</p>
                   <p className={designTokens.bodyTextTight}>
                     {filteredProjects.length} project
                     {filteredProjects.length === 1 ? '' : 's'} shown.
@@ -79,7 +76,7 @@ export function WorkPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 lg:justify-end">
-                  {siteCopy.work.filterOptions.map((filter) => (
+                  {workCopy.filterOptions.map((filter) => (
                     <button
                       className={[
                         'min-h-11 rounded-[var(--radius)] border px-4 py-2.5 text-sm font-semibold transition',
@@ -107,18 +104,18 @@ export function WorkPage() {
             <section className="grid gap-6 border-t border-border/80 pt-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
               <SectionHeading
                 eyebrow="Review note"
-                lead={siteCopy.work.bottomBody}
-                title={siteCopy.work.bottomTitle}
+                lead={workCopy.bottomBody}
+                title={workCopy.bottomTitle}
               />
               <Card className="grid content-start gap-4">
                 <p className="text-[0.75rem] font-semibold uppercase tracking-[0.11em] text-muted-foreground">
-                  {siteCopy.shell.contactPrompt.short}
+                  {shellCopy.contactPrompt.short}
                 </p>
                 <p className={designTokens.bodyTextTight}>
-                  {siteCopy.shell.contactPrompt.long}
+                  {shellCopy.contactPrompt.long}
                 </p>
                 <Link className={designTokens.buttonSecondary} to="/demo">
-                  {siteCopy.shell.ctas.tertiary}
+                  {shellCopy.ctas.tertiary}
                 </Link>
               </Card>
             </section>

@@ -1,29 +1,6 @@
 import { PageHeading } from '@portfolio-tq/ui';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import { DemoAccessShell } from '../features/access/DemoAccessShell';
-import { AboutPage } from '../features/about/AboutPage';
-import { ArchitecturePage } from '../features/architecture/ArchitecturePage';
-import { EvalConsoleDashboardPage } from '../features/dashboards/EvalConsoleDashboardPage';
-import { ObservabilityPage } from '../features/dashboards/ObservabilityPage';
-import {
-  loadEvalConsolePageData,
-  loadObservabilityPageData,
-} from '../features/dashboards/dashboardLoaders';
-import { DemoIndexPage } from '../features/demos/DemoIndexPage';
-import { DemoShellPage } from '../features/demos/DemoShellPage';
-import {
-  loadDemoIndexPageData,
-  loadDemoShellPageData,
-} from '../features/demos/demoLoaders';
-import { HomePage } from '../features/home/HomePage';
-import { ProjectDetailPage } from '../features/projects/ProjectDetailPage';
-import {
-  loadProjectDetailPageData,
-  loadWorkPageData,
-} from '../features/projects/projectLoaders';
-import { WorkPage } from '../features/projects/WorkPage';
-import { RepoWorkflowPage } from '../features/repo/RepoWorkflowPage';
 import { RootLayout } from './RootLayout';
 
 type ShellPageProps = {
@@ -50,8 +27,139 @@ function NotFoundPage() {
   );
 }
 
-function withDemoAccess(element: React.ReactNode) {
-  return <DemoAccessShell>{element}</DemoAccessShell>;
+async function loadHomeRoute() {
+  const { HomePage } = await import('../features/home/HomePage');
+
+  return { Component: HomePage };
+}
+
+async function loadAboutRoute() {
+  const { AboutPage } = await import('../features/about/AboutPage');
+
+  return { Component: AboutPage };
+}
+
+async function loadWorkRoute() {
+  const [{ WorkPage }, { loadWorkPageData }] = await Promise.all([
+    import('../features/projects/WorkPage'),
+    import('../features/projects/projectLoaders'),
+  ]);
+
+  return {
+    Component: WorkPage,
+    loader: loadWorkPageData,
+  };
+}
+
+async function loadArchitectureRoute() {
+  const { ArchitecturePage } = await import(
+    '../features/architecture/ArchitecturePage'
+  );
+
+  return { Component: ArchitecturePage };
+}
+
+async function loadObservabilityRoute() {
+  const [{ ObservabilityPage }, { loadObservabilityPageData }] =
+    await Promise.all([
+      import('../features/dashboards/ObservabilityPage'),
+      import('../features/dashboards/dashboardLoaders'),
+    ]);
+
+  return {
+    Component: ObservabilityPage,
+    loader: loadObservabilityPageData,
+  };
+}
+
+async function loadRepoWorkflowRoute() {
+  const { RepoWorkflowPage } = await import(
+    '../features/repo/RepoWorkflowPage'
+  );
+
+  return { Component: RepoWorkflowPage };
+}
+
+async function loadProjectDetailRoute(href: string) {
+  const [{ ProjectDetailPage }, { loadProjectDetailPageData }] =
+    await Promise.all([
+      import('../features/projects/ProjectDetailPage'),
+      import('../features/projects/projectLoaders'),
+    ]);
+
+  return {
+    Component: ProjectDetailPage,
+    loader: () => loadProjectDetailPageData(href),
+  };
+}
+
+async function loadDemoIndexRoute() {
+  const [{ DemoAccessShell }, { DemoIndexPage }, { loadDemoIndexPageData }] =
+    await Promise.all([
+      import('../features/access/DemoAccessShell'),
+      import('../features/demos/DemoIndexPage'),
+      import('../features/demos/demoLoaders'),
+    ]);
+
+  function DemoIndexRoute() {
+    return (
+      <DemoAccessShell>
+        <DemoIndexPage />
+      </DemoAccessShell>
+    );
+  }
+
+  return {
+    Component: DemoIndexRoute,
+    loader: loadDemoIndexPageData,
+  };
+}
+
+async function loadDemoShellRoute(demoHref: string) {
+  const [{ DemoAccessShell }, { DemoShellPage }, { loadDemoShellPageData }] =
+    await Promise.all([
+      import('../features/access/DemoAccessShell'),
+      import('../features/demos/DemoShellPage'),
+      import('../features/demos/demoLoaders'),
+    ]);
+
+  function DemoShellRoute() {
+    return (
+      <DemoAccessShell>
+        <DemoShellPage />
+      </DemoAccessShell>
+    );
+  }
+
+  return {
+    Component: DemoShellRoute,
+    loader: () => loadDemoShellPageData(demoHref),
+  };
+}
+
+async function loadEvalConsoleRoute() {
+  const [
+    { DemoAccessShell },
+    { EvalConsoleDashboardPage },
+    { loadEvalConsolePageData },
+  ] = await Promise.all([
+    import('../features/access/DemoAccessShell'),
+    import('../features/dashboards/EvalConsoleDashboardPage'),
+    import('../features/dashboards/dashboardLoaders'),
+  ]);
+
+  function EvalConsoleRoute() {
+    return (
+      <DemoAccessShell>
+        <EvalConsoleDashboardPage />
+      </DemoAccessShell>
+    );
+  }
+
+  return {
+    Component: EvalConsoleRoute,
+    loader: loadEvalConsolePageData,
+  };
 }
 
 export const appRouter = createBrowserRouter([
@@ -60,16 +168,15 @@ export const appRouter = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />,
+        lazy: loadHomeRoute,
       },
       {
         path: 'about',
-        element: <AboutPage />,
+        lazy: loadAboutRoute,
       },
       {
         path: 'work',
-        loader: loadWorkPageData,
-        element: <WorkPage />,
+        lazy: loadWorkRoute,
       },
       {
         path: 'projects',
@@ -77,63 +184,51 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'architecture',
-        element: <ArchitecturePage />,
+        lazy: loadArchitectureRoute,
       },
       {
         path: 'observability',
-        loader: loadObservabilityPageData,
-        element: <ObservabilityPage />,
+        lazy: loadObservabilityRoute,
       },
       {
         path: 'repo-workflow',
-        element: <RepoWorkflowPage />,
+        lazy: loadRepoWorkflowRoute,
       },
       {
         path: 'projects/payment-exception-review',
-        loader: () =>
-          loadProjectDetailPageData('/projects/payment-exception-review'),
-        element: <ProjectDetailPage />,
+        lazy: () => loadProjectDetailRoute('/projects/payment-exception-review'),
       },
       {
         path: 'projects/investing-ops-copilot',
-        loader: () =>
-          loadProjectDetailPageData('/projects/investing-ops-copilot'),
-        element: <ProjectDetailPage />,
+        lazy: () => loadProjectDetailRoute('/projects/investing-ops-copilot'),
       },
       {
         path: 'projects/legacy-ai-adapter',
-        loader: () => loadProjectDetailPageData('/projects/legacy-ai-adapter'),
-        element: <ProjectDetailPage />,
+        lazy: () => loadProjectDetailRoute('/projects/legacy-ai-adapter'),
       },
       {
         path: 'projects/eval-console',
-        loader: () => loadProjectDetailPageData('/projects/eval-console'),
-        element: <ProjectDetailPage />,
+        lazy: () => loadProjectDetailRoute('/projects/eval-console'),
       },
       {
         path: 'demo',
-        loader: loadDemoIndexPageData,
-        element: withDemoAccess(<DemoIndexPage />),
+        lazy: loadDemoIndexRoute,
       },
       {
         path: 'demo/payment-exception-review',
-        loader: () => loadDemoShellPageData('/demo/payment-exception-review'),
-        element: withDemoAccess(<DemoShellPage />),
+        lazy: () => loadDemoShellRoute('/demo/payment-exception-review'),
       },
       {
         path: 'demo/investing-ops-copilot',
-        loader: () => loadDemoShellPageData('/demo/investing-ops-copilot'),
-        element: withDemoAccess(<DemoShellPage />),
+        lazy: () => loadDemoShellRoute('/demo/investing-ops-copilot'),
       },
       {
         path: 'demo/legacy-ai-adapter',
-        loader: () => loadDemoShellPageData('/demo/legacy-ai-adapter'),
-        element: withDemoAccess(<DemoShellPage />),
+        lazy: () => loadDemoShellRoute('/demo/legacy-ai-adapter'),
       },
       {
         path: 'demo/eval-console',
-        loader: loadEvalConsolePageData,
-        element: withDemoAccess(<EvalConsoleDashboardPage />),
+        lazy: loadEvalConsoleRoute,
       },
       {
         path: '*',

@@ -1,7 +1,8 @@
 import { Callout, ProofTag, SectionHeading } from '@portfolio-tq/ui';
 import type { ReactNode } from 'react';
 
-import { siteCopy } from '@/content/textCopy';
+import { demoIndexCopy } from '@/content/demoCopy';
+import { shellCopy } from '@/content/sharedCopy';
 
 type DemoAccessShellProps = {
   children: ReactNode;
@@ -9,19 +10,19 @@ type DemoAccessShellProps = {
 
 const accessStates = [
   {
-    title: siteCopy.shell.states.lockedTitle,
+    title: shellCopy.states.lockedTitle,
     tag: 'Access code',
-    body: siteCopy.shell.states.lockedBody,
+    body: shellCopy.states.lockedBody,
   },
   {
-    title: siteCopy.shell.states.comingSoonTitle,
+    title: shellCopy.states.comingSoonTitle,
     tag: 'Shell ready',
-    body: siteCopy.shell.states.comingSoonBody,
+    body: shellCopy.states.comingSoonBody,
   },
   {
-    title: siteCopy.shell.states.errorTitle,
+    title: shellCopy.states.errorTitle,
     tag: 'Review required',
-    body: siteCopy.shell.states.errorBody,
+    body: shellCopy.states.errorBody,
   },
 ];
 
@@ -32,12 +33,12 @@ export function DemoAccessShell({ children }: DemoAccessShellProps) {
         <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <SectionHeading
             eyebrow="Gate"
-            lead={siteCopy.demoIndex.accessBody}
-            title={siteCopy.shell.states.lockedTitle}
+            lead={demoIndexCopy.accessBody}
+            title={shellCopy.states.lockedTitle}
           />
 
-          <Callout title={siteCopy.shell.contactPrompt.short} tone="success">
-            {siteCopy.shell.contactPrompt.long}
+          <Callout title={shellCopy.contactPrompt.short} tone="success">
+            {shellCopy.contactPrompt.long}
           </Callout>
         </div>
 
@@ -57,10 +58,10 @@ export function DemoAccessShell({ children }: DemoAccessShellProps) {
               disabled
               type="button"
             >
-              {siteCopy.shell.states.loadingLabel}
+              {shellCopy.states.loadingLabel}
             </button>
             <p className="text-base leading-7 text-muted-foreground [text-wrap:pretty]">
-              {siteCopy.shell.states.lockedBody}
+              {shellCopy.states.lockedBody}
             </p>
           </form>
 
@@ -73,7 +74,7 @@ export function DemoAccessShell({ children }: DemoAccessShellProps) {
                 <div className="flex flex-wrap gap-2">
                   <ProofTag
                     tone={
-                      state.title === siteCopy.shell.states.errorTitle
+                      state.title === shellCopy.states.errorTitle
                         ? 'danger'
                         : 'neutral'
                     }

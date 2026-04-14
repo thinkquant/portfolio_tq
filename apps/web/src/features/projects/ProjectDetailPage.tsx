@@ -8,7 +8,7 @@ import {
 } from '@portfolio-tq/ui';
 import { Link, useLoaderData } from 'react-router-dom';
 
-import { siteCopy } from '@/content/textCopy';
+import { projectCopyById } from '@/content/projectCopy';
 
 import { RouteDataStateView } from '../../app/RouteDataStateView';
 import type { PortfolioProject } from './projectCatalog';
@@ -19,7 +19,7 @@ type ProjectDetailPageContentProps = {
 };
 
 function ProjectDetailPageContent({ project }: ProjectDetailPageContentProps) {
-  const content = siteCopy.projects[project.id];
+  const content = projectCopyById[project.id];
 
   return (
     <div className={designTokens.pageSection}>

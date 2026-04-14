@@ -1,3 +1,7 @@
+/**
+ * Defines shared literals and TypeScript contracts for the portfolio.
+ */
+
 export const environments = ['dev', 'prod'] as const;
 
 export type Environment = (typeof environments)[number];

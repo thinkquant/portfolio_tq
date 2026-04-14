@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 import { ProtectedEmailButton } from '@/components/ProtectedEmail';
 import { buttonVariants } from '@/components/ui/button';
-import { siteCopy } from '@/content/textCopy';
+import { homeCopy } from '@/content/homeCopy';
 import { cn } from '@/lib/utils';
 
 function GitHubMark(props: SVGProps<SVGSVGElement>) {
@@ -67,7 +67,7 @@ export function HeroBlock() {
             initial={{ opacity: 0, y: 20 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            {siteCopy.home.hero.headline}
+            {homeCopy.hero.headline}
           </motion.h1>
 
           <motion.p
@@ -76,7 +76,7 @@ export function HeroBlock() {
             initial={{ opacity: 0, y: 20 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
-            {siteCopy.home.hero.subhead}
+            {homeCopy.hero.subhead}
           </motion.p>
 
           <motion.div
@@ -90,7 +90,7 @@ export function HeroBlock() {
               to="/work"
             >
               <Briefcase className="h-4 w-4" />
-              {siteCopy.home.hero.primaryCta}
+              {homeCopy.hero.primaryCta}
             </Link>
             <Link
               className={cn(
@@ -99,7 +99,7 @@ export function HeroBlock() {
               )}
               to="/architecture"
             >
-              {siteCopy.home.hero.secondaryCta}
+              {homeCopy.hero.secondaryCta}
               <ArrowDown className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -146,7 +146,7 @@ export function HeroBlock() {
             initial={{ opacity: 0, y: 16 }}
             transition={{ delay: 0.7, duration: 0.5 }}
           >
-            {siteCopy.home.heroProofStrip.map((label) => (
+            {homeCopy.heroProofStrip.map((label) => (
               <span
                 className="inline-flex items-center rounded-[var(--radius)] border border-border bg-card px-2.5 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.11em] text-muted-foreground"
                 key={label}

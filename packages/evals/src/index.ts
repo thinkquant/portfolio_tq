@@ -1,3 +1,7 @@
+/**
+ * Provides shared evaluation thresholds, checks, and run summaries.
+ */
+
 import {
   evaluationFlagLabels,
   sharedEvaluationThresholds,
@@ -157,10 +161,22 @@ export interface FlaggedRunCriteriaInput {
   score?: number | null;
 }
 
+/**
+ * Identifies demo run statuses that no longer advance.
+ *
+ * @param status Demo run status to classify.
+ * @returns True when the status is completed, failed, or escalated.
+ */
 export function isTerminalStatus(status: DemoRunStatus): boolean {
   return ['completed', 'failed', 'escalated'].includes(status);
 }
 
+/**
+ * Evaluates whether a schema validation check passed.
+ *
+ * @param input Schema validity state and optional failure message.
+ * @returns A check result with a critical schema flag when validation fails.
+ */
 export function evaluateSchemaValidity(
   input: SchemaValidityEvaluationInput,
 ): EvaluationCheckResult {
@@ -184,6 +200,12 @@ export function evaluateSchemaValidity(
   };
 }
 
+/**
+ * Validates an unknown value against the evaluation record schema.
+ *
+ * @param input Value to parse as an evaluation record.
+ * @returns A schema validity check result for the parsed value.
+ */
 export function evaluateEvaluationRecordSchema(
   input: unknown,
 ): EvaluationCheckResult {
@@ -197,6 +219,15 @@ export function evaluateEvaluationRecordSchema(
   });
 }
 
+/**
+ * Evaluates confidence against the review threshold.
+ *
+ * Missing confidence is treated as a failed check so reviewers can see that
+ * the run did not produce a usable confidence value.
+ *
+ * @param input Confidence value and optional threshold override.
+ * @returns A check result with a low-confidence flag when the check fails.
+ */
 export function evaluateConfidenceThreshold(
   input: ConfidenceEvaluationInput,
 ): EvaluationCheckResult {
@@ -228,6 +259,12 @@ export function evaluateConfidenceThreshold(
   };
 }
 
+/**
+ * Evaluates whether fallback behavior was triggered.
+ *
+ * @param input Fallback state and optional review message.
+ * @returns A check result with a fallback flag when fallback occurred.
+ */
 export function evaluateFallbackTriggered(
   input: FallbackEvaluationInput,
 ): EvaluationCheckResult {
@@ -251,6 +288,15 @@ export function evaluateFallbackTriggered(
   };
 }
 
+/**
+ * Evaluates grounding and source citation presence.
+ *
+ * Unknown groundedness scores or citation counts are not failures, but known
+ * missing citations or below-threshold scores are flagged for review.
+ *
+ * @param input Groundedness score, citation count, and optional threshold.
+ * @returns A check result with a missing-sources flag when the check fails.
+ */
 export function evaluateGroundingPresence(
   input: GroundingEvaluationInput,
 ): EvaluationCheckResult {
@@ -281,6 +327,12 @@ export function evaluateGroundingPresence(
   };
 }
 
+/**
+ * Evaluates latency against the review threshold.
+ *
+ * @param input Latency value and optional threshold override.
+ * @returns A check result with a latency flag when the value is too high.
+ */
 export function evaluateLatencyThreshold(
   input: LatencyEvaluationInput,
 ): EvaluationCheckResult {
@@ -311,6 +363,12 @@ export function evaluateLatencyThreshold(
   };
 }
 
+/**
+ * Classifies estimated cost into unknown, normal, or review bands.
+ *
+ * @param input Estimated cost and optional review threshold override.
+ * @returns Cost band details with the normalized threshold and summary.
+ */
 export function bandEstimatedCost(
   input: EstimatedCostBandInput,
 ): EstimatedCostBandResult {
@@ -344,6 +402,15 @@ export function bandEstimatedCost(
   };
 }
 
+/**
+ * Deduplicates evaluation flags by type while keeping highest severity.
+ *
+ * Results and raw flags can be mixed; nullish values and passed checks without
+ * flags are ignored.
+ *
+ * @param inputs Evaluation check results, raw flags, or empty values.
+ * @returns One flag per type, preserving the most severe flag seen.
+ */
 export function aggregateEvaluationFlags(
   inputs: readonly (
     | EvaluationCheckResult
@@ -374,6 +441,12 @@ export function aggregateEvaluationFlags(
   return [...flagsByType.values()];
 }
 
+/**
+ * Determines whether a run should appear in flagged-run views.
+ *
+ * @param input Evaluation status, policy state, fallback state, and score.
+ * @returns True when any review or failure signal is present.
+ */
 export function isFlaggedRun(input: FlaggedRunCriteriaInput): boolean {
   return (
     input.evaluationStatus !== 'passed' ||
@@ -387,6 +460,13 @@ export function isFlaggedRun(input: FlaggedRunCriteriaInput): boolean {
   );
 }
 
+/**
+ * Builds the flagged-run summary used by evaluation surfaces.
+ *
+ * @param run Run record that supplies project, status, and telemetry fields.
+ * @param evaluation Optional evaluation record that overrides run signals.
+ * @returns A summary of flag state, reasons, severity, and display text.
+ */
 export function summarizeFlaggedRun(
   run: RunRecord,
   evaluation?: EvaluationRecord | null,
@@ -422,6 +502,12 @@ export function summarizeFlaggedRun(
   };
 }
 
+/**
+ * Derives the aggregate evaluation status from core checks.
+ *
+ * @param input Schema, policy, score, and fallback inputs to evaluate.
+ * @returns Failed, warning, or passed status for the evaluation record.
+ */
 export function deriveEvaluationStatus(
   input: EvaluationStatusInput,
 ): EvaluationStatus {
@@ -439,6 +525,13 @@ export function deriveEvaluationStatus(
   return 'passed';
 }
 
+/**
+ * Builds a dashboard summary for a run and optional evaluation.
+ *
+ * @param run Run record that supplies status, telemetry, and fallback state.
+ * @param evaluation Optional evaluation record that supplies score and flags.
+ * @returns Dashboard-ready run metrics and summary text.
+ */
 export function summarizeRunForDashboard(
   run: RunRecord,
   evaluation?: EvaluationRecord | null,
@@ -462,6 +555,14 @@ export function summarizeRunForDashboard(
   };
 }
 
+/**
+ * Creates an evaluation flag value.
+ *
+ * @param type Flag category to report.
+ * @param severity Review severity associated with the flag.
+ * @param message Human-readable explanation for the flag.
+ * @returns The normalized evaluation flag.
+ */
 function createEvaluationFlag(
   type: EvaluationFlagType,
   severity: EvaluationFlagSeverity,
@@ -474,6 +575,12 @@ function createEvaluationFlag(
   };
 }
 
+/**
+ * Extracts a flag from a raw flag or check result.
+ *
+ * @param input Evaluation check result, raw flag, or empty value.
+ * @returns The contained flag, or null when no flag is present.
+ */
 function normalizeFlagInput(
   input: EvaluationCheckResult | EvaluationFlag | null | undefined,
 ): EvaluationFlag | null {
@@ -488,6 +595,12 @@ function normalizeFlagInput(
   return input.flag ?? null;
 }
 
+/**
+ * Converts flag severity into an ordering rank.
+ *
+ * @param severity Severity label to rank.
+ * @returns Numeric rank where critical is highest and info is lowest.
+ */
 function severityRank(severity: EvaluationFlagSeverity): number {
   if (severity === 'critical') {
     return 3;
@@ -500,6 +613,12 @@ function severityRank(severity: EvaluationFlagSeverity): number {
   return 1;
 }
 
+/**
+ * Finds the highest severity present in a flag list.
+ *
+ * @param flags Flags to scan for severity.
+ * @returns The highest severity, or null when the list is empty.
+ */
 function highestFlagSeverity(
   flags: readonly EvaluationFlag[],
 ): EvaluationFlagSeverity | null {

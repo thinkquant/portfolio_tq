@@ -1,3 +1,7 @@
+/**
+ * Defines deterministic mock tool contracts and lookup helpers.
+ */
+
 import { z } from 'zod';
 
 import {
@@ -253,6 +257,13 @@ export interface EscalationPlaceholderSeedData {
   createdAt?: string;
 }
 
+/**
+ * Looks up a seeded customer profile by customer id.
+ *
+ * @param payload Lookup request containing the customer id.
+ * @param seedData Seeded customer profiles available to the tool.
+ * @returns The matching customer profile, or null when none exists.
+ */
 export function lookupCustomerProfile(
   payload: CustomerProfileLookupRequest,
   seedData: CustomerProfileLookupSeedData,
@@ -264,6 +275,13 @@ export function lookupCustomerProfile(
   );
 }
 
+/**
+ * Looks up a seeded payment case by case id.
+ *
+ * @param payload Lookup request containing the case id.
+ * @param seedData Seeded payment cases available to the tool.
+ * @returns The matching payment case, or null when none exists.
+ */
 export function lookupPaymentCase(
   payload: PaymentCaseLookupRequest,
   seedData: PaymentCaseLookupSeedData,
@@ -274,6 +292,13 @@ export function lookupPaymentCase(
   );
 }
 
+/**
+ * Looks up a seeded account profile by account id.
+ *
+ * @param payload Lookup request containing the account id.
+ * @param seedData Seeded account profiles available to the tool.
+ * @returns The matching account profile, or null when none exists.
+ */
 export function lookupAccountProfile(
   payload: AccountProfileLookupRequest,
   seedData: AccountProfileLookupSeedData,
@@ -285,6 +310,16 @@ export function lookupAccountProfile(
   );
 }
 
+/**
+ * Searches seeded policy documents for a project.
+ *
+ * Search scores title and summary matches, prefers policy documents, sorts by
+ * score then id, and applies the request limit or the default of five.
+ *
+ * @param payload Project, query, and optional result limit.
+ * @param seedData Seeded documents available to the tool.
+ * @returns Ranked policy search matches with positive scores.
+ */
 export function searchPolicyDocuments(
   payload: PolicySearchRequest,
   seedData: PolicySearchSeedData,
@@ -306,6 +341,13 @@ export function searchPolicyDocuments(
     .slice(0, payload.limit ?? 5);
 }
 
+/**
+ * Looks up seeded timeline events for a project entity.
+ *
+ * @param payload Project, entity id, and optional result limit.
+ * @param seedData Seeded timeline events available to the tool.
+ * @returns Matching events sorted by timestamp and limited for display.
+ */
 export function lookupEventTimeline(
   payload: EventTimelineRequest,
   seedData: EventTimelineSeedData,
@@ -320,6 +362,16 @@ export function lookupEventTimeline(
     .slice(0, payload.limit ?? 10);
 }
 
+/**
+ * Creates a deterministic escalation preview when the owner exists.
+ *
+ * No escalation is persisted; the helper only derives a preview record for the
+ * requested owner or the seeded default reviewer.
+ *
+ * @param payload Escalation request fields used for the preview.
+ * @param seedData Seeded users and optional created-at override.
+ * @returns The preview escalation, or null when the owner is missing.
+ */
 export function createEscalationPlaceholder(
   payload: EscalationCreatePlaceholderRequest,
   seedData: EscalationPlaceholderSeedData,
@@ -340,6 +392,16 @@ export function createEscalationPlaceholder(
   );
 }
 
+/**
+ * Builds a deterministic escalation preview record.
+ *
+ * The id is derived from stable request fields so identical requests produce
+ * the same preview identifier.
+ *
+ * @param payload Escalation request fields used to derive the preview.
+ * @param createdAt Timestamp to assign to the preview record.
+ * @returns A draft escalation preview record.
+ */
 export function buildEscalationPreview(
   payload: EscalationCreatePlaceholderRequest,
   createdAt = '2026-04-12T18:30:00.000Z',
@@ -367,6 +429,16 @@ export function buildEscalationPreview(
   };
 }
 
+/**
+ * Scores how well a policy document matches a normalized query.
+ *
+ * Title matches contribute more than summary matches, and policy documents get
+ * a small boost before the score is clamped to one.
+ *
+ * @param document Document fields used for search scoring.
+ * @param normalizedQuery Lowercase query text with outer whitespace removed.
+ * @returns A score from zero to one with two decimal places.
+ */
 function calculatePolicyScore(
   document: Pick<DocumentRecord, 'title' | 'summary' | 'kind'>,
   normalizedQuery: string,
@@ -390,6 +462,13 @@ function calculatePolicyScore(
   return Number(Math.min(score, 1).toFixed(2));
 }
 
+/**
+ * Orders policy matches by score and stable id tie-breaker.
+ *
+ * @param left First policy match to compare.
+ * @param right Second policy match to compare.
+ * @returns Sort comparator result for descending score then ascending id.
+ */
 function comparePolicyMatches(
   left: PolicySearchMatch,
   right: PolicySearchMatch,
@@ -401,6 +480,12 @@ function comparePolicyMatches(
   return left.id.localeCompare(right.id);
 }
 
+/**
+ * Produces a stable hexadecimal hash for JSON-serializable input.
+ *
+ * @param input Value to serialize before hashing.
+ * @returns Unsigned hexadecimal hash padded to at least eight characters.
+ */
 function stableHash(input: unknown): string {
   const serializedInput = JSON.stringify(input);
   let hash = 5381;

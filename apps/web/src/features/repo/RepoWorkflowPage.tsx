@@ -5,26 +5,26 @@ import {
   SectionHeading,
 } from '@portfolio-tq/ui';
 
-import { siteCopy } from '@/content/textCopy';
+import { repoWorkflowCopy } from '@/content/sharedCopy';
 
 export function RepoWorkflowPage() {
   return (
     <div className={designTokens.pageSection}>
       <PageHeading
-        eyebrow={siteCopy.repoWorkflow.eyebrow}
-        lead={siteCopy.repoWorkflow.body}
-        title={siteCopy.repoWorkflow.title}
+        eyebrow={repoWorkflowCopy.eyebrow}
+        lead={repoWorkflowCopy.body}
+        title={repoWorkflowCopy.title}
       />
 
       <section className="grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-12">
         <SectionHeading
           eyebrow="Build discipline"
-          lead={siteCopy.repoWorkflow.body}
+          lead={repoWorkflowCopy.body}
           title="How the repo proves the work"
         />
 
         <div className="grid gap-5">
-          {siteCopy.repoWorkflow.sections.map((section, index) => (
+          {repoWorkflowCopy.sections.map((section, index) => (
             <Card
               className={[
                 'grid gap-5',
@@ -57,11 +57,11 @@ export function RepoWorkflowPage() {
       <section className="flex justify-start border-t border-border/80 pt-8">
         <a
           className={designTokens.buttonPrimary}
-          href={siteCopy.repoWorkflow.ctaHref}
+          href={repoWorkflowCopy.ctaHref}
           rel="noreferrer"
           target="_blank"
         >
-          {siteCopy.repoWorkflow.ctaLabel}
+          {repoWorkflowCopy.ctaLabel}
         </a>
       </section>
     </div>

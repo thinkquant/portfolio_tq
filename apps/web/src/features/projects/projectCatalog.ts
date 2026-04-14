@@ -1,7 +1,7 @@
 import { projectModuleMetadata } from '@portfolio-tq/config';
 import type { ProjectId } from '@portfolio-tq/types';
 
-import { portfolioProjectsCopy } from '@/content/textCopy';
+import { projectCopyById } from '@/content/projectCopy';
 
 export type PortfolioProject = {
   id: ProjectId;
@@ -20,8 +20,8 @@ export type PortfolioProject = {
 };
 
 export const portfolioProjects: PortfolioProject[] = projectModuleMetadata.map(
-  (module, index) => {
-    const copy = portfolioProjectsCopy[index];
+  (module) => {
+    const copy = projectCopyById[module.id];
 
     return {
       id: module.id,
