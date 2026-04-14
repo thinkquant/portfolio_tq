@@ -535,16 +535,31 @@ Reference docs:
 - `docs/specs/service-legacy-ai-adapter.md`
 - `docs/copy/08-project-legacy-ai-adapter.md`
 
-- [ ] Implement or refine `/projects/legacy-ai-adapter`.
-- [ ] Use the copy pack as the content source.
-- [ ] Ensure the page clearly explains:
-  - [ ] the problem
-  - [ ] why it matters
-  - [ ] the workflow
-  - [ ] the controls
-  - [ ] what this proves
-- [ ] Add the workflow diagram or equivalent structural visual.
-- [ ] Add CTA into the live demo.
+- [x] Implement or refine `/projects/legacy-ai-adapter`.
+- [x] Use the copy pack as the content source.
+- [x] Ensure the page clearly explains:
+  - [x] the problem
+  - [x] why it matters
+  - [x] the workflow
+  - [x] the controls
+  - [x] what this proves
+- [x] Add the workflow diagram or equivalent structural visual.
+- [x] Add CTA into the live demo.
+
+Project page notes:
+- Replaced the generic shell for `/projects/legacy-ai-adapter` with a dedicated page component in `apps/web/src/features/projects/LegacyAdapterProjectPage.tsx` so the module can read as a real proof piece instead of another template instance.
+- Kept the page grounded in the existing site language and copy system by sourcing the content from `projectCopyById['legacy-ai-adapter']`, which is already parsed from `docs/design/text-copy/08-project-legacy-ai-adapter.md`.
+- Added a clearer problem framing section that contrasts the legacy system expectation with messy intake reality, so the module’s purpose is understandable within seconds.
+- Added a reviewer-facing workflow diagram equivalent: a five-stage visual sequence covering messy intake, schema extraction, deterministic validation, legacy transform, and typed response.
+- Added a dedicated `What the reviewer can see` section so the page explicitly previews the same surfaces the demo will later expose:
+  - raw intake
+  - normalized structure
+  - deterministic validation
+  - legacy payload
+  - final result
+- Preserved the controls and proof sections, but made them more explicit for this module so the page clearly communicates compatibility safeguards and what the project demonstrates.
+- Added a direct CTA into the demo from the hero and the close-out panel, satisfying the project-page handoff into the live demo surface.
+- Verified the page implementation with `pnpm --filter @portfolio-tq/web typecheck`, `pnpm --filter @portfolio-tq/web lint`, `pnpm --filter @portfolio-tq/web build`, and workspace `pnpm typecheck`.
 
 Definition of done:
 - the project page stands on its own as a credible portfolio proof piece
@@ -558,15 +573,37 @@ Reference docs:
 - `docs/specs/service-legacy-ai-adapter.md`
 - `docs/copy/12-demo-legacy-ai-adapter.md`
 
-- [ ] Implement or refine `/demo/legacy-ai-adapter`.
-- [ ] Build the input panel.
-- [ ] Build the extraction/normalized structure panel.
-- [ ] Build the validation panel.
-- [ ] Build the legacy payload panel.
-- [ ] Build the final result panel.
-- [ ] Build loading, empty, error, and success states.
-- [ ] Keep the layout inspectable and easy to understand.
-- [ ] Ensure the page works on desktop, tablet, and mobile.
+- [x] Implement or refine `/demo/legacy-ai-adapter`.
+- [x] Build the input panel.
+- [x] Build the extraction/normalized structure panel.
+- [x] Build the validation panel.
+- [x] Build the legacy payload panel.
+- [x] Build the final result panel.
+- [x] Build loading, empty, error, and success states.
+- [x] Keep the layout inspectable and easy to understand.
+- [x] Ensure the page works on desktop, tablet, and mobile.
+
+Demo page notes:
+- Replaced the old generic demo shell for `/demo/legacy-ai-adapter` with a dedicated interactive page in `apps/web/src/features/demos/LegacyAdapterDemoPage.tsx`.
+- Added a route-specific loader in `apps/web/src/features/demos/legacyAdapterDemoLoaders.ts` that pulls in the rich seeded cases from `data/seed/legacy-cases/intake-examples.json` for a local preview mode until section 14 wires the live API.
+- Kept the page content sourced from the existing demo copy pack by reusing the parsed `legacyAiAdapterDemoCopy` structure from `apps/web/src/content/demoCopy.ts`.
+- Built a real input panel with:
+  - seeded sample selection
+  - editable raw intake text
+  - optional metadata JSON
+  - legacy workflow type selection
+  - `Transform Input` and `Load Sample Intake` actions
+- Built separate reviewer-visible panels for:
+  - normalized structure / extraction output
+  - deterministic validation findings
+  - transformed legacy payload
+  - final result status and next-step guidance
+  - evaluation metrics
+- Implemented loading, empty, error, and success states inside the page rather than leaving those states to the generic route wrapper. The local preview intentionally errors when the edited input no longer matches a seeded case, which keeps the pre-API UI honest instead of pretending arbitrary freeform input is already live.
+- The layout now uses responsive multi-column sections that collapse cleanly for smaller widths, so desktop, tablet, and mobile all have an inspectable reading order instead of a compressed shell placeholder.
+- Current boundary note: the demo UI is now complete as a seeded local preview, but it is not yet connected to the shared API. That is intentional and belongs to section 14, not a blocker to section 13.
+- Verification completed with `pnpm --filter @portfolio-tq/web typecheck`, `pnpm --filter @portfolio-tq/web lint`, `pnpm --filter @portfolio-tq/web build`, and workspace `pnpm typecheck`.
+- No manual execution was required for sections 12 or 13, and no manual blocker was encountered. I did not run a manual browser/device smoke pass in this turn, so the responsive verification here is based on the implemented responsive layouts plus successful typecheck/lint/build.
 
 Definition of done:
 - a reviewer can run the demo and understand the workflow visually without explanation from you
@@ -579,14 +616,27 @@ Reference docs:
 - `docs/specs/service-web.md`
 - `docs/specs/service-api.md`
 
-- [ ] Wire the frontend demo route to the shared API endpoint.
-- [ ] Use the explicit API base URL pattern already established in the web app.
-- [ ] Load sample cases from the API.
-- [ ] Submit real runs to the API.
-- [ ] Render the returned structured output.
-- [ ] Render validation issues.
-- [ ] Render transformed payload.
-- [ ] Render status and next-step guidance.
+- [x] Wire the frontend demo route to the shared API endpoint.
+- [x] Use the explicit API base URL pattern already established in the web app.
+- [x] Load sample cases from the API.
+- [x] Submit real runs to the API.
+- [x] Render the returned structured output.
+- [x] Render validation issues.
+- [x] Render transformed payload.
+- [x] Render status and next-step guidance.
+
+Frontend API notes:
+- Replaced the section 13 local-preview sample loading path with a real API-backed loader in `apps/web/src/features/demos/legacyAdapterDemoLoaders.ts`, so `/demo/legacy-ai-adapter` now prepares itself from the shared backend instead of importing local JSON directly.
+- Added a small feature-local API client in `apps/web/src/features/demos/legacyAdapterApi.ts` and extended `apps/web/src/lib/api/apiClient.ts` with `demoSamples(...)`, keeping the route wiring aligned with the existing explicit base-path pattern rather than hardcoding fetch URLs inside the page.
+- Updated `apps/web/src/features/demos/LegacyAdapterDemoPage.tsx` so the input panel now submits real `POST /api/demo/legacy-ai-adapter/run` requests, not seeded preview matching.
+- The demo now renders live:
+  - structured normalized output
+  - deterministic validation issues and outcome
+  - transformed legacy payload or explicit skip reason
+  - final status, next-step guidance, and review flag
+  - persisted evaluation flags and run-trace summary
+- The sample chooser still exists, but it now loads seeded cases that come from the API's sample endpoint instead of the local fixture import path.
+- Verification completed with `pnpm --filter @portfolio-tq/web typecheck`, `pnpm --filter @portfolio-tq/web lint`, `pnpm --filter @portfolio-tq/web build`, and workspace `pnpm typecheck`.
 
 Definition of done:
 - the demo is fully connected, not just visually mocked
@@ -599,14 +649,39 @@ Reference docs:
 - `docs/specs/service-eval-console.md`
 - `docs/checklists/shared-schemas-tools-evals-checklist.md`
 
-- [ ] Define what counts as a flagged run for this module.
-- [ ] Use shared evaluation helpers where appropriate.
-- [ ] At minimum, flag:
-  - [ ] missing required fields
-  - [ ] invalid schema after extraction
-  - [ ] review required
-  - [ ] transformation failure
-- [ ] Ensure these show up in the module output and in evaluation records.
+- [x] Define what counts as a flagged run for this module.
+- [x] Use shared evaluation helpers where appropriate.
+- [x] At minimum, flag:
+  - [x] missing required fields
+  - [x] invalid schema after extraction
+  - [x] review required
+  - [x] transformation failure
+- [x] Ensure these show up in the module output and in evaluation records.
+
+Evaluation/review notes:
+- Tightened the module-specific flagged-run rules inside `apps/api/src/services/demos/legacy-adapter.ts` so section 15 is now explicit instead of implied by a few status strings.
+- Reused the shared evaluation helper layer from `@portfolio-tq/evals`:
+  - `evaluateConfidenceThreshold(...)`
+  - `evaluateFallbackTriggered(...)`
+  - `aggregateEvaluationFlags(...)`
+  - `deriveEvaluationStatus(...)`
+- Kept the shared flag vocabulary intentionally small by mapping the module-specific review conditions onto shared categories rather than inventing legacy-only flag names:
+  - missing required fields -> `schema_invalid`
+  - invalid extracted structure -> `schema_invalid`
+  - review required -> `policy_review_required`
+  - transformation stopped/skipped -> `schema_invalid` or `fallback_triggered` depending on whether the stop was a hard rejection or a review fallback path
+  - low confidence continues to reuse `low_confidence`
+- The module now records stronger evaluation semantics:
+  - clean accepted runs can evaluate to `passed`
+  - review-required runs evaluate to `warning`
+  - rejected runs with schema-invalid extraction/required-field gaps evaluate to `failed`
+- The frontend now surfaces those persisted evaluation flags directly in `/demo/legacy-ai-adapter`, so the module output and the stored evaluation record tell the same story to a reviewer.
+- Added route/runtime verification in `apps/api/test/legacy-adapter.test.ts` for:
+  - review-required runs staying flagged and warning-level
+  - missing-field rejected runs producing `schema_invalid` flags and `failed` evaluation status
+  - accepted route runs returning `passed` evaluation status
+- Verification completed with `pnpm --filter @portfolio-tq/api typecheck`, `pnpm --filter @portfolio-tq/api lint`, `pnpm --filter @portfolio-tq/api test`, plus the web checks noted in section 14 and workspace `pnpm typecheck`.
+- No manual execution was required for sections 14 or 15, and no manual blocker was encountered. I did not run a manual browser smoke pass or deploy-to-dev verification in this turn, so this completion is based on local API tests plus successful web typecheck/lint/build rather than a deployed end-to-end verification.
 
 Definition of done:
 - this module contributes meaningful flagged-run data to the wider platform

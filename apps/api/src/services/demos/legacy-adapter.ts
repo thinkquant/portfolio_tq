@@ -1,5 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import type { Firestore } from '@google-cloud/firestore';
+import {
+  aggregateEvaluationFlags,
+  deriveEvaluationStatus,
+  evaluateConfidenceThreshold,
+  evaluateFallbackTriggered,
+} from '@portfolio-tq/evals';
 
 import {
   createDemoRun,
@@ -543,15 +549,23 @@ export async function runLegacyAdapterDemo(config: {
   );
   const finishedAt = new Date(startedAt.getTime() + totalLatency);
   const fallbackTriggered = outputStage.output.humanReviewRequired;
+  const schemaValid = resolveEvaluationSchemaValidity(validationStage);
+  const policyPass = outputStage.output.legacySubmissionStatus !== 'rejected';
   const evaluationFlags = buildEvaluationFlags(
     validationStage,
+    transformationStage,
     outputStage.output,
   );
+  const derivedEvaluationStatus = deriveEvaluationStatus({
+    schemaValid,
+    policyPass,
+    score: outputStage.output.confidence,
+    fallbackTriggered,
+  });
   const evaluationStatus =
-    outputStage.output.legacySubmissionStatus === 'accepted' &&
-    evaluationFlags.length === 0
-      ? 'passed'
-      : 'warning';
+    derivedEvaluationStatus === 'passed' && evaluationFlags.length > 0
+      ? 'warning'
+      : derivedEvaluationStatus;
   const runStatus = fallbackTriggered ? 'escalated' : 'completed';
   const escalation = fallbackTriggered
     ? ({
@@ -592,13 +606,17 @@ export async function runLegacyAdapterDemo(config: {
     status: evaluationStatus,
     createdAt: finishedAt.toISOString(),
     score: outputStage.output.confidence,
-    schemaValid: true,
-    policyPass: outputStage.output.legacySubmissionStatus === 'accepted',
+    schemaValid,
+    policyPass,
     fallbackTriggered,
     flags: evaluationFlags.length > 0 ? evaluationFlags : undefined,
     groundednessScore: outputStage.output.confidence,
-    notes: buildEvaluationNotes(outputStage.output, validationStage),
-    summary: buildEvaluationSummary(outputStage.output),
+    notes: buildEvaluationNotes(
+      outputStage.output,
+      validationStage,
+      transformationStage,
+    ),
+    summary: buildEvaluationSummary(outputStage.output, validationStage),
   };
 
   config.logger.runLifecycle('run.created', {
@@ -823,7 +841,10 @@ function buildRunSummary(output: LegacyAdapterOutput): string {
   return 'Legacy adapter run completed with deterministic rejection because required legacy fields were missing.';
 }
 
-function buildEvaluationSummary(output: LegacyAdapterOutput): string {
+function buildEvaluationSummary(
+  output: LegacyAdapterOutput,
+  validationStage: LegacyAdapterValidationStageResult,
+): string {
   if (output.legacySubmissionStatus === 'accepted') {
     return 'Schema validation passed and the legacy adapter produced an acceptable payload.';
   }
@@ -832,12 +853,15 @@ function buildEvaluationSummary(output: LegacyAdapterOutput): string {
     return 'Schema remained valid, but the adapter triggered fallback review handling.';
   }
 
-  return 'Schema remained valid, but deterministic validation blocked legacy payload transformation.';
+  return resolveEvaluationSchemaValidity(validationStage)
+    ? 'The adapter stopped before payload transformation because the normalized structure was not safe for downstream submission.'
+    : 'The extracted structure remained schema-invalid for the legacy workflow, so transformation was blocked.';
 }
 
 function buildEvaluationNotes(
   output: LegacyAdapterOutput,
   validationStage: LegacyAdapterValidationStageResult,
+  transformationStage: LegacyAdapterTransformationStageResult,
 ): string {
   if (output.legacySubmissionStatus === 'accepted') {
     return validationStage.outcome === 'continue_with_warnings'
@@ -849,58 +873,84 @@ function buildEvaluationNotes(
     return 'Conflicting workflow or account references triggered reviewer follow-up before any legacy submission could be produced.';
   }
 
-  return 'Deterministic validation blocked submission until the required legacy fields are collected.';
+  return transformationStage.trace.skipReason
+    ? `Deterministic validation blocked transformation: ${transformationStage.trace.skipReason}`
+    : 'Deterministic validation blocked submission until the required legacy fields are collected.';
+}
+
+function resolveEvaluationSchemaValidity(
+  validationStage: LegacyAdapterValidationStageResult,
+): boolean {
+  return !validationStage.validation.issues.some((issue) =>
+    ['missing_required_field', 'invalid_format', 'unsupported_workflow_type'].includes(
+      issue.code,
+    ),
+  );
 }
 
 function buildEvaluationFlags(
   validationStage: LegacyAdapterValidationStageResult,
+  transformationStage: LegacyAdapterTransformationStageResult,
   output: LegacyAdapterOutput,
 ): EvaluationFlag[] {
-  const flags: EvaluationFlag[] = [];
+  const missingFields = validationStage.validation.missingFields;
+  const extractionSchemaInvalid = validationStage.validation.issues.some((issue) =>
+    ['invalid_format', 'unsupported_workflow_type'].includes(issue.code),
+  );
 
-  if (output.legacySubmissionStatus === 'rejected') {
-    flags.push({
-      type: 'schema_invalid',
-      severity: 'warning',
+  return aggregateEvaluationFlags([
+    missingFields.length > 0
+      ? ({
+          type: 'schema_invalid',
+          severity: 'warning',
+          message: `Missing required legacy fields prevented transformation: ${missingFields.join(', ')}.`,
+        } satisfies EvaluationFlag)
+      : null,
+    extractionSchemaInvalid
+      ? ({
+          type: 'schema_invalid',
+          severity: 'critical',
+          message:
+            'The extracted structure remained incompatible with the legacy schema after deterministic validation.',
+        } satisfies EvaluationFlag)
+      : null,
+    transformationStage.trace.transformSkipped
+      ? ({
+          type: output.humanReviewRequired
+            ? 'fallback_triggered'
+            : 'schema_invalid',
+          severity: 'warning',
+          message:
+            transformationStage.trace.skipReason === null
+              ? 'Legacy payload transformation stopped before a payload could be produced.'
+              : `Legacy payload transformation stopped: ${transformationStage.trace.skipReason}`,
+        } satisfies EvaluationFlag)
+      : null,
+    output.humanReviewRequired
+      ? ({
+          type: 'policy_review_required',
+          severity: 'warning',
+          message:
+            'A reviewer must resolve the conflicting workflow or account references before submission.',
+        } satisfies EvaluationFlag)
+      : null,
+    validationStage.outcome === 'continue_with_warnings'
+      ? ({
+          type: 'fallback_triggered',
+          severity: 'info',
+          message:
+            'Optional incompatible fields were ignored while the adapter continued with warnings.',
+        } satisfies EvaluationFlag)
+      : null,
+    evaluateFallbackTriggered({
+      fallbackTriggered: output.humanReviewRequired,
       message:
-        'Deterministic validation blocked the legacy payload because required fields were missing.',
-    });
-  }
-
-  if (output.legacySubmissionStatus === 'needs_review') {
-    flags.push({
-      type: 'fallback_triggered',
-      severity: 'warning',
-      message:
-        'Conflicting workflow signals triggered the manual-review fallback path.',
-    });
-    flags.push({
-      type: 'policy_review_required',
-      severity: 'warning',
-      message:
-        'A reviewer must resolve the conflicting workflow or account references before submission.',
-    });
-  }
-
-  if (output.confidence < 0.7) {
-    flags.push({
-      type: 'low_confidence',
-      severity: 'warning',
-      message:
-        'Confidence dropped below the review threshold for this legacy adapter run.',
-    });
-  }
-
-  if (validationStage.outcome === 'continue_with_warnings') {
-    flags.push({
-      type: 'fallback_triggered',
-      severity: 'info',
-      message:
-        'Optional incompatible fields were ignored while the adapter continued with warnings.',
-    });
-  }
-
-  return flags;
+        'Conflicting workflow or account references triggered reviewer fallback handling.',
+    }),
+    evaluateConfidenceThreshold({
+      confidence: output.confidence,
+    }),
+  ]);
 }
 
 function buildLegacyAdapterTraceInvocations(config: {

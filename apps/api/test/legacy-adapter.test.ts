@@ -202,6 +202,7 @@ test('legacy adapter demo execution persists runs, evaluations, and stage traces
 
   assert.equal(demoResult.run.projectId, 'legacy-ai-adapter');
   assert.equal(demoResult.run.status, 'escalated');
+  assert.equal(demoResult.evaluation.status, 'warning');
   assert.equal(demoResult.evaluation.fallbackTriggered, true);
   assert.equal(demoResult.result.legacySubmissionStatus, 'needs_review');
   assert.equal(demoResult.toolInvocations.length, 4);
@@ -239,6 +240,35 @@ test('legacy adapter demo execution persists runs, evaluations, and stage traces
   assert.equal(persistedEscalations.length, 1);
 });
 
+test('legacy adapter rejected runs record schema-invalid flagged evaluations', async () => {
+  const logger = createSilentLogger();
+  const samples = await loadLegacyAdapterSamples();
+  const missingFieldsSample = samples.find(
+    (sample) => sample.id === 'sample-legacy-missing-003',
+  );
+
+  assert.ok(missingFieldsSample);
+
+  const demoResult = await runLegacyAdapterDemo({
+    requestId: 'legacy-test-missing-fields',
+    payload: missingFieldsSample.input,
+    environment: 'dev',
+    firestore: null,
+    logger,
+  });
+
+  assert.equal(demoResult.run.status, 'completed');
+  assert.equal(demoResult.result.legacySubmissionStatus, 'rejected');
+  assert.equal(demoResult.evaluation.status, 'failed');
+  assert.equal(demoResult.evaluation.schemaValid, false);
+  assert.equal(demoResult.evaluation.policyPass, false);
+  assert.ok(
+    demoResult.evaluation.flags?.some(
+      (flag) => flag.type === 'schema_invalid',
+    ),
+  );
+});
+
 test('legacy adapter demo routes return stable success and error envelopes', async () => {
   await withTestApiServer(async ({ baseUrl }) => {
     const samplesResponse = await fetch(
@@ -268,6 +298,7 @@ test('legacy adapter demo routes return stable success and error envelopes', asy
       ok: boolean;
       data?: {
         run?: { projectId?: string };
+        evaluation?: { status?: string };
         result?: { legacySubmissionStatus?: string };
         trace?: { extraction?: unknown; validation?: unknown; transformation?: unknown; finalStatus?: unknown };
       };
@@ -277,6 +308,7 @@ test('legacy adapter demo routes return stable success and error envelopes', asy
     assert.equal(runResponse.status, 200);
     assert.equal(runPayload.ok, true);
     assert.equal(runPayload.data?.run?.projectId, 'legacy-ai-adapter');
+    assert.equal(runPayload.data?.evaluation?.status, 'passed');
     assert.equal(runPayload.data?.result?.legacySubmissionStatus, 'accepted');
     assert.ok(runPayload.data?.trace?.extraction);
     assert.ok(runPayload.data?.trace?.validation);

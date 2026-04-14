@@ -64,6 +64,7 @@ export const apiRoutes = {
   evaluations: () => buildApiRoute('evaluations'),
   projectMetrics: buildSegmentRoute('projects'),
   demoRun: (projectId: string) => buildApiRoute(`demo/${projectId}/run`),
+  demoSamples: (projectId: string) => buildApiRoute(`demo/${projectId}/samples`),
 };
 
 export function describeApiRequest(method: ApiMethod, path: string): string {

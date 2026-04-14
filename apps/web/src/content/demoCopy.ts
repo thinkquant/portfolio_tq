@@ -131,7 +131,7 @@ const demoLegacyPayload = getSection(demoLegacyRaw, 'Legacy payload panel');
 const demoLegacyFinal = getSection(demoLegacyRaw, 'Final result panel');
 const demoLegacyEval = getSection(demoLegacyRaw, 'Evaluation panel');
 
-const legacyAiAdapterDemoCopy = {
+export const legacyAiAdapterDemoCopy = {
   title: getText(demoLegacyHeader, 'Title'),
   subhead: getText(demoLegacyHeader, 'Subhead'),
   inputTitle: getText(demoLegacyInput, 'Section title'),

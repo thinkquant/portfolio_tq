@@ -93,6 +93,19 @@ async function loadProjectDetailRoute(href: string) {
   };
 }
 
+async function loadLegacyAdapterProjectRoute() {
+  const [{ LegacyAdapterProjectPage }, { loadProjectDetailPageData }] =
+    await Promise.all([
+      import('../features/projects/LegacyAdapterProjectPage'),
+      import('../features/projects/projectLoaders'),
+    ]);
+
+  return {
+    Component: LegacyAdapterProjectPage,
+    loader: () => loadProjectDetailPageData('/projects/legacy-ai-adapter'),
+  };
+}
+
 async function loadDemoIndexRoute() {
   const [{ DemoAccessShell }, { DemoIndexPage }, { loadDemoIndexPageData }] =
     await Promise.all([
@@ -134,6 +147,31 @@ async function loadDemoShellRoute(demoHref: string) {
   return {
     Component: DemoShellRoute,
     loader: () => loadDemoShellPageData(demoHref),
+  };
+}
+
+async function loadLegacyAdapterDemoRoute() {
+  const [
+    { DemoAccessShell },
+    { LegacyAdapterDemoPage },
+    { loadLegacyAdapterDemoPageData },
+  ] = await Promise.all([
+    import('../features/access/DemoAccessShell'),
+    import('../features/demos/LegacyAdapterDemoPage'),
+    import('../features/demos/legacyAdapterDemoLoaders'),
+  ]);
+
+  function LegacyAdapterDemoRoute() {
+    return (
+      <DemoAccessShell>
+        <LegacyAdapterDemoPage />
+      </DemoAccessShell>
+    );
+  }
+
+  return {
+    Component: LegacyAdapterDemoRoute,
+    loader: loadLegacyAdapterDemoPageData,
   };
 }
 
@@ -204,7 +242,7 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'projects/legacy-ai-adapter',
-        lazy: () => loadProjectDetailRoute('/projects/legacy-ai-adapter'),
+        lazy: loadLegacyAdapterProjectRoute,
       },
       {
         path: 'projects/eval-console',
@@ -224,7 +262,7 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'demo/legacy-ai-adapter',
-        lazy: () => loadDemoShellRoute('/demo/legacy-ai-adapter'),
+        lazy: loadLegacyAdapterDemoRoute,
       },
       {
         path: 'demo/eval-console',
