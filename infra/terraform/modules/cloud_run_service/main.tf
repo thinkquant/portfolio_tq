@@ -70,6 +70,11 @@ variable "allow_unauthenticated" {
 variable "env_vars" {
   type    = map(string)
   default = {}
+
+  validation {
+    condition     = !contains(keys(var.env_vars), "PORT")
+    error_message = "Cloud Run reserves the PORT environment variable. Remove PORT from env_vars and use container_port plus the runtime-provided PORT instead."
+  }
 }
 
 variable "secret_env_vars" {

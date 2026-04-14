@@ -6,6 +6,7 @@ import {
   type DemoRun,
   type DemoRunStatus,
   type EvaluationCreateRequest,
+  type EvaluationListQuery,
   type PaymentReviewDemoRequest,
   type ProjectId,
   type ProjectScopedListQuery,
@@ -82,10 +83,23 @@ export const evaluationCreateRequestSchema = z
     status: z.enum(['passed', 'warning', 'failed']),
     score: z.number().finite().min(0).max(1),
     schemaValid: z.boolean(),
+    policyPass: z.boolean(),
     fallbackTriggered: z.boolean(),
-    summary: z.string().min(1),
+    groundednessScore: z.number().finite().min(0).max(1).nullable().optional(),
+    notes: z.string().min(1).nullable().optional(),
+    summary: z.string().min(1).nullable().optional(),
+    createdAt: z.string().datetime().nullable().optional(),
   })
   .strict() satisfies z.ZodType<EvaluationCreateRequest>;
+
+export const evaluationListQuerySchema = z
+  .object({
+    projectId: projectIdSchema.optional(),
+    runId: z.string().min(1).optional(),
+    status: z.enum(['passed', 'warning', 'failed']).optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  })
+  .strict() satisfies z.ZodType<EvaluationListQuery>;
 
 export const toolInvocationListQuerySchema = z
   .object({
@@ -162,6 +176,10 @@ export function parseRunCreateRequest(input: unknown) {
 
 export function parseEvaluationCreateRequest(input: unknown) {
   return evaluationCreateRequestSchema.safeParse(input);
+}
+
+export function parseEvaluationListQuery(input: unknown) {
+  return evaluationListQuerySchema.safeParse(input);
 }
 
 export function parseToolInvocationListQuery(input: unknown) {

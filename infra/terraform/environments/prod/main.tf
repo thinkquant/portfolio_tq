@@ -361,7 +361,6 @@ module "cloud_run_service" {
 
   env_vars = {
     NODE_ENV                              = "production"
-    PORT                                  = tostring(var.cloud_run_container_port)
     APP_ENV                               = var.environment
     SERVICE_NAME                          = "portfolio-tq-api"
     API_BASE_PATH                         = "/api"

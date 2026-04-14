@@ -114,7 +114,10 @@ export interface EvaluationRecord {
   createdAt: string;
   score: number;
   schemaValid: boolean;
+  policyPass: boolean;
   fallbackTriggered: boolean;
+  groundednessScore: number | null;
+  notes: string;
   summary: string;
 }
 
@@ -209,6 +212,12 @@ export interface RunListQuery extends ProjectScopedListQuery {
 export interface ToolInvocationListQuery extends ProjectScopedListQuery {
   runId?: string;
   toolName?: string;
+  limit?: number;
+}
+
+export interface EvaluationListQuery extends ProjectScopedListQuery {
+  runId?: string;
+  status?: EvaluationStatus;
   limit?: number;
 }
 
@@ -309,8 +318,12 @@ export interface EvaluationCreateRequest {
   status: EvaluationStatus;
   score: number;
   schemaValid: boolean;
+  policyPass: boolean;
   fallbackTriggered: boolean;
-  summary: string;
+  groundednessScore?: number | null;
+  notes?: string | null;
+  summary?: string | null;
+  createdAt?: string | null;
 }
 
 export interface ToolInvocationCreateRequest {
@@ -341,6 +354,10 @@ export interface RunCreateResponseData {
 
 export interface RunDetailResponseData {
   run: RunRecord;
+}
+
+export interface EvaluationCreateResponseData {
+  evaluation: EvaluationRecord;
 }
 
 export interface ToolInvocationCreateResponseData {
