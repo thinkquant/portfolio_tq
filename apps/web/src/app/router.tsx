@@ -175,7 +175,7 @@ async function loadLegacyAdapterDemoRoute() {
 
   function LegacyAdapterDemoRoute() {
     return (
-      <DemoAccessShell>
+      <DemoAccessShell showGate={false}>
         <LegacyAdapterDemoPage />
       </DemoAccessShell>
     );

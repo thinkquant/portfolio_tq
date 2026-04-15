@@ -831,14 +831,14 @@ function buildInputRef(
 
 function buildRunSummary(output: LegacyAdapterOutput): string {
   if (output.legacySubmissionStatus === 'accepted') {
-    return 'Legacy adapter run completed with a deterministic payload ready for downstream submission.';
+    return 'Ready to submit: the intake had the required details and produced a legacy payload.';
   }
 
   if (output.legacySubmissionStatus === 'needs_review') {
-    return 'Legacy adapter run completed with review-required output because conflicting intake signals were detected.';
+    return 'Needs review: the intake points to conflicting workflows or account references.';
   }
 
-  return 'Legacy adapter run completed with deterministic rejection because required legacy fields were missing.';
+  return 'Not ready to submit: required legacy fields are missing.';
 }
 
 function buildEvaluationSummary(
@@ -846,16 +846,16 @@ function buildEvaluationSummary(
   validationStage: LegacyAdapterValidationStageResult,
 ): string {
   if (output.legacySubmissionStatus === 'accepted') {
-    return 'Schema validation passed and the legacy adapter produced an acceptable payload.';
+    return 'The request passed validation and produced a legacy-ready payload.';
   }
 
   if (output.legacySubmissionStatus === 'needs_review') {
-    return 'Schema remained valid, but the adapter triggered fallback review handling.';
+    return 'The structure was readable, but the decision needs a reviewer.';
   }
 
   return resolveEvaluationSchemaValidity(validationStage)
-    ? 'The adapter stopped before payload transformation because the normalized structure was not safe for downstream submission.'
-    : 'The extracted structure remained schema-invalid for the legacy workflow, so transformation was blocked.';
+    ? 'The adapter stopped before building a payload because the request was not safe to submit.'
+    : 'The request is missing fields the legacy workflow requires.';
 }
 
 function buildEvaluationNotes(
@@ -865,17 +865,17 @@ function buildEvaluationNotes(
 ): string {
   if (output.legacySubmissionStatus === 'accepted') {
     return validationStage.outcome === 'continue_with_warnings'
-      ? 'The adapter remained transformable, but optional incompatible fields were ignored with reviewer-visible warnings.'
-      : 'The adapter produced a legacy-compatible payload without requiring fallback handling.';
+      ? 'The adapter built a payload and called out the fields it ignored.'
+      : 'The adapter built a payload without needing manual review.';
   }
 
   if (output.legacySubmissionStatus === 'needs_review') {
-    return 'Conflicting workflow or account references triggered reviewer follow-up before any legacy submission could be produced.';
+    return 'A reviewer needs to resolve the conflicting workflow or account references before submission.';
   }
 
   return transformationStage.trace.skipReason
-    ? `Deterministic validation blocked transformation: ${transformationStage.trace.skipReason}`
-    : 'Deterministic validation blocked submission until the required legacy fields are collected.';
+    ? `Validation stopped the request: ${transformationStage.trace.skipReason}`
+    : 'Validation stopped the request until the missing fields are collected.';
 }
 
 function resolveEvaluationSchemaValidity(

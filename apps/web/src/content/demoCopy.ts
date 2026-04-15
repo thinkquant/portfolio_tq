@@ -8,7 +8,14 @@ import demoInvestingRaw from '../../../../docs/design/text-copy/11-demo-investin
 import demoLegacyRaw from '../../../../docs/design/text-copy/12-demo-legacy-ai-adapter.md?raw';
 import demoPaymentRaw from '../../../../docs/design/text-copy/10-demo-payment-exception-review.md?raw';
 
-import { getList, getSection, getText } from './copyParsers';
+import {
+  getCodeLines,
+  getLabelBlock,
+  getList,
+  getSection,
+  getText,
+  normalize,
+} from './copyParsers';
 import { shellCopy } from './sharedCopy';
 
 export type DemoPanelContent = {
@@ -48,6 +55,66 @@ export type EvalConsoleDemoCopy = {
   comparisonBody: string;
   footerNote: string;
 };
+
+export type LegacyAdapterDemoTabCopy = {
+  howItWorks: {
+    flowLead: string;
+    keyDesignChoice: {
+      body: string[];
+      title: string;
+    };
+    mermaid: string[];
+    steps: Array<{
+      body: string;
+      title: string;
+    }>;
+    stepsTitle: string;
+  };
+  why: {
+    body: string[];
+    proofBullets: string[];
+    proofTitle: string;
+    title: string;
+  };
+};
+
+function getParagraphs(raw: string): string[] {
+  return normalize(raw)
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.replace(/\n+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+function parseNumberedBoldSteps(
+  raw: string,
+): LegacyAdapterDemoTabCopy['howItWorks']['steps'] {
+  const steps: LegacyAdapterDemoTabCopy['howItWorks']['steps'] = [];
+  let currentStep:
+    | LegacyAdapterDemoTabCopy['howItWorks']['steps'][number]
+    | null = null;
+
+  for (const line of normalize(raw).split('\n')) {
+    const trimmed = line.trim();
+    const stepMatch = trimmed.match(/^\d+\.\s+\*\*(.+)\*\*$/);
+
+    if (stepMatch) {
+      currentStep = {
+        body: '',
+        title: stepMatch[1],
+      };
+      steps.push(currentStep);
+      continue;
+    }
+
+    if (currentStep && trimmed) {
+      currentStep.body = currentStep.body
+        ? `${currentStep.body} ${trimmed}`
+        : trimmed;
+    }
+  }
+
+  return steps;
+}
 
 const demoIndexHeader = getSection(demoIndexRaw, 'Page header');
 const demoIndexAccess = getSection(demoIndexRaw, 'Access note');
@@ -130,6 +197,13 @@ const demoLegacyExtraction = getSection(demoLegacyRaw, 'Extraction panel');
 const demoLegacyPayload = getSection(demoLegacyRaw, 'Legacy payload panel');
 const demoLegacyFinal = getSection(demoLegacyRaw, 'Final result panel');
 const demoLegacyEval = getSection(demoLegacyRaw, 'Evaluation panel');
+const demoLegacyWhy = getSection(demoLegacyRaw, 'Tab: Why I made this.');
+const demoLegacyHow = getSection(demoLegacyRaw, 'Tab: How it works.');
+
+const legacyWhyTitle =
+  'I made this because a lot of real systems still expect reality to arrive clean. It rarely does.';
+const legacyHowLead =
+  'The flow is simple on purpose: recover structure, apply control, then transform safely.';
 
 export const legacyAiAdapterDemoCopy = {
   title: getText(demoLegacyHeader, 'Title'),
@@ -146,6 +220,28 @@ export const legacyAiAdapterDemoCopy = {
   finalResultFields: getList(demoLegacyFinal, 'Field labels'),
   evaluationTitle: getText(demoLegacyEval, 'Section title'),
   evaluationMetrics: getList(demoLegacyEval, 'Metrics'),
+  tabs: {
+    why: {
+      title: legacyWhyTitle,
+      body: getParagraphs(getLabelBlock(demoLegacyWhy, legacyWhyTitle)),
+      proofTitle: 'What this proves',
+      proofBullets: getList(demoLegacyWhy, 'What this proves'),
+    },
+    howItWorks: {
+      flowLead: legacyHowLead,
+      mermaid: getCodeLines(demoLegacyHow, legacyHowLead),
+      stepsTitle: 'What actually happens',
+      steps: parseNumberedBoldSteps(
+        getLabelBlock(demoLegacyHow, 'What actually happens'),
+      ),
+      keyDesignChoice: {
+        title: 'The key design choice',
+        body: getParagraphs(
+          getLabelBlock(demoLegacyHow, 'The key design choice'),
+        ),
+      },
+    },
+  } satisfies LegacyAdapterDemoTabCopy,
 };
 
 const demoEvalHeader = getSection(demoEvalConsoleRaw, 'Page header');

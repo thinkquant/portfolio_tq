@@ -183,7 +183,7 @@ export function getList(
   return getLabelBlock(raw, label, aliases)
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line.startsWith('- '))
+    .filter((line) => line.startsWith('- ') || line.startsWith('* '))
     .map((line) => line.slice(2).trim());
 }
 
@@ -197,7 +197,7 @@ export function getDirectList(raw: string): string[] {
   return normalize(raw)
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line.startsWith('- '))
+    .filter((line) => line.startsWith('- ') || line.startsWith('* '))
     .map((line) => line.slice(2).trim());
 }
 

@@ -4,7 +4,7 @@
     "projectId": "legacy-ai-adapter",
     "title": "Clean beneficiary change intake",
     "scenario": "clean",
-    "summary": "A straightforward intake that should move through extraction, validation, and transformation without friction.",
+    "summary": "A complete request that should be safe to submit without manual review.",
     "input": {
       "sourceText": "Beneficiary change request for account AC-20418. Client Nora Patel wants the primary beneficiary updated to Liam Patel effective 2026-04-18. Please route through the beneficiary change workflow.",
       "metadata": {
@@ -71,7 +71,7 @@
     "projectId": "legacy-ai-adapter",
     "title": "Messy but recoverable document request",
     "scenario": "partially_messy",
-    "summary": "Abbreviated operator text still carries enough signal for a clean normalized payload.",
+    "summary": "A shorthand operator note that should still produce a clean document request.",
     "input": {
       "sourceText": "Need old stmt re-send pls.\nacct ac 99017 // client=Marco Ruiz.\nWant 2026 Q1 statement mailed + pdf.\nOk to use doc rqst flow.",
       "metadata": {
@@ -138,7 +138,7 @@
     "projectId": "legacy-ai-adapter",
     "title": "Missing required account details",
     "scenario": "missing_fields",
-    "summary": "The note is understandable, but it lacks the identifiers required for a deterministic legacy submission.",
+    "summary": "The request is clear, but key details are missing, so the adapter should stop before submission.",
     "input": {
       "sourceText": "Please switch the standing distribution to monthly and rush it. This came in from Tasha Green after her call. I do not have the account number yet.",
       "metadata": {
@@ -207,7 +207,7 @@
     "projectId": "legacy-ai-adapter",
     "title": "Conflicting request details require review",
     "scenario": "ambiguous_review",
-    "summary": "Two conflicting workflow interpretations appear in the same handoff note and should be routed to human review.",
+    "summary": "The note points to two different workflows, so the adapter should route it to review instead of guessing.",
     "input": {
       "sourceText": "Legacy handoff note: likely beneficiary change for Evelyn Brooks on AC-77102, but the earlier email says document reissue for AC-77120. Please sort this out before sending anything downstream.",
       "metadata": {
